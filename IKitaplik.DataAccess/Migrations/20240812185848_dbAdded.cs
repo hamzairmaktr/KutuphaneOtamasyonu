@@ -5,19 +5,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace IKitaplik.DataAccess.Migrations
 {
-    /// <inheritdoc />
-    public partial class mig1 : Migration
+    public partial class dbAdded : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -28,15 +26,15 @@ namespace IKitaplik.DataAccess.Migrations
                 name: "Students",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    SchoolName = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Class = table.Column<string>(type: "TEXT", nullable: true),
-                    TelephoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    EMail = table.Column<string>(type: "TEXT", nullable: true),
-                    NumberofBooksRead = table.Column<int>(type: "INTEGER", nullable: false),
-                    Situation = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SchoolName = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Class = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TelephoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EMail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NumberofBooksRead = table.Column<int>(type: "int", nullable: false),
+                    Situation = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,15 +45,15 @@ namespace IKitaplik.DataAccess.Migrations
                 name: "Books",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Barcode = table.Column<string>(type: "TEXT", nullable: true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Writer = table.Column<string>(type: "TEXT", nullable: true),
-                    CategoryId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ShelfNo = table.Column<string>(type: "TEXT", nullable: true),
-                    Piece = table.Column<int>(type: "INTEGER", nullable: false),
-                    Situation = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Barcode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Writer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    ShelfNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Piece = table.Column<int>(type: "int", nullable: false),
+                    Situation = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,15 +69,15 @@ namespace IKitaplik.DataAccess.Migrations
                 name: "Deposits",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    BookId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StudentId = table.Column<int>(type: "INTEGER", nullable: false),
-                    IssueDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    DeliveryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    AmILate = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsItDamaged = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Note = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookId = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeliveryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AmILate = table.Column<bool>(type: "bit", nullable: false),
+                    IsItDamaged = table.Column<bool>(type: "bit", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -114,7 +112,6 @@ namespace IKitaplik.DataAccess.Migrations
                 unique: true);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

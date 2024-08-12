@@ -6,17 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using IKitaplık.Entities.Concrete;
+using Microsoft.Extensions.Configuration;
 
 namespace IKitaplik.DataAccess.Concrete.EntityFramework
 {
     public class Context:DbContext
     {
         
-        private readonly string str = ConfigurationManager.ConnectionStrings["conStringLocal"].ConnectionString;
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        private readonly IConfiguration _configuration;
+        public Context(IConfiguration configuration)
         {
-            optionsBuilder.UseSqlite(str);
-            base.OnConfiguring(optionsBuilder);
+            _configuration = configuration;
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(_configuration.GetConnectionString("conStringLocal"));
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

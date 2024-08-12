@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace Core.Utilities.Results
 {
-    public class SucessDataResult<T>:DataResult<T>
+    public class SuccessDataResult<T>:DataResult<T>
     {
-        public SucessDataResult(T data, string message) : base(data,true, message)
+        public SuccessDataResult(T data, string message) : base(data,true, message)
         {
         }
 
-        public SucessDataResult(T data) : base(data,true)
+        public SuccessDataResult(T data) : base(data,true)
         {
 
         }
-        public SucessDataResult(string message):base(default,true,message)
+        public SuccessDataResult(string message):base(default,true,message)
         {
 
         }
-        public SucessDataResult():base(default,true)
+        public SuccessDataResult():base(default,true)
         {
 
         }
