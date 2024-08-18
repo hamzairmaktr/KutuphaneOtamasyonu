@@ -1,0 +1,66 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<h2 class="text-center">Kitap Ekle</h2>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-@TempData["MessageType"]">
+        @TempData["Message"]
+    </div>
+}
+<form action="Add" method="post" class="container mt-5">
+    <div class="row mb-3">
+        <div class="col">
+            <label for="barcode" class="form-label">Barkod</label>
+            <input type="text" class="form-control" id="barcode" name="Barcode" placeholder="Kitap barkodunu girin" required>
+        </div>
+        <div class="col">
+            <label for="name" class="form-label">Kitap Adı</label>
+            <input type="text" class="form-control" id="name" name="Name" placeholder="Kitap adını girin" required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label for="writer" class="form-label">Yazar</label>
+            <input type="text" class="form-control" id="writer" name="Writer" placeholder="Yazar adını girin" required>
+        </div>
+        <div class="col">
+            <label for="category" class="form-label">Kategori</label>
+            <select class="form-select" id="category" name="CategoryId" required>
+                <option selected disabled>Kategori seçin</option>
+                <option value="1">Roman</option>
+                <option value="2">Bilim Kurgu</option>
+                <option value="3">Tarih</option>
+                <option value="4">Bilim</option>
+                <!-- Kategoriler buraya dinamik olarak eklenebilir -->
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label for="shelfNo" class="form-label">Raf Numarası</label>
+            <input type="text" class="form-control" id="shelfNo" name="ShelfNo" placeholder="Raf numarasını girin" required>
+        </div>
+        <div class="col">
+            <label for="piece" class="form-label">Adet</label>
+            <input type="number" class="form-control" id="piece" name="Piece" placeholder="Adet sayısını girin" required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label for="situation" class="form-label">Durum</label>
+            <select class="form-select" id="situation" name="Situation" required>
+                <option value="true">Aktif</option>
+                <option value="false">Pasif</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 col-6 mx-auto">
+        <button type="submit" class="btn btn-primary">Gönder</button>
+    </div>
+</form>

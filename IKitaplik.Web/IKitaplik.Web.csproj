@@ -22,4 +22,8 @@
     <ProjectReference Include="..\IKitaplık.Entities\IKitaplık.Entities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>
