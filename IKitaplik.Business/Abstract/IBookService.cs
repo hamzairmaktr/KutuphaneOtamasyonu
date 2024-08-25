@@ -1,6 +1,7 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplık.Entities.Concrete;
+using IKitaplık.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,8 @@ namespace IKitaplik.Business.Abstract
         IResult Update(Book book);
         IResult Delete(Book book);
 
-        IDataResult<List<Book>> GetAll();
+        IDataResult<List<BookGetDTO>> GetAll();
+        IDataResult<List<BookGetDTO>> GetAllByName(string name);
         IDataResult<Book> GetById(int id);
-        IDataResult<Book> GetByName(string name);
     }
 }

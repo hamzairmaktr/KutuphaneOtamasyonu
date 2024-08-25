@@ -1,9 +1,11 @@
 ﻿using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplık.Entities.Concrete;
+using IKitaplık.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +17,44 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         public EfBookRepository(Context context) : base(context)
         {
             this._context = context;
+        }
+
+        public List<BookGetDTO> GetAllBookDTOs()
+        {
+            var result = from b in _context.Books
+                   join c in _context.Categories
+                   on b.CategoryId equals c.Id
+                   select new BookGetDTO
+                   {
+                       Barcode = b.Barcode,
+                       CategoryName = c.Name,
+                       Name = b.Name,
+                       Piece = b.Piece,
+                       Id = b.Id,
+                       ShelfNo = b.ShelfNo,
+                       Situation = b.Situation,
+                       Writer = b.Writer,
+                   };
+            return result.ToList();
+        }
+
+        public List<BookGetDTO> GetAllBookFilteredDTOs(Expression<Func<BookGetDTO, bool>> filter)
+        {
+            var result = from b in _context.Books
+                   join c in _context.Categories
+                   on b.CategoryId equals c.Id
+                   select new BookGetDTO
+                   {
+                       Barcode = b.Barcode,
+                       CategoryName = c.Name,
+                       Name = b.Name,
+                       Piece = b.Piece,
+                       Id = b.Id,
+                       ShelfNo = b.ShelfNo,
+                       Situation = b.Situation,
+                       Writer = b.Writer,
+                   };
+            return result.Where(filter).ToList();
         }
     }
 }

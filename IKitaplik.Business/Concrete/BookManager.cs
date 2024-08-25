@@ -3,6 +3,7 @@ using FluentValidation;
 using IKitaplik.Business.Abstract;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplık.Entities.Concrete;
+using IKitaplık.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +25,13 @@ namespace IKitaplik.Business.Concrete
 
         public IResult Add(Book book)
         {
-            var validationResult = _validator.Validate(book);
-            if (!validationResult.IsValid)
-            {
-                return new ErrorResult(validationResult.Errors.Select(e=>e.ErrorMessage).First());
-            }
             try
             {
+                var validationResult = _validator.Validate(book);
+                if (!validationResult.IsValid)
+                {
+                    return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
+                }
                 _bookRepository.Add(book);
                 return new SuccessResult("Kitap başarı ile oluşturuldu");
             }
@@ -47,7 +48,7 @@ namespace IKitaplik.Business.Concrete
                 IDataResult<Book> dataResult = GetById(book.Id);
                 if (dataResult.Success)
                 {
-                    _bookRepository.Delete(book);
+                    _bookRepository.Delete(dataResult.Data);
                     return new SuccessResult("Kitap başarı ile oluşturuldu");
                 }
                 else
@@ -61,16 +62,16 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<Book>> GetAll()
+        public IDataResult<List<BookGetDTO>> GetAll()
         {
             try
             {
-                List<Book> books = _bookRepository.GetAll();
-                return new SuccessDataResult<List<Book>>(books, "Kitaplar başarı ile çekildi");
+                List<BookGetDTO> books = _bookRepository.GetAllBookDTOs();
+                return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<Book>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
+                return new ErrorDataResult<List<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
             }
         }
 
@@ -91,32 +92,28 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<Book> GetByName(string name)
+        public IDataResult<List<BookGetDTO>> GetAllByName(string name)
         {
             try
             {
-                Book book = _bookRepository.Get(p => p.Name == name);
-                if (book != null)
-                {
-                    return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");
-                }
-                return new ErrorDataResult<Book>("İlgili kitap bulunamadı");
+                List<BookGetDTO> books = _bookRepository.GetAllBookFilteredDTOs(p => p.Name == name);
+                return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<Book>("İlgili kitap çekilirken hata oluştu : " + ex.Message);
+                return new ErrorDataResult<List<BookGetDTO>>("İlgili kitaplar çekilirken hata oluştu : " + ex.Message);
             }
         }
 
         public IResult Update(Book book)
         {
-            var validationResult = _validator.Validate(book);
-            if (!validationResult.IsValid)
-            {
-                return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
-            }
             try
             {
+                var validationResult = _validator.Validate(book);
+                if (!validationResult.IsValid)
+                {
+                    return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
+                }
                 IDataResult<Book> dataResult = GetById(book.Id);
                 if (dataResult.Success)
                 {

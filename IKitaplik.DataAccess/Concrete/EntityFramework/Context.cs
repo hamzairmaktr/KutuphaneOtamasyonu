@@ -31,12 +31,12 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
 
             modelBuilder.Entity<Deposit>()
                 .HasOne(d => d.Book)
-                .WithOne(b => b.Deposit)
+                .WithMany(b => b.Deposits)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Deposit>()
                 .HasOne(d => d.Student)
-                .WithOne(b => b.Deposit)
+                .WithMany(b => b.Deposits)
                 .OnDelete(DeleteBehavior.NoAction);
 
             base.OnModelCreating(modelBuilder);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IKitaplık.Entities.Concrete
 {
-    public class Student:BaseEntities
+    public class Student : BaseEntities
     {
         public int SchoolName { get; set; }
         public string Name { get; set; }
@@ -16,6 +16,6 @@ namespace IKitaplık.Entities.Concrete
         public int NumberofBooksRead { get; set; }
         public bool Situation { get; set; }
 
-        public Deposit Deposit { get; set; }
+        public ICollection<Deposit> Deposits { get; set; }
     }
 }

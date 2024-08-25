@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_Layout";
 }
-@model List<Book>
+@model List<BookGetDTO>
 <div class="container mt-5">
     <h2>Kitap Listesi</h2>
 
@@ -30,23 +30,23 @@
             @{
                 int count = 1;
             }
-            @foreach (var book in Model ?? new List<Book>())
+            @foreach (var book in Model ?? new List<BookGetDTO>())
             {
                 <tr>
                     <th scope="row">@count</th>
                     <td>@book.Barcode</td>
                     <td>@book.Name</td>
                     <td>@book.Writer</td>
-                    <td>@book.Category?.Name</td> <!-- Kategori ismi dinamik olarak gelir -->
+                    <td>@book.CategoryName</td> <!-- Kategori ismi dinamik olarak gelir -->
                     <td>@book.ShelfNo</td>
                     <td>@book.Piece</td>
                     <td>@(book.Situation ? "Mevcut" : "Mevcut Değil")</td>
                     <td>
-                        <a href="/Book/Update/@book.Barcode" class="btn btn-sm btn-warning">Düzenle</a>
-                        <a href="/Book/Delete/@book.Barcode" class="btn btn-sm btn-danger">Sil</a>
+                        <a href="/Book/Update/@book.Id" class="btn btn-sm btn-warning">Düzenle</a>
+                        <a href="/Book/Delete/@book.Id" class="btn btn-sm btn-danger">Sil</a>
                     </td>
                 </tr>
-                @{
+                {
                     count++;
                 }
             }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IKitaplık.Entities.Concrete
 {
-    public abstract class BaseEntities:IEntity
+    public class BaseEntities:IEntity
     {
         [Key]
         public int Id { get; set; }
