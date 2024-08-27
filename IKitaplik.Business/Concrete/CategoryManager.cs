@@ -44,16 +44,8 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var dataResult = GetById(category.Id);
-                if (dataResult.Success)
-                {
-                    _repostiory.Delete(dataResult.Data);
-                    return new SuccessResult("Kategori silindi");
-                }
-                else
-                {
-                    return new ErrorResult(dataResult.Message);
-                }
+                _repostiory.Delete(category);
+                return new SuccessResult("Kategori silindi");
             }
             catch (Exception ex)
             {
@@ -103,16 +95,9 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(validator.Errors.First().ErrorMessage);
                 }
-                var dataResult = GetById(category.Id);
-                if (dataResult.Success)
-                {
-                    _repostiory.Update(category);
-                    return new SuccessResult("Kategori güncellendi");
-                }
-                else
-                {
-                    return new ErrorResult(dataResult.Message);
-                }
+
+                _repostiory.Update(category);
+                return new SuccessResult("Kategori güncellendi");
             }
             catch (Exception ex)
             {

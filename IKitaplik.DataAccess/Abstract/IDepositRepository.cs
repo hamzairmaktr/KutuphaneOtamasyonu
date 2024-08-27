@@ -14,5 +14,6 @@ namespace IKitaplik.DataAccess.Abstract
     {
         List<DepositGetDTO> GetAllDepositDTOs();
         List<DepositGetDTO> GetAllDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter);
+        DepositGetDTO GetDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter);
     }
 }

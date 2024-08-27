@@ -45,16 +45,8 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                IDataResult<Book> dataResult = GetById(book.Id);
-                if (dataResult.Success)
-                {
-                    _bookRepository.Delete(dataResult.Data);
-                    return new SuccessResult("Kitap başarı ile oluşturuldu");
-                }
-                else
-                {
-                    return new ErrorResult(dataResult.Message);
-                }
+                _bookRepository.Delete(book);
+                return new SuccessResult("Kitap başarı ile oluşturuldu");
             }
             catch (Exception ex)
             {
@@ -114,16 +106,9 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
                 }
-                IDataResult<Book> dataResult = GetById(book.Id);
-                if (dataResult.Success)
-                {
-                    _bookRepository.Update(book);
-                    return new SuccessResult("Kitap başarı ile güncellendi");
-                }
-                else
-                {
-                    return new ErrorResult(dataResult.Message);
-                }
+
+                _bookRepository.Update(book);
+                return new SuccessResult("Kitap başarı ile güncellendi");
             }
             catch (Exception ex)
             {

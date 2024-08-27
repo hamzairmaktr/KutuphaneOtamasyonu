@@ -19,9 +19,11 @@ builder.Services.AddScoped<IDepositRepository, EfDepositRepository>();
 
 builder.Services.AddScoped<IBookService, BookManager>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
+builder.Services.AddScoped<IStudentService, StudentManager>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CategoryValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<StudentValidator>();
 
 
 var app = builder.Build();
