@@ -15,7 +15,9 @@ namespace IKitaplık.Entities.Concrete
         public string EMail { get; set; }
         public int NumberofBooksRead { get; set; }
         public bool Situation { get; set; }
+        public int Point { get; set; }
 
         public ICollection<Deposit> Deposits { get; set; }
+        public ICollection<Donation> Donations { get; set; }
     }
 }

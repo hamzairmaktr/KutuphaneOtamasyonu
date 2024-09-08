@@ -18,5 +18,6 @@ namespace IKitaplık.Entities.Concrete
 
         public Category Category { get; set; }
         public ICollection<Deposit> Deposits { get; set; }
+        public Donation Donation { get; set; }
     }
 }

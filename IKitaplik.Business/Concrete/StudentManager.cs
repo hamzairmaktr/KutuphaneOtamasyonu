@@ -29,6 +29,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
+                student.Point = 100;
                 _studentRepository.Add(student);
                 return new SuccessResult("Öğrenci başarı ile eklendi");
             }

@@ -4,6 +4,7 @@ using IKitaplik.DataAccess.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IKitaplik.DataAccess.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240908090336_StudentAddColumnPoint")]
+    partial class StudentAddColumnPoint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,36 +114,6 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Deposits");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Donation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool?>("IsItDamaged")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId")
-                        .IsUnique();
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Donations");
-                });
-
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Student", b =>
                 {
                     b.Property<int>("Id")
@@ -209,30 +181,9 @@ namespace IKitaplik.DataAccess.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Donation", b =>
-                {
-                    b.HasOne("IKitaplık.Entities.Concrete.Book", "Book")
-                        .WithOne("Donation")
-                        .HasForeignKey("IKitaplık.Entities.Concrete.Donation", "BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("IKitaplık.Entities.Concrete.Student", "Student")
-                        .WithMany("Donations")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Book", b =>
                 {
                     b.Navigation("Deposits");
-
-                    b.Navigation("Donation");
                 });
 
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Category", b =>
@@ -243,8 +194,6 @@ namespace IKitaplik.DataAccess.Migrations
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Student", b =>
                 {
                     b.Navigation("Deposits");
-
-                    b.Navigation("Donations");
                 });
 #pragma warning restore 612, 618
         }

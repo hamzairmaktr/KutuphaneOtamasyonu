@@ -93,6 +93,19 @@ namespace IKitaplik.Business.Concrete
                 // Öğrenciyi kitap okumuyor olarak işaretle
                 student.Situation = false;
                 student.NumberofBooksRead += 1; // Okunan kitap sayısını artır
+
+                // Öğrenci kitabı hasarlı getirdi
+                if (deposit.IsItDamaged)
+                {
+                    student.Point -= 10;
+                }
+
+                // Öğrenci kitabı geç getirdi
+                if (deposit.AmILate)
+                {
+                    student.Point -= 5;
+                }
+
                 _studentRepository.Update(student);
 
                 // Emanet kaydını güncelle
@@ -176,10 +189,12 @@ namespace IKitaplik.Business.Concrete
                 {
                     if (asDate)
                     {
+                        // Belli bir tarihe kadar süre ver
                         data.Data.DeliveryDate = date;
                     }
                     else
                     {
+                        // Gün belirle o gün kadar süre ver
                         data.Data.DeliveryDate.AddDays(additionalDays);
                     }
                     _depositRepository.Update(data.Data);

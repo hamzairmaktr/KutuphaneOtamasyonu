@@ -12,12 +12,13 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IBookService
     {
-        IResult Add(Book book);
+        IDataResult<Book> Add(Book book);
         IResult Update(Book book);
         IResult Delete(Book book);
 
         IDataResult<List<BookGetDTO>> GetAll();
         IDataResult<List<BookGetDTO>> GetAllByName(string name);
         IDataResult<Book> GetById(int id);
+        IDataResult<Book> GetByBarcode(string barcode);
     }
 }

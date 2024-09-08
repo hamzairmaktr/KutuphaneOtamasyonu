@@ -16,6 +16,7 @@ builder.Services.AddScoped<IBookRepository,EfBookRepository>();
 builder.Services.AddScoped<ICategoryRepository,EfCategoryRepository>();
 builder.Services.AddScoped<IStudentRepository,EfStudentRepository>();
 builder.Services.AddScoped<IDepositRepository, EfDepositRepository>();
+builder.Services.AddScoped<IDonationRepository, EfDonationRepository>();
 
 builder.Services.AddScoped<IBookService, BookManager>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
