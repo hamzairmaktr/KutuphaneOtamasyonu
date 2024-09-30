@@ -1,7 +1,9 @@
 ﻿using Core.Utilities.Results;
+using DataAccess.UnitOfWork;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
 using IKitaplik.DataAccess.Abstract;
+using IKitaplik.DataAccess.Concrete.EntityFramework;
 using IKitaplık.Entities.Concrete;
 using IKitaplık.Entities.DTOs;
 using System;
@@ -16,11 +18,15 @@ namespace IKitaplik.Business.Concrete
     {
         IBookRepository _bookRepository;
         IValidator<Book> _validator;
+        IMovementService _movementService;
+        IUnitOfWork _unitOfWork;
 
-        public BookManager(IBookRepository bookRepository, IValidator<Book> validator)
+        public BookManager(IBookRepository bookRepository, IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
             _validator = validator;
             _bookRepository = bookRepository;
+            _movementService = movementService;
         }
 
         public IDataResult<Book> Add(Book book)
@@ -32,11 +38,29 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage).First());
                 }
+                _unitOfWork.BeginTransaction();
                 _bookRepository.Add(book);
-                return new SuccessDataResult<Book>(book,message:"Kitap başarı ile oluşturuldu");
+
+                var response = _movementService.Add(new Movement
+                {
+                    BookId = book.Id,
+                    MovementDate = DateTime.Now,
+                    Title = "Kitap Eklendi",
+                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap kayıt edildi"
+                });
+
+                if (!response.Success)
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorDataResult<Book>(message: "Kitap hareketlerine veri eklerken hata oluştu");
+                }
+
+                _unitOfWork.Commit();
+                return new SuccessDataResult<Book>(book, message: "Kitap başarı ile oluşturuldu");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorDataResult<Book>(message: "Kitap oluşturulurken hata oluştu : " + ex.Message);
             }
         }

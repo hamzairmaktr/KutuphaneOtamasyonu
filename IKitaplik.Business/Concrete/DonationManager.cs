@@ -77,12 +77,22 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<DonationGetDTO>> GetAllDTO()
         {
-            throw new NotImplementedException();
+            var res = _repository.GetAllDTO();
+            if (res.Count <= 0)
+            {
+                return new ErrorDataResult<List<DonationGetDTO>>("Kayıt bulunamadı");
+            }
+            return new SuccessDataResult<List<DonationGetDTO>>(res,"Kayıtlar çekildi");
         }
 
         public IDataResult<DonationGetDTO> GetByIdDTO(int id)
         {
-            throw new NotImplementedException();
+            var res = _repository.GetDTO(p=>p.Id == id);
+            if (res is null)
+            {
+                return new ErrorDataResult<DonationGetDTO>("Kayıt bulunamadı");
+            }
+            return new SuccessDataResult<DonationGetDTO>(res, "İlgili kayıt çekildi");
         }
     }
 }

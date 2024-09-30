@@ -46,5 +46,6 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Donation> Donations { get; set; }
+        public DbSet<Movement> Movements { get; set; }
     }
 }

@@ -106,6 +106,9 @@ namespace IKitaplik.Business.Concrete
                     student.Point -= 5;
                 }
 
+                // Öğrenci kitapı getirdi
+                student.Point += 10;
+
                 _studentRepository.Update(student);
 
                 // Emanet kaydını güncelle

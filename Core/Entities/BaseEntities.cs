@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IKitaplık.Entities.Concrete
+namespace Core.Entities
 {
     public class BaseEntities:IEntity
     {
