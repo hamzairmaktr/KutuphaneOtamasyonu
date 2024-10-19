@@ -1,10 +1,10 @@
-using DataAccess.UnitOfWork;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
 using IKitaplik.Business.Concrete;
 using IKitaplik.Business.Validations.FluentValidations;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.DataAccess.Concrete.EntityFramework;
+using IKitaplik.DataAccess.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 

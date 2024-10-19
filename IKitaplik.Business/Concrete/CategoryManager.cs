@@ -1,24 +1,19 @@
 ﻿using Core.Utilities.Results;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
-using IKitaplik.DataAccess.Abstract;
 using IKitaplık.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete
 {
     public class CategoryManager : ICategoryService
     {
-        ICategoryRepository _repostiory;
-        IValidator<Category> _validator;
+        private readonly IValidator<Category> _validator;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryManager(ICategoryRepository repostiory, IValidator<Category> validator)
+        public CategoryManager(IUnitOfWork unitOfWork, IValidator<Category> validator)
         {
-            _repostiory = repostiory;
+            _unitOfWork = unitOfWork;
             _validator = validator;
         }
 
@@ -31,11 +26,14 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(validator.Errors.First().ErrorMessage);
                 }
-                _repostiory.Add(category);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Categorys.Add(category);
+                _unitOfWork.Commit();
                 return new SuccessResult("Kategori başarı ile eklendi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Kategori eklenirken hata oluştu : " + ex.Message);
             }
         }
@@ -44,11 +42,14 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                _repostiory.Delete(category);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Categorys.Delete(category);
+                _unitOfWork.Commit();
                 return new SuccessResult("Kategori silindi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Kategori silinirken hata oluştu : " + ex.Message);
             }
         }
@@ -57,7 +58,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var list = _repostiory.GetAll();
+                var list = _unitOfWork.Categorys.GetAll();
                 return new SuccessDataResult<List<Category>>(list, "Kategoriler çekildi");
             }
             catch (Exception ex)
@@ -70,7 +71,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var result = _repostiory.Get(p => p.Id == id);
+                var result = _unitOfWork.Categorys.Get(p => p.Id == id);
                 if (result != null)
                 {
                     return new SuccessDataResult<Category>(result, "Kategori başarı ile çekildi");
@@ -95,12 +96,14 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(validator.Errors.First().ErrorMessage);
                 }
-
-                _repostiory.Update(category);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Categorys.Update(category);
+                _unitOfWork.Commit();
                 return new SuccessResult("Kategori güncellendi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Kategori güncellenirken hata oluştu : " + ex.Message);
             }
         }

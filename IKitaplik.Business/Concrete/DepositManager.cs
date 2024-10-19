@@ -2,145 +2,183 @@
 using IKitaplık.Entities.Concrete;
 using IKitaplık.Entities.DTOs;
 using IKitaplik.Business.Abstract;
-using IKitaplik.DataAccess.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete
 {
     public class DepositManager : IDepositService
     {
-        private readonly IDepositRepository _depositRepository;
-        private readonly IBookRepository _bookRepository;
-        private readonly IStudentRepository _studentRepository;
+        private readonly IBookService _bookService;
+        private readonly IStudentService _studentService;
+        private readonly IMovementService _movementService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DepositManager(IDepositRepository depositRepository, IBookRepository bookRepository, IStudentRepository studentRepository)
+        public DepositManager(IBookService bookService,
+                              IStudentService studentService,
+                              IMovementService movementService,
+                              IUnitOfWork unitOfWork)
         {
-            _depositRepository = depositRepository;
-            _bookRepository = bookRepository;
-            _studentRepository = studentRepository;
+            _unitOfWork = unitOfWork;
+            _movementService = movementService;
+            _bookService = bookService;
+            _studentService = studentService;
         }
 
         public IResult DepositGiven(Deposit deposit, int bookId, int studentId)
         {
-            try
+            return HandleWithTransaction(() =>
             {
-                var book = _bookRepository.Get(b => b.Id == bookId);
-                var student = _studentRepository.Get(s => s.Id == studentId);
+                var book = ValidateBook(bookId);
+                var student = ValidateStudent(studentId);
 
-                if (book == null || student == null)
-                {
-                    return new ErrorResult("Kitap veya öğrenci bulunamadı.");
-                }
+                if (book.Data.Piece <= 0) return new ErrorResult("Kitabın mevcut sayısı yetersiz.");
+                if (student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
 
-                if (book.Piece <= 0)
-                {
-                    return new ErrorResult("Kitabın mevcut sayısı yetersiz.");
-                }
+                UpdateBookPiece(book, -1);
+                UpdateStudentStatus(student, true);
 
-                if(student.Situation == true)
-                {
-                    return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
-                }
-
-                // Kitap adedini düşür
-                book.Piece -= 1;
-                _bookRepository.Update(book);
-
-                // Öğrenciyi kitap okuyor olarak işaretle
-                student.Situation = true;
-                _studentRepository.Update(student);
-
-                // Emanet kaydını oluştur
                 deposit.BookId = bookId;
                 deposit.StudentId = studentId;
+                _unitOfWork.Deposits.Add(deposit);
 
-                _depositRepository.Add(deposit);
+                AddMovement("Emanet Verildi", $"{student.Data.Name} adlı öğrenciye {book.Data.Name} adlı kitap emanet verildi", bookId, studentId, deposit.Id);
+
                 return new SuccessResult("Kitap başarıyla emanet verildi.");
-            }
-            catch (Exception ex)
-            {
-                return new ErrorResult("Kitap emanet verilirken hata oluştu: " + ex.Message);
-            }
+            });
         }
 
         public IResult DepositReceived(Deposit deposit)
         {
-            try
+            return HandleWithTransaction(() =>
             {
-                var existingDeposit = _depositRepository.Get(d => d.Id == deposit.Id);
+                var existingDeposit = _unitOfWork.Deposits.Get(d => d.Id == deposit.Id);
+                if (existingDeposit == null) return new ErrorResult("Emanet kaydı bulunamadı.");
 
-                if (existingDeposit == null)
-                {
-                    return new ErrorResult("Emanet kaydı bulunamadı.");
-                }
+                var book = ValidateBook(existingDeposit.BookId);
+                var student = ValidateStudent(existingDeposit.StudentId);
 
-                var book = _bookRepository.Get(b => b.Id == existingDeposit.BookId);
-                var student = _studentRepository.Get(s => s.Id == existingDeposit.StudentId);
+                UpdateBookPiece(book, 1);
+                UpdateStudentOnReturn(student, deposit);
 
-                if (book == null || student == null)
-                {
-                    return new ErrorResult("Kitap veya öğrenci bulunamadı.");
-                }
-
-                // Kitap adedini artır
-                book.Piece += 1;
-                _bookRepository.Update(book);
-
-                // Öğrenciyi kitap okumuyor olarak işaretle
-                student.Situation = false;
-                student.NumberofBooksRead += 1; // Okunan kitap sayısını artır
-
-                // Öğrenci kitabı hasarlı getirdi
-                if (deposit.IsItDamaged)
-                {
-                    student.Point -= 10;
-                }
-
-                // Öğrenci kitabı geç getirdi
-                if (deposit.AmILate)
-                {
-                    student.Point -= 5;
-                }
-
-                // Öğrenci kitapı getirdi
-                student.Point += 10;
-
-                _studentRepository.Update(student);
-
-                // Emanet kaydını güncelle
                 existingDeposit.DeliveryDate = DateTime.Now;
-                _depositRepository.Update(existingDeposit);
+                _unitOfWork.Deposits.Update(existingDeposit);
+
+                AddMovement("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(deposit)} teslim etti", book.Data.Id, student.Data.Id, deposit.Id);
 
                 return new SuccessResult("Kitap başarıyla iade alındı.");
-            }
-            catch (Exception ex)
-            {
-                return new ErrorResult("Kitap iade alınırken hata oluştu: " + ex.Message);
-            }
+            });
         }
 
         public IResult Delete(Deposit deposit)
         {
+            return HandleWithTransaction(() =>
+            {
+                _unitOfWork.Deposits.Delete(deposit);
+                AddMovement("Emanet Kaydı Silindi", "Emanet kaydı silindi.", deposit.BookId, deposit.StudentId, deposit.Id);
+                return new SuccessResult("Emanet kaydı başarıyla silindi.");
+            });
+        }
+
+        public IResult ExtendDueDate(int depositId, int additionalDays, DateTime date, bool asDate)
+        {
+            return HandleWithTransaction(() =>
+            {
+                var deposit = GetById(depositId).Data;
+                if (asDate)
+                    deposit.DeliveryDate = date;
+                else
+                    deposit.DeliveryDate = deposit.DeliveryDate.AddDays(additionalDays);
+
+                _unitOfWork.Deposits.Update(deposit);
+                return new SuccessResult("Emanete ek süre verildi.");
+            });
+        }
+
+        private void AddMovement(string title, string note, int bookId, int studentId, int depositId)
+        {
+            _movementService.Add(new Movement
+            {
+                BookId = bookId,
+                StudentId = studentId,
+                DepositId = depositId,
+                MovementDate = DateTime.Now,
+                Title = title,
+                Note = $"{DateTime.Now:g} - {note}"
+            });
+        }
+
+        private IResult HandleWithTransaction(Func<IResult> operation)
+        {
             try
             {
-                _depositRepository.Delete(deposit);
-                return new SuccessResult("Emanet kaydı başarıyla silindi.");
+                _unitOfWork.BeginTransaction();
+                var result = operation();
+                if (!result.Success)
+                {
+                    _unitOfWork.Rollback();
+                    return result;
+                }
+                _unitOfWork.Commit();
+                return result;
             }
             catch (Exception ex)
             {
-                return new ErrorResult("Emanet kaydı silinirken hata oluştu: " + ex.Message);
+                _unitOfWork.Rollback();
+                return new ErrorResult("İşlem sırasında hata oluştu: " + ex.Message);
             }
+        }
+
+        private void UpdateBookPiece(IDataResult<Book> book, int pieceChange)
+        {
+            book.Data.Piece += pieceChange;
+            _bookService.Update(book.Data);
+        }
+
+        private void UpdateStudentStatus(IDataResult<Student> student, bool isBorrowing)
+        {
+            student.Data.Situation = isBorrowing;
+            _studentService.Update(student.Data);
+        }
+
+        private void UpdateStudentOnReturn(IDataResult<Student> student, Deposit deposit)
+        {
+            student.Data.Situation = false;
+            student.Data.NumberofBooksRead += 1;
+
+            if (deposit.IsItDamaged) student.Data.Point -= 10;
+            if (deposit.AmILate) student.Data.Point -= 5;
+            student.Data.Point += 10;
+
+            _studentService.Update(student.Data);
+        }
+
+        private IDataResult<Book> ValidateBook(int bookId)
+        {
+            var book = _bookService.GetById(bookId);
+            if (!book.Success) throw new Exception(book.Message);
+            return book;
+        }
+
+        private IDataResult<Student> ValidateStudent(int studentId)
+        {
+            var student = _studentService.GetById(studentId);
+            if (!student.Success) throw new Exception(student.Message);
+            return student;
+        }
+
+        private string GetDepositStatus(Deposit deposit)
+        {
+            if (deposit.IsItDamaged && deposit.AmILate) return "hasarlı ve geç";
+            if (deposit.IsItDamaged) return "hasarlı";
+            if (deposit.AmILate) return "geç";
+            return "sağlam";
         }
 
         public IDataResult<List<DepositGetDTO>> GetAllDTO()
         {
             try
             {
-                var deposits = _depositRepository.GetAllDepositDTOs();
+                var deposits = _unitOfWork.Deposits.GetAllDepositDTOs();
                 return new SuccessDataResult<List<DepositGetDTO>>(deposits, "Emanet kayıtları başarıyla çekildi.");
             }
             catch (Exception ex)
@@ -153,7 +191,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var deposit = _depositRepository.GetDepositFilteredDTOs(p=>p.Id == id);
+                var deposit = _unitOfWork.Deposits.GetDepositFilteredDTOs(p=>p.Id == id);
                 if (deposit != null)
                 {
                     return new SuccessDataResult<DepositGetDTO>(deposit, "Emanet kaydı başarıyla çekildi.");
@@ -170,7 +208,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var deposit = _depositRepository.Get(d => d.Id == id);
+                var deposit = _unitOfWork.Deposits.Get(d => d.Id == id);
                 if (deposit != null)
                 {
                     return new SuccessDataResult<Deposit>(deposit, "Emanet kaydı başarıyla çekildi.");
@@ -180,37 +218,6 @@ namespace IKitaplik.Business.Concrete
             catch (Exception ex)
             {
                 return new ErrorDataResult<Deposit>("Emanet kaydı çekilirken hata oluştu: " + ex.Message);
-            }
-        }
-
-        public IResult ExtendDueDate(int depositId, int additionalDays, DateTime date, bool asDate)
-        {
-            try
-            {
-                var data = GetById(depositId);
-                if (data.Success)
-                {
-                    if (asDate)
-                    {
-                        // Belli bir tarihe kadar süre ver
-                        data.Data.DeliveryDate = date;
-                    }
-                    else
-                    {
-                        // Gün belirle o gün kadar süre ver
-                        data.Data.DeliveryDate.AddDays(additionalDays);
-                    }
-                    _depositRepository.Update(data.Data);
-                    return new SuccessResult("Emanete ek süre verildi");
-                }
-                else
-                {
-                    return new ErrorResult(data.Message);
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ErrorResult("Emanetin süresi uzatılırken hata oluştu : " + ex.Message);
             }
         }
     }

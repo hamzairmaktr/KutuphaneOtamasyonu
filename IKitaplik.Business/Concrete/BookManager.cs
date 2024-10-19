@@ -1,32 +1,24 @@
 ﻿using Core.Utilities.Results;
-using DataAccess.UnitOfWork;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
-using IKitaplik.DataAccess.Abstract;
-using IKitaplik.DataAccess.Concrete.EntityFramework;
 using IKitaplık.Entities.Concrete;
 using IKitaplık.Entities.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete
 {
     public class BookManager : IBookService
     {
-        IBookRepository _bookRepository;
-        IValidator<Book> _validator;
-        IMovementService _movementService;
-        IUnitOfWork _unitOfWork;
+        
+        private readonly IValidator<Book> _validator;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMovementService _movementService;
 
-        public BookManager(IBookRepository bookRepository, IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork)
+        public BookManager( IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork)
         {
+            _movementService = movementService;
             _unitOfWork = unitOfWork;
             _validator = validator;
-            _bookRepository = bookRepository;
-            _movementService = movementService;
         }
 
         public IDataResult<Book> Add(Book book)
@@ -39,9 +31,9 @@ namespace IKitaplik.Business.Concrete
                     return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage).First());
                 }
                 _unitOfWork.BeginTransaction();
-                _bookRepository.Add(book);
+                _unitOfWork.Books.Add(book);
 
-                var response = _movementService.Add(new Movement
+                var result = _movementService.Add(new Movement
                 {
                     BookId = book.Id,
                     MovementDate = DateTime.Now,
@@ -49,10 +41,10 @@ namespace IKitaplik.Business.Concrete
                     Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap kayıt edildi"
                 });
 
-                if (!response.Success)
+                if (!result.Success)
                 {
                     _unitOfWork.Rollback();
-                    return new ErrorDataResult<Book>(message: "Kitap hareketlerine veri eklerken hata oluştu");
+                    return new ErrorDataResult<Book>(result.Message);
                 }
 
                 _unitOfWork.Commit();
@@ -69,11 +61,30 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                _bookRepository.Delete(book);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Books.Delete(book);
+
+
+                var result = _movementService.Add(new Movement
+                {
+                    BookId = book.Id,
+                    MovementDate = DateTime.Now,
+                    Title = "Kitap Silindi",
+                    Note = $"{DateTime.Now:g} tarihinde {book.Name} isimli kitapın tüm kayıtları silindi"
+                });
+
+                if (!result.Success)
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorDataResult<Book>(result.Message);
+                }
+
+                _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile oluşturuldu");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Kitap silinirken hata oluştu : " + ex.Message);
             }
         }
@@ -82,7 +93,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _bookRepository.GetAllBookDTOs();
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookDTOs();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -95,7 +106,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                Book book = _bookRepository.Get(p => p.Id == id);
+                Book book = _unitOfWork.Books.Get(p => p.Id == id);
                 if (book != null)
                 {
                     return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");
@@ -112,7 +123,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _bookRepository.GetAllBookFilteredDTOs(p => p.Name == name);
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name == name);
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -130,12 +141,30 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
                 }
+                _unitOfWork.BeginTransaction();
 
-                _bookRepository.Update(book);
+                _unitOfWork.Books.Update(book);
+
+                var result = _movementService.Add(new Movement
+                {
+                    BookId = book.Id,
+                    MovementDate = DateTime.Now,
+                    Title = "Kitap Güncellendi",
+                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap silindi",
+                });
+
+                if (!result.Success)
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorResult(result.Message);
+                }
+
+                _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile güncellendi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Kitap güncellenirken hata oluştu : " + ex.Message);
             }
         }
@@ -144,7 +173,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                Book book = _bookRepository.Get(p => p.Barcode == barcode);
+                Book book = _unitOfWork.Books.Get(p => p.Barcode == barcode);
                 if (book != null)
                 {
                     return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");

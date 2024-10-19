@@ -1,30 +1,26 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.Business.Abstract;
-using IKitaplik.DataAccess.Abstract;
 using IKitaplık.Entities.Concrete;
 using IKitaplık.Entities.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete
 {
     public class MovementManager : IMovementService
     {
-        IMovementRepository _repo;
-        public MovementManager(IMovementRepository repo)
+        private readonly IUnitOfWork _unitOfWork;
+        public MovementManager(IUnitOfWork unitOfWork)
         {
-            _repo = repo;
+            _unitOfWork = unitOfWork;
         }
 
         public IResult Add(Movement movement)
         {
             try
             {
-                _repo.Add(movement);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Movements.Add(movement);
+                _unitOfWork.Commit();
                 return new SuccessResult();
             }
             catch (Exception ex)
@@ -35,7 +31,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<MovementGetDTO>> GetAll()
         {
-            var result = _repo.GetAllDTO();
+            var result = _unitOfWork.Movements.GetAllDTO();
             if (result.Count <= 0)
             {
                 return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
@@ -45,7 +41,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<MovementGetDTO>> GetAllFilteredBookId(int id)
         {
-            var result = _repo.GetAllDTO(p => p.BookId == id);
+            var result = _unitOfWork.Movements.GetAllDTO(p => p.BookId == id);
             if (result.Count <= 0)
             {
                 return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
@@ -55,7 +51,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<MovementGetDTO>> GetAllFilteredBookName(string name)
         {
-            var result = _repo.GetAllDTO(p => p.BookName.Contains(name) || p.BookName.Equals(name));
+            var result = _unitOfWork.Movements.GetAllDTO(p => p.BookName.Contains(name) || p.BookName.Equals(name));
             if (result.Count <= 0)
             {
                 return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
@@ -65,7 +61,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<MovementGetDTO>> GetAllFilteredDepositId(int id)
         {
-            var result = _repo.GetAllDTO(p => p.DepositId == id);
+            var result = _unitOfWork.Movements.GetAllDTO(p => p.DepositId == id);
             if (result.Count <= 0)
             {
                 return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
@@ -75,7 +71,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<MovementGetDTO>> GetAllFilteredStudentId(int id)
         {
-            var result = _repo.GetAllDTO(p => p.StudentId == id);
+            var result = _unitOfWork.Movements.GetAllDTO(p => p.StudentId == id);
             if (result.Count <= 0)
             {
                 return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
@@ -85,7 +81,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<List<MovementGetDTO>> GetAllFilteredStudentName(string fullName)
         {
-            var result = _repo.GetAllDTO(p => p.StudentName.Contains(fullName) || p.StudentName.Equals(fullName));
+            var result = _unitOfWork.Movements.GetAllDTO(p => p.StudentName.Contains(fullName) || p.StudentName.Equals(fullName));
             if (result.Count <= 0)
             {
                 return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
@@ -95,7 +91,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<Movement> GetById(int id)
         {
-            var result = _repo.Get(p => p.Id == id);
+            var result = _unitOfWork.Movements.Get(p => p.Id == id);
             if (result == null)
             {
                 return new ErrorDataResult<Movement>("Veri bulunamadı");
@@ -105,7 +101,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<MovementGetDTO> GetByIdDto(int id)
         {
-            var result = _repo.GetDTO(p => p.Id == id);
+            var result = _unitOfWork.Movements.GetDTO(p => p.Id == id);
             if (result == null)
             {
                 return new ErrorDataResult<MovementGetDTO>("Veri bulunamadı");

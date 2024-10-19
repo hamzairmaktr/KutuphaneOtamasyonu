@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IKitaplik.DataAccess.Abstract;
 
-namespace DataAccess.UnitOfWork
+namespace IKitaplik.DataAccess.UnitOfWork
 {
     public interface IUnitOfWork
     {
+        public IBookRepository Books { get; }
+        public ICategoryRepository Categorys { get; }
+        public IDepositRepository Deposits { get; }
+        public IDonationRepository Donations { get; }
+        public IMovementRepository Movements { get; }
+        public IStudentRepository Students { get; }
         public void BeginTransaction();
         public void Commit();
         public void Rollback();

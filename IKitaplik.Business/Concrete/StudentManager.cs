@@ -1,23 +1,24 @@
 ﻿using Core.Utilities.Results;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
-using IKitaplik.DataAccess.Abstract;
 using IKitaplık.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete
 {
     public class StudentManager : IStudentService
     {
-        IStudentRepository _studentRepository;
-        IValidator<Student> _validator;
+        private readonly IValidator<Student> _validator;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMovementService _movementService;
 
-        public StudentManager(IStudentRepository studentRepository, IValidator<Student> validator)
+        public StudentManager(IValidator<Student> validator,
+                              IUnitOfWork unitOfWork,
+                              IMovementService movementService)
         {
+            _movementService = movementService;
+            _unitOfWork = unitOfWork;
             _validator = validator;
-            _studentRepository = studentRepository;
         }
 
         public IResult Add(Student student)
@@ -29,12 +30,30 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
+                _unitOfWork.BeginTransaction();
+
                 student.Point = 100;
-                _studentRepository.Add(student);
+                _unitOfWork.Students.Add(student);
+
+                var movementResponse = _movementService.Add(new Movement{
+                    StudentId = student.Id,
+                    Title = "Öğrenci Eklendi",
+                    MovementDate = DateTime.Now,
+                    Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci eklendi",
+                });
+
+                if (!movementResponse.Success)
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorResult(movementResponse.Message);
+                }
+
+                _unitOfWork.Commit();
                 return new SuccessResult("Öğrenci başarı ile eklendi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Öğrenci eklenirken hata oluştu: " + ex.Message);
             }
         }
@@ -43,11 +62,28 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                _studentRepository.Delete(student);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Students.Delete(student);
+
+                var movementResponse = _movementService.Add(new Movement{
+                    StudentId = student.Id,
+                    Title = "Öğrenci Silindi",
+                    MovementDate = DateTime.Now,
+                    Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci silindi",
+                });
+
+                if (!movementResponse.Success)
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorResult(movementResponse.Message);
+                }
+
+                _unitOfWork.Commit();
                 return new SuccessResult("Öğrenci başarı ile silindi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Öğrenci silinirken hata oluştu: " + ex.Message);
             }
         }
@@ -56,7 +92,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<Student> students = _studentRepository.GetAll().ToList();
+                List<Student> students = _unitOfWork.Students.GetAll().ToList();
                 return new SuccessDataResult<List<Student>>(students, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)
@@ -69,7 +105,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<Student> students = _studentRepository.GetAll(p => p.Name == name).ToList();
+                List<Student> students = _unitOfWork.Students.GetAll(p => p.Name == name).ToList();
                 return new SuccessDataResult<List<Student>>(students, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)
@@ -82,7 +118,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                Student student = _studentRepository.Get(p => p.Id == id);
+                Student student = _unitOfWork.Students.Get(p => p.Id == id);
                 if (student != null)
                 {
                     return new SuccessDataResult<Student>(student, "Öğrenci başarı ile çekildi");
@@ -104,11 +140,26 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
-                _studentRepository.Update(student);
+                _unitOfWork.BeginTransaction();
+                _unitOfWork.Students.Update(student);
+
+                var movementResponse = _movementService.Add(new Movement{
+                    StudentId = student.Id,
+                    MovementDate = DateTime.Now,
+                    Title = "Öğrenci Güncellendi",
+                    Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci güncellendi"
+                });
+
+                if(!movementResponse.Success){
+                    _unitOfWork.Rollback();
+                    return new ErrorResult(movementResponse.Message);
+                }
+                _unitOfWork.Commit();
                 return new SuccessResult("Öğrenci başarı ile güncellendi");
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return new ErrorResult("Öğrenci güncellenirken hata oluştu: " + ex.Message);
             }
         }
