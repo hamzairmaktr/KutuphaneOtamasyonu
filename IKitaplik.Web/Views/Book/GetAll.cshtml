@@ -3,8 +3,10 @@
 }
 @model List<BookGetDTO>
 <div class="container mt-5">
-    <h2>Kitap Listesi</h2>
-
+    <div class="mb-3">
+        <h2 class="d-inline">Kitap Listesi</h2>
+        <a href="/Book/Add" class="btn btn-primary mt-3 d-inline float-end">Yeni Kitap Ekle</a>
+    </div>
     @if (TempData["Message"] != null)
     {
         <div class="alert alert-@TempData["MessageType"]">
@@ -43,7 +45,10 @@
                     <td>@(book.Situation ? "Mevcut" : "Mevcut Değil")</td>
                     <td>
                         <a href="/Book/Update/@book.Id" class="btn btn-sm btn-warning">Düzenle</a>
-                        <a href="/Book/Delete/@book.Id" class="btn btn-sm btn-danger">Sil</a>
+
+                        <form asp-action="Delete" asp-controller="Book" asp-route-id="@book.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                        </form>
                     </td>
                 </tr>
                 {
@@ -52,7 +57,5 @@
             }
         </tbody>
     </table>
-
-    <a href="/Book/Add" class="btn btn-primary mt-3">Yeni Kitap Ekle</a>
 </div>
 

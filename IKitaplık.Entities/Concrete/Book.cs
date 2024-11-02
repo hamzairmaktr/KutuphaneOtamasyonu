@@ -16,9 +16,11 @@ namespace IKitaplık.Entities.Concrete
         public string ShelfNo { get; set; }
         public int Piece { get; set; }
         public bool Situation { get; set; }
+        public int PageSize { get; set; }
 
         public Category Category { get; set; }
         public ICollection<Deposit> Deposits { get; set; }
         public Donation Donation { get; set; }
+        public ICollection<Movement> Movements { get; set; }
     }
 }

@@ -34,6 +34,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                        ShelfNo = b.ShelfNo,
                        Situation = b.Situation,
                        Writer = b.Writer,
+                       PageSize = b.PageSize
                    };
             return result.ToList();
         }
@@ -53,6 +54,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                        ShelfNo = b.ShelfNo,
                        Situation = b.Situation,
                        Writer = b.Writer,
+                       PageSize = b.PageSize
                    };
             return result.Where(filter).ToList();
         }

@@ -29,6 +29,12 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                 .WithMany(b => b.Books)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Movement>()
+                .HasOne(m => m.Book)
+                .WithMany(b => b.Movements)
+                .HasForeignKey(m => m.BookId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade silme işlemi
+
             modelBuilder.Entity<Deposit>()
                 .HasOne(d => d.Book)
                 .WithMany(b => b.Deposits)

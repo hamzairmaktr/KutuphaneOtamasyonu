@@ -4,6 +4,7 @@ using IKitaplik.DataAccess.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IKitaplik.DataAccess.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20241102203219_mig-optionTableAdded")]
+    partial class migoptionTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,6 +192,22 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Movements");
                 });
 
+            modelBuilder.Entity("IKitaplık.Entities.Concrete.Option", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BirOgrenciKacKitapOkuyabilir")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Options");
+                });
+
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Student", b =>
                 {
                     b.Property<int>("Id")
@@ -279,9 +297,8 @@ namespace IKitaplik.DataAccess.Migrations
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Movement", b =>
                 {
                     b.HasOne("IKitaplık.Entities.Concrete.Book", "Book")
-                        .WithMany("Movements")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("BookId");
 
                     b.HasOne("IKitaplık.Entities.Concrete.Deposit", "Deposit")
                         .WithMany()
@@ -309,8 +326,6 @@ namespace IKitaplik.DataAccess.Migrations
                     b.Navigation("Deposits");
 
                     b.Navigation("Donation");
-
-                    b.Navigation("Movements");
                 });
 
             modelBuilder.Entity("IKitaplık.Entities.Concrete.Category", b =>

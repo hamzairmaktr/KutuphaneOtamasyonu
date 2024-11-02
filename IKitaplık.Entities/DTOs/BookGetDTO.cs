@@ -17,5 +17,6 @@ namespace IKitaplık.Entities.DTOs
         public string ShelfNo { get; set; }
         public int Piece { get; set; }
         public bool Situation { get; set; }
+        public int PageSize { get; set; }
     }
 }

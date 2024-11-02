@@ -1,10 +1,12 @@
 ﻿using IKitaplik.DataAccess.Abstract;
 using IKitaplik.DataAccess.Concrete.EntityFramework;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace IKitaplik.DataAccess.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private IDbContextTransaction _transaction;
         private readonly Context _context;
         public IBookRepository Books { get; private set; }
         public ICategoryRepository Categorys { get; private set; }
@@ -25,17 +27,22 @@ namespace IKitaplik.DataAccess.UnitOfWork
 
         public void BeginTransaction()
         {
-            _context.Database.BeginTransaction();
+            if (_transaction == null)
+            {
+                _transaction = _context.Database.BeginTransaction();
+            }
         }
 
         public void Commit()
         {
-            _context.Database.CurrentTransaction?.Commit();
+            _transaction.Commit();
+            _transaction = null;
         }
 
         public void Rollback()
         {
-            _context.Database.CurrentTransaction?.Rollback();
+            _transaction.Rollback();
+            _transaction = null;
         }
     }
 }

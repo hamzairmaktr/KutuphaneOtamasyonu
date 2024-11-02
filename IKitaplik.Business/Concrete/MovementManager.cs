@@ -18,9 +18,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                _unitOfWork.BeginTransaction();
                 _unitOfWork.Movements.Add(movement);
-                _unitOfWork.Commit();
                 return new SuccessResult();
             }
             catch (Exception ex)

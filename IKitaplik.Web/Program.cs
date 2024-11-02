@@ -12,19 +12,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<Context>();
-builder.Services.AddScoped<IBookRepository,EfBookRepository>();
-builder.Services.AddScoped<ICategoryRepository,EfCategoryRepository>();
-builder.Services.AddScoped<IStudentRepository,EfStudentRepository>();
+builder.Services.AddScoped<IBookRepository, EfBookRepository>();
+builder.Services.AddScoped<ICategoryRepository, EfCategoryRepository>();
+builder.Services.AddScoped<IStudentRepository, EfStudentRepository>();
 builder.Services.AddScoped<IDepositRepository, EfDepositRepository>();
 builder.Services.AddScoped<IDonationRepository, EfDonationRepository>();
-builder.Services.AddScoped<IMovementRepository,EfMovomentRepository>();
+builder.Services.AddScoped<IMovementRepository, EfMovomentRepository>();
 
 builder.Services.AddScoped<IBookService, BookManager>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
 builder.Services.AddScoped<IStudentService, StudentManager>();
-builder.Services.AddScoped<IDepositService,DepositManager>();
+builder.Services.AddScoped<IDepositService, DepositManager>();
 builder.Services.AddScoped<IDonationService, DonationManager>();
 builder.Services.AddScoped<IMovementService, MovementManager>();
+
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

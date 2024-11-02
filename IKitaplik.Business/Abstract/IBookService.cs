@@ -14,7 +14,8 @@ namespace IKitaplik.Business.Abstract
     {
         IDataResult<Book> Add(Book book);
         IResult Update(Book book);
-        IResult Delete(Book book);
+        IResult Delete(int id);
+        IResult BookAddedPiece(Book books);
 
         IDataResult<List<BookGetDTO>> GetAll();
         IDataResult<List<BookGetDTO>> GetAllByName(string name);

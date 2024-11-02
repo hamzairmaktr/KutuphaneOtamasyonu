@@ -9,12 +9,12 @@ namespace IKitaplik.Business.Concrete
 {
     public class BookManager : IBookService
     {
-        
+
         private readonly IValidator<Book> _validator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMovementService _movementService;
 
-        public BookManager( IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork)
+        public BookManager(IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork)
         {
             _movementService = movementService;
             _unitOfWork = unitOfWork;
@@ -29,6 +29,13 @@ namespace IKitaplik.Business.Concrete
                 if (!validationResult.IsValid)
                 {
                     return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage).First());
+                }
+
+                var bookBarcodeSearch = GetByBarcode(book.Barcode);
+                if (bookBarcodeSearch.Success)
+                {
+                    var res = BookAddedPiece(bookBarcodeSearch.Data);
+                    return new SuccessDataResult<Book>(res.Message);
                 }
                 _unitOfWork.BeginTransaction();
                 _unitOfWork.Books.Add(book);
@@ -57,36 +64,52 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Delete(Book book)
+        public IResult Delete(int id)
         {
             try
             {
                 _unitOfWork.BeginTransaction();
-                _unitOfWork.Books.Delete(book);
 
-
-                var result = _movementService.Add(new Movement
+                var res = GetById(id);
+                if (!res.Success)
                 {
-                    BookId = book.Id,
-                    MovementDate = DateTime.Now,
-                    Title = "Kitap Silindi",
-                    Note = $"{DateTime.Now:g} tarihinde {book.Name} isimli kitapın tüm kayıtları silindi"
-                });
-
-                if (!result.Success)
-                {
-                    _unitOfWork.Rollback();
-                    return new ErrorDataResult<Book>(result.Message);
+                    return new ErrorResult(res.Message);
                 }
-
+                _unitOfWork.Books.Delete(res.Data);
                 _unitOfWork.Commit();
-                return new SuccessResult("Kitap başarı ile oluşturuldu");
+                return new SuccessResult("Kitap başarı ile silindi");
             }
             catch (Exception ex)
             {
                 _unitOfWork.Rollback();
                 return new ErrorResult("Kitap silinirken hata oluştu : " + ex.Message);
             }
+        }
+
+        public IResult BookAddedPiece(Book books)
+        {
+            try
+            {
+                if (GetById(books.Id).Success)
+                {
+                    _unitOfWork.BeginTransaction();
+                    books.Piece += 1;
+                    _unitOfWork.Books.Update(books);
+                    _unitOfWork.Commit();
+                    return new SuccessResult("İlgili kitapın adedi 1 arttı");
+                }
+                else
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorResult("İlgili kitap bulunamadı");
+                }
+            }
+            catch (Exception e)
+            {
+                _unitOfWork.Rollback();
+                return new ErrorResult("Kitap sayısı arttırılırken hata oluştu : " + e.Message);
+            }
+
         }
 
         public IDataResult<List<BookGetDTO>> GetAll()
@@ -150,7 +173,7 @@ namespace IKitaplik.Business.Concrete
                     BookId = book.Id,
                     MovementDate = DateTime.Now,
                     Title = "Kitap Güncellendi",
-                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap silindi",
+                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap güncellendi",
                 });
 
                 if (!result.Success)

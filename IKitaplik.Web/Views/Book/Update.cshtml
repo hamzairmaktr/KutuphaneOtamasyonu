@@ -3,14 +3,7 @@
 }
 @model Book
 
-<h2 class="text-center">Kitap Ekle</h2>
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-@TempData["MessageType"]">
-        @TempData["Message"]
-    </div>
-}
-<form action="Add" method="post" class="container mt-5">
+<form action="Update" method="post" class="container mt-5">
     <div class="row mb-3">
         <div class="col">
             <label for="barcode" class="form-label">Barkod</label>
@@ -29,7 +22,7 @@
         </div>
         <div class="col">
             <label for="category" class="form-label">Kategori</label>
-            <select class="form-select" asp-for="CategoryId" asp-items="ViewBag.Categories" id="category" required>
+            <select asp-items="ViewBag.Categories" asp-for="CategoryId" class="form-select" id="category" name="CategoryId" required>
                 <option selected disabled>Kategori seçin</option>
             </select>
         </div>
@@ -57,6 +50,6 @@
     </div>
 
     <div class="d-grid gap-2 col-6 mx-auto">
-        <button type="submit" class="btn btn-primary">Gönder</button>
+        <button type="submit" class="btn btn-primary">Güncelle</button>
     </div>
 </form>
