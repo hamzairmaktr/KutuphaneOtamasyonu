@@ -3,13 +3,25 @@
 }
 @model List<BookGetDTO>
 <div class="container mt-5">
-    <div class="mb-3">
-        <h2 class="d-inline">Kitap Listesi</h2>
-        <a href="/Book/Add" class="btn btn-primary mt-3 d-inline float-end">Yeni Kitap Ekle</a>
+    <div class="mb-4 row align-items-center">
+        <div class="col-md-5 col-lg-6">
+            <h2>Kitap Listesi</h2>
+        </div>
+        <div class="col-md-5 col-lg-4">
+            <form method="get" action="GetAll" class="input-group">
+                <input name="kitapAdi" type="text" placeholder="Arama Yapınız" class="form-control" aria-describedby="button-ara"/>
+                <button type="submit" class="btn btn-primary input-group-text" id="button-ara">Ara</button>
+            </form>
+        </div>
+        <div class="col-md-2 col-lg-2 text-md-end mt-3 mt-md-0">
+            <a href="/Book/Add" class="btn btn-primary w-100">Yeni Kitap Ekle</a>
+        </div>
     </div>
+
+
     @if (TempData["Message"] != null)
     {
-        <div class="alert alert-@TempData["MessageType"]">
+        <div class="mt-2 alert alert-@TempData["MessageType"]">
             @TempData["Message"]
         </div>
     }
@@ -57,5 +69,25 @@
             }
         </tbody>
     </table>
+    <div>
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li class="page-item disabled">
+                    <span class="page-link">Geri</span>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">2</span>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">İleri</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
-

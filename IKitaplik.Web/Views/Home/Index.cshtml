@@ -1,4 +1,95 @@
 ﻿@{
     Layout = "_Layout";
 }
-<h1 class="text-center">Hamza Irmak</h1>
+
+<style>
+    .carousel-image {
+        height: 50vh;
+        object-fit: cover;
+    }
+</style>
+<!-- Tanıtım Bölümü -->
+
+<section class="container my-5">
+    <div class="text-center">
+        <h1 class="fw-bold">IKitaplık</h1>
+        <p class="lead">Dijital kütüphanenizi kolayca yönetin</p>
+        <p>IKitaplık, kitaplarınızı, kategorilerinizi ve kullanıcı kayıtlarını yönetmenizi sağlayan modern ve güvenilir bir kütüphane otomasyon sistemidir.</p>
+    </div>
+</section>
+
+<!-- Görsel Slider -->
+<div id="carouselExampleIndicators" class="carousel slide mb-5" style="height: 50vh;">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="https://media.istockphoto.com/id/1481862788/tr/foto%C4%9Fraf/stack-of-books-with-blurred-bookshelf-background-reading-learning-education-or-home-office.jpg?s=2048x2048&w=is&k=20&c=_uQ1SM9y9opc3vw9y40O-nQUEF9dWnteCQ_af4WdNpI=" class="d-block w-100 img-fluid carousel-image" alt="Kitap 1">
+        </div>
+        <div class="carousel-item">
+            <img src="https://media.istockphoto.com/id/1037743630/tr/foto%C4%9Fraf/k%C3%BCt%C3%BCphanede-eski-kitaplar.jpg?s=2048x2048&w=is&k=20&c=45UuMZOiVXN4JF8AF4zCEAjsi-_D5Yvw5NxMX_89t1s=" class="d-block w-100 img-fluid carousel-image" alt="Kitap 2">
+        </div>
+        <div class="carousel-item">
+            <img src="https://media.istockphoto.com/id/520365910/tr/foto%C4%9Fraf/book.jpg?s=2048x2048&w=is&k=20&c=7afzlCxZ67bwBGgtfxq5aKNRej5dCIgV6Sb6BvMiERM=" class="d-block w-100 img-fluid carousel-image" alt="Kitap 3">
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Geri</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">İleri</span>
+    </button>
+</div>
+
+<!-- Özellikler Bölümü -->
+<section class="container my-5">
+    <h2 class="text-center mb-4">Özellikler</h2>
+    <div class="row text-center">
+        <div class="col-md-4">
+            <h5>Kitap Yönetimi</h5>
+            <p>Kitap bilgilerini ve kategorilerini kolayca yönetin.</p>
+        </div>
+        <div class="col-md-4">
+            <h5>Kategori Sistemi</h5>
+            <p>Kitapları her tür için ayrı sınıflara gerek kalmadan kategorize edin.</p>
+        </div>
+        <div class="col-md-4">
+            <h5>Kullanıcı Girişleri</h5>
+            <p>Kütüphaneye kullanıcı kaydı ve giriş yapma imkanı sunar.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Avantajlar Bölümü -->
+<section class="bg-light py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Neden IKitaplık?</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Kolay Kullanım</h5>
+                <p>Kullanıcı dostu arayüz ile hızlı ve verimli kütüphane yönetimi.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Gelişmiş Arama</h5>
+                <p>Kitapları yazar, kategori ve diğer kriterlere göre arama.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Zaman Ayarlama</h5>
+                <p>Teslim süresi ve ek süre belirleme özelliği ile esneklik sağlar.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Kayıt Ol / Giriş Yap -->
+<section class="container my-5 text-center">
+    <h2 class="mb-4">Hemen Katılın</h2>
+    <p>IKitaplık'a kaydolun veya giriş yaparak kütüphane yönetiminizi dijitalleştirin!</p>
+    <a href="#" class="btn btn-primary">Kayıt Ol</a>
+    <a href="#" class="btn btn-secondary">Giriş Yap</a>
+</section>

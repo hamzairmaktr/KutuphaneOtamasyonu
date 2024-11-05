@@ -4,6 +4,7 @@ using IKitaplik.Business.Abstract;
 using IKitaplık.Entities.Concrete;
 using IKitaplık.Entities.DTOs;
 using IKitaplik.DataAccess.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -116,7 +117,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookDTOs();
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookDTOs().Take(50).ToList();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -146,7 +147,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name == name);
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name.Contains(name)).Take(50).ToList();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -166,7 +167,21 @@ namespace IKitaplik.Business.Concrete
                 }
                 _unitOfWork.BeginTransaction();
 
-                _unitOfWork.Books.Update(book);
+
+                if (book.Id <= 0)
+                {
+                    return new ErrorResult("Id değeri gelmiyor");
+                }
+
+                try
+                {
+                    _unitOfWork.Books.Update(book);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    _unitOfWork.Rollback();
+                    return new ErrorResult("Kitap başka bir işlem tarafından güncellendi veya silindi. Lütfen tekrar deneyin.");
+                }
 
                 var result = _movementService.Add(new Movement
                 {
@@ -190,6 +205,7 @@ namespace IKitaplik.Business.Concrete
                 _unitOfWork.Rollback();
                 return new ErrorResult("Kitap güncellenirken hata oluştu : " + ex.Message);
             }
+
         }
 
         public IDataResult<Book> GetByBarcode(string barcode)

@@ -3,7 +3,15 @@
 }
 @model Book
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-@TempData["MessageType"]">
+        @TempData["Message"]
+    </div>
+}
+
 <form action="Update" method="post" class="container mt-5">
+    <input type="hidden" asp-for="Id" name="Id"/>
     <div class="row mb-3">
         <div class="col">
             <label for="barcode" class="form-label">Barkod</label>

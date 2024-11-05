@@ -55,18 +55,35 @@ namespace IKitaplik.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll(string? kitapAdi)
         {
-            var res = _bookService.GetAll();
-            if (res.Success)
+            if (string.IsNullOrEmpty(kitapAdi))
             {
-                return View(res.Data);
+                var res = _bookService.GetAll();
+                if (res.Success)
+                {
+                    return View(res.Data);
+                }
+                else
+                {
+                    TempData["Message"] = res.Message;
+                    TempData["MessageType"] = "danger";
+                    return View();
+                }
             }
             else
             {
-                TempData["Message"] = res.Message;
-                TempData["MessageType"] = "danger";
-                return View();
+                var res = _bookService.GetAllByName(kitapAdi);
+                if (res.Success)
+                {
+                    return View(res.Data);
+                }
+                else
+                {
+                    TempData["Message"] = res.Message;
+                    TempData["MessageType"] = "danger";
+                    return View();
+                }
             }
         }
         [HttpPost]
