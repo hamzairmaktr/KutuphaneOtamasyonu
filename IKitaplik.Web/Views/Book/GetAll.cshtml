@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_Layout";
 }
-@model List<BookGetDTO>
+@model PaginatedList<BookGetDTO>
 <div class="container mt-5">
     <div class="mb-4 row align-items-center">
         <div class="col-md-5 col-lg-6">
@@ -44,7 +44,7 @@
             @{
                 int count = 1;
             }
-            @foreach (var book in Model ?? new List<BookGetDTO>())
+            @foreach (var book in Model.Items)
             {
                 <tr>
                     <th scope="row">@count</th>
@@ -70,23 +70,27 @@
         </tbody>
     </table>
     <div>
-        <nav aria-label="...">
+        <!-- Sayfalama -->
+        <nav>
             <ul class="pagination">
-                <li class="page-item disabled">
-                    <span class="page-link">Geri</span>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item active" aria-current="page">
-                    <span class="page-link">2</span>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">3</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">İleri</a>
-                </li>
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(Model.PageIndex - 1)">Geri</a>
+                    </li>
+                }
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link" href="?page=@i">@i</a>
+                    </li>
+                }
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(Model.PageIndex + 1)">İleri</a>
+                    </li>
+                }
             </ul>
         </nav>
     </div>

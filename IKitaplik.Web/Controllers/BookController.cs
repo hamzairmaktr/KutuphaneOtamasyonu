@@ -1,5 +1,7 @@
 ﻿using IKitaplik.Business.Abstract;
+using IKitaplik.Web.Models;
 using IKitaplık.Entities.Concrete;
+using IKitaplık.Entities.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -55,37 +57,36 @@ namespace IKitaplik.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll(string? kitapAdi)
+        public IActionResult GetAll(string? kitapAdi, int page = 1, int pageSize = 2)
         {
-            if (string.IsNullOrEmpty(kitapAdi))
+            var books = string.IsNullOrEmpty(kitapAdi)
+                ? _bookService.GetAll()
+                : _bookService.GetAllByName(kitapAdi);
+
+            if (!books.Success)
             {
-                var res = _bookService.GetAll();
-                if (res.Success)
-                {
-                    return View(res.Data);
-                }
-                else
-                {
-                    TempData["Message"] = res.Message;
-                    TempData["MessageType"] = "danger";
-                    return View();
-                }
+                TempData["Message"] = books.Message;
+                TempData["MessageType"] = "danger";
+                return View();
             }
-            else
+
+            // Toplam kitap sayısı
+            int totalBooks = books.Data.Count;
+
+            // Sayfalama için kitapları filtreleyelim
+            var paginatedBooks = books.Data.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Model olarak bir ViewModel gönderelim
+            var model = new PaginatedList<BookGetDTO>
             {
-                var res = _bookService.GetAllByName(kitapAdi);
-                if (res.Success)
-                {
-                    return View(res.Data);
-                }
-                else
-                {
-                    TempData["Message"] = res.Message;
-                    TempData["MessageType"] = "danger";
-                    return View();
-                }
-            }
+                Items = paginatedBooks,
+                PageIndex = page,
+                TotalPages = (int)Math.Ceiling(totalBooks / (double)pageSize)
+            };
+
+            return View(model);
         }
+
         [HttpPost]
         public IActionResult Delete(int id)
         {
