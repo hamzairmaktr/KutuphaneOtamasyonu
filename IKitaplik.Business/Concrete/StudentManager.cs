@@ -105,7 +105,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<Student> students = _unitOfWork.Students.GetAll(p => p.Name == name).ToList();
+                List<Student> students = _unitOfWork.Students.GetAll(p => p.Name.ToUpper().Contains(name.ToUpper())).ToList();
                 return new SuccessDataResult<List<Student>>(students, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)

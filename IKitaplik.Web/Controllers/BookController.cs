@@ -57,11 +57,11 @@ namespace IKitaplik.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll(string? kitapAdi, int page = 1, int pageSize = 2)
+        public IActionResult GetAll(string? bookName, int page = 1, int pageSize = 10)
         {
-            var books = string.IsNullOrEmpty(kitapAdi)
+            var books = string.IsNullOrEmpty(bookName)
                 ? _bookService.GetAll()
-                : _bookService.GetAllByName(kitapAdi);
+                : _bookService.GetAllByName(bookName);
 
             if (!books.Success)
             {

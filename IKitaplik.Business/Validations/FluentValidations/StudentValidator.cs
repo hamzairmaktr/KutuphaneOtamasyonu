@@ -9,8 +9,8 @@ public class StudentValidator : AbstractValidator<Student>
             .NotEmpty().WithMessage("Öğrenci adı boş olamaz.")
             .Length(2, 100).WithMessage("Öğrenci adı 2 ile 100 karakter arasında olmalıdır.");
 
-        RuleFor(student => student.SchoolName)
-            .GreaterThan(0).WithMessage("Okul adı geçerli bir değer olmalıdır.");
+        RuleFor(student => student.StudentNumber)
+            .GreaterThan(0).WithMessage("Öğrenci numarası geçerli bir değer olmalıdır.");
 
         RuleFor(student => student.Class)
             .NotEmpty().WithMessage("Sınıf boş olamaz.");

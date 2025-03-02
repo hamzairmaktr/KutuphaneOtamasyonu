@@ -9,7 +9,7 @@ namespace IKitaplık.Entities.Concrete
 {
     public class Student : BaseEntities
     {
-        public int SchoolName { get; set; }
+        public int StudentNumber { get; set; }
         public string Name { get; set; }
         public string Class { get; set; }
         public string TelephoneNumber { get; set; }

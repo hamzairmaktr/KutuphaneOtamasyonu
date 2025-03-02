@@ -1,0 +1,50 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model Student
+<h2 class="text-center">Öğrenci Ekle</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-@TempData["MessageType"]">
+        @TempData["Message"]
+    </div>
+}
+<form action="Add" method="post" class="container mt-5">
+    <div class="row mb-3">
+        <div class="col">
+            <label for="studentNumber" class="form-label">Öğrenci No</label>
+            <input asp-for="StudentNumber" type="text" class="form-control" id="studentNumber" name="StudentNumber" placeholder="Öğrenci Numarasını girin" required>
+        </div>
+        <div class="col">
+            <label for="name" class="form-label">Öğrenci Adı</label>
+            <input asp-for="Name" type="text" class="form-control" id="name" name="Name" placeholder="Öğrenci adını girin" required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label for="class" class="form-label">Sınıf</label>
+            <input asp-for="Class" type="text" class="form-control" id="class" name="class" placeholder="Sınıfı girin" required>
+        </div>
+        <div class="col">
+            <label for="telephoneNumber" class="form-label">Telefon Numarası</label>
+            <input asp-for="TelephoneNumber" type="tel" class="form-control" id="telephoneNumber" name="telephoneNumber" placeholder="Telefon Giriniz"/>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label for="email" class="form-label">Mail Adresi</label>
+            <input asp-for="EMail" type="email" class="form-control" id="eMail" name="eMail" placeholder="Mail adresi girin" required>
+        </div>
+        <div class="col">
+            <label for="numberofBooksRead" class="form-label">Adet</label>
+            <input asp-for="NumberofBooksRead" type="number" class="form-control" id="numberofBooksRead" name="NumberofBooksRead" placeholder="Okuduğu kitap sayısını girin" required>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 col-6 mx-auto">
+        <button type="submit" class="btn btn-primary">Gönder</button>
+    </div>
+</form>
