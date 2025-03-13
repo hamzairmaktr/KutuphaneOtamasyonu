@@ -1,6 +1,6 @@
-@IKitaplik.Api_HostAddress = http://localhost:5113
+@IKitaplik.Api_HostAddress = https://localhost:7228
 
-GET {{IKitaplik.Api_HostAddress}}/weatherforecast/
+GET {{IKitaplik.Api_HostAddress}}/Book/getall
 Accept: application/json
 
 ###

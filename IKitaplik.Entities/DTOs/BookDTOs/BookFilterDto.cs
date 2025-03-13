@@ -1,4 +1,4 @@
-namespace IKitaplik.Entities.DTOs;
+namespace IKitaplik.Entities.DTOs.BookDTOs;
 
 public class BookFilterDto
 {

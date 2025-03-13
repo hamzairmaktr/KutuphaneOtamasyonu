@@ -2,9 +2,9 @@
 using FluentValidation;
 using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
-using IKitaplik.Entities.DTOs;
 using IKitaplik.DataAccess.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using IKitaplik.Entities.DTOs.BookDTOs;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -25,6 +25,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
+                book.Id = 0;
                 var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {
