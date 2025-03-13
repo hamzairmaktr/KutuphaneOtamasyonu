@@ -1,7 +1,7 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.Business.Abstract;
-using IKitaplık.Entities.Concrete;
-using IKitaplık.Entities.DTOs;
+using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete

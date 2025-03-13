@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using IKitaplık.Entities.Concrete;
+using IKitaplik.Entities.Concrete;
 
 public class StudentValidator : AbstractValidator<Student>
 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
-using IKitaplık.Entities.Concrete;
+using IKitaplik.Entities.Concrete;
 using Microsoft.Extensions.Configuration;
 
 namespace IKitaplik.DataAccess.Concrete.EntityFramework

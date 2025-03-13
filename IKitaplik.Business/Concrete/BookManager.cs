@@ -1,8 +1,8 @@
 ﻿using Core.Utilities.Results;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
-using IKitaplık.Entities.Concrete;
-using IKitaplık.Entities.DTOs;
+using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.DataAccess.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,6 @@ namespace IKitaplik.Business.Concrete
 {
     public class BookManager : IBookService
     {
-
         private readonly IValidator<Book> _validator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMovementService _movementService;
@@ -29,7 +28,8 @@ namespace IKitaplik.Business.Concrete
                 var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {
-                    return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage).First());
+                    return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage)
+                        .First());
                 }
 
                 var bookBarcodeSearch = GetByBarcode(book.Barcode);
@@ -38,6 +38,7 @@ namespace IKitaplik.Business.Concrete
                     var res = BookAddedPiece(bookBarcodeSearch.Data);
                     return new SuccessDataResult<Book>(res.Message);
                 }
+
                 _unitOfWork.BeginTransaction();
                 _unitOfWork.Books.Add(book);
 
@@ -76,6 +77,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(res.Message);
                 }
+
                 _unitOfWork.Books.Delete(res.Data);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile silindi");
@@ -110,7 +112,28 @@ namespace IKitaplik.Business.Concrete
                 _unitOfWork.Rollback();
                 return new ErrorResult("Kitap sayısı arttırılırken hata oluştu : " + e.Message);
             }
+        }
 
+        public IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter)
+        {
+            List<BookGetDTO> books = new List<BookGetDTO>();
+            if (!string.IsNullOrEmpty(filter.barcode))
+                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.Barcode.Equals(filter.barcode));
+            else if (!string.IsNullOrEmpty(filter.category) && !string.IsNullOrEmpty(filter.title))
+                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.CategoryName.Equals(filter.category) && dto.Name.Contains(filter.title));
+            else if (!string.IsNullOrEmpty(filter.title))
+                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.Name.Contains(filter.title));
+            else if (!string.IsNullOrEmpty(filter.category))
+                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.CategoryName.Equals(filter.category));
+            else
+                return new ErrorDataResult<List<BookGetDTO>>("Hatalı filtreleme yaptınız");
+
+            if (books.Count > 0)
+            {
+                return new SuccessDataResult<List<BookGetDTO>>(books);
+            }
+
+            return new ErrorDataResult<List<BookGetDTO>>("Kayıt bulunamadı");
         }
 
         public IDataResult<List<BookGetDTO>> GetAll()
@@ -135,6 +158,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");
                 }
+
                 return new ErrorDataResult<Book>("İlgili kitap bulunamadı");
             }
             catch (Exception ex)
@@ -147,7 +171,8 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name.Contains(name)).Take(50).ToList();
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name.Contains(name)).Take(50)
+                    .ToList();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -165,6 +190,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
                 }
+
                 _unitOfWork.BeginTransaction();
 
 
@@ -180,7 +206,8 @@ namespace IKitaplik.Business.Concrete
                 catch (DbUpdateConcurrencyException)
                 {
                     _unitOfWork.Rollback();
-                    return new ErrorResult("Kitap başka bir işlem tarafından güncellendi veya silindi. Lütfen tekrar deneyin.");
+                    return new ErrorResult(
+                        "Kitap başka bir işlem tarafından güncellendi veya silindi. Lütfen tekrar deneyin.");
                 }
 
                 var result = _movementService.Add(new Movement
@@ -205,7 +232,6 @@ namespace IKitaplik.Business.Concrete
                 _unitOfWork.Rollback();
                 return new ErrorResult("Kitap güncellenirken hata oluştu : " + ex.Message);
             }
-
         }
 
         public IDataResult<Book> GetByBarcode(string barcode)
@@ -217,6 +243,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");
                 }
+
                 return new ErrorDataResult<Book>("İlgili kitap bulunamadı");
             }
             catch (Exception ex)

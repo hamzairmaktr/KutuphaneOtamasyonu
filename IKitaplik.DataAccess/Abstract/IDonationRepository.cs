@@ -1,6 +1,6 @@
 ﻿using Core.DataAccess;
-using IKitaplık.Entities.Concrete;
-using IKitaplık.Entities.DTOs;
+using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

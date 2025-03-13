@@ -1,6 +1,6 @@
 ﻿using Core.Utilities.Results;
-using IKitaplık.Entities.Concrete;
-using IKitaplık.Entities.DTOs;
+using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace IKitaplik.Business.Abstract
     {
         IResult Add(Student student);
         IResult Update(Student student);
-        IResult Delete(Student student);
+        IResult Delete(int id);
 
         IDataResult<List<Student>> GetAll();
         IDataResult<List<Student>> GetAllByName(string name);

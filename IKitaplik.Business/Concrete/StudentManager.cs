@@ -1,7 +1,7 @@
 ﻿using Core.Utilities.Results;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
-using IKitaplık.Entities.Concrete;
+using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete
@@ -58,18 +58,21 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Delete(Student student)
+        public IResult Delete(int id)
         {
             try
             {
                 _unitOfWork.BeginTransaction();
-                _unitOfWork.Students.Delete(student);
+                var student = GetById(id);
+                if(!student.Success)
+                    return new ErrorResult(student.Message);
+                _unitOfWork.Students.Delete(student.Data);
 
                 var movementResponse = _movementService.Add(new Movement{
-                    StudentId = student.Id,
+                    StudentId = student.Data.Id,
                     Title = "Öğrenci Silindi",
                     MovementDate = DateTime.Now,
-                    Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci silindi",
+                    Note = $"{DateTime.Now:g} tarihinde {student.Data.Name} adlı öğrenci silindi",
                 });
 
                 if (!movementResponse.Success)

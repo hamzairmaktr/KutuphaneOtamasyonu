@@ -1,6 +1,6 @@
 ﻿using Core.Utilities.Results;
-using IKitaplık.Entities.Concrete;
-using IKitaplık.Entities.DTOs;
+using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Business.Abstract;
 using IKitaplik.DataAccess.UnitOfWork;
 

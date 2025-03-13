@@ -1,6 +1,6 @@
 ﻿using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
-using IKitaplık.Entities.Concrete;
+using IKitaplik.Entities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;

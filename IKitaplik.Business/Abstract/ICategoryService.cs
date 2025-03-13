@@ -1,5 +1,5 @@
 ﻿using Core.Utilities.Results;
-using IKitaplık.Entities.Concrete;
+using IKitaplik.Entities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;

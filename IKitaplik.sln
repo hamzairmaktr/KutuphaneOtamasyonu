@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKitaplık.Entities", "IKitaplık.Entities\IKitaplık.Entities.csproj", "{8DE1A955-D5DF-4F70-94B9-8F435CE9FEAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKitaplik.Entities", "IKitaplik.Entities\IKitaplik.Entities.csproj", "{8DE1A955-D5DF-4F70-94B9-8F435CE9FEAC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKitaplik.DataAccess", "IKitaplik.DataAccess\IKitaplik.DataAccess.csproj", "{9EC28595-404C-4380-932D-80E77996C229}"
 EndProject
@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKitaplik.Business", "IKita
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{C9225FAD-6813-498B-BCF9-A82CC9F45766}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IKitaplik.Web", "IKitaplik.Web\IKitaplik.Web.csproj", "{587AA0BE-E8D1-4C6D-A4DD-DA9AF7F6BF9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IKitaplik.Api", "IKitaplik.Api\IKitaplik.Api.csproj", "{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{C9225FAD-6813-498B-BCF9-A82CC9F45766}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9225FAD-6813-498B-BCF9-A82CC9F45766}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9225FAD-6813-498B-BCF9-A82CC9F45766}.Release|Any CPU.Build.0 = Release|Any CPU
-		{587AA0BE-E8D1-4C6D-A4DD-DA9AF7F6BF9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{587AA0BE-E8D1-4C6D-A4DD-DA9AF7F6BF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{587AA0BE-E8D1-4C6D-A4DD-DA9AF7F6BF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{587AA0BE-E8D1-4C6D-A4DD-DA9AF7F6BF9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

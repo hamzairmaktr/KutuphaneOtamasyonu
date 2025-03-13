@@ -1,7 +1,7 @@
 ﻿using Core.Utilities.Results;
 using FluentValidation;
 using IKitaplik.Business.Abstract;
-using IKitaplık.Entities.Concrete;
+using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 
 namespace IKitaplik.Business.Concrete

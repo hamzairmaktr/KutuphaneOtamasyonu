@@ -24,7 +24,7 @@ namespace IKitaplik.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Book", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Book", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,7 +60,7 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Category", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,7 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Deposit", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Deposit", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -114,7 +114,7 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Deposits");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Donation", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Donation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,7 +144,7 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Donations");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Student", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Student", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,9 +181,9 @@ namespace IKitaplik.DataAccess.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Book", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Book", b =>
                 {
-                    b.HasOne("IKitaplık.Entities.Concrete.Category", "Category")
+                    b.HasOne("IKitaplik.Entities.Concrete.Category", "Category")
                         .WithMany("Books")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -192,15 +192,15 @@ namespace IKitaplik.DataAccess.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Deposit", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Deposit", b =>
                 {
-                    b.HasOne("IKitaplık.Entities.Concrete.Book", "Book")
+                    b.HasOne("IKitaplik.Entities.Concrete.Book", "Book")
                         .WithMany("Deposits")
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("IKitaplık.Entities.Concrete.Student", "Student")
+                    b.HasOne("IKitaplik.Entities.Concrete.Student", "Student")
                         .WithMany("Deposits")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -211,15 +211,15 @@ namespace IKitaplik.DataAccess.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Donation", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Donation", b =>
                 {
-                    b.HasOne("IKitaplık.Entities.Concrete.Book", "Book")
+                    b.HasOne("IKitaplik.Entities.Concrete.Book", "Book")
                         .WithOne("Donation")
-                        .HasForeignKey("IKitaplık.Entities.Concrete.Donation", "BookId")
+                        .HasForeignKey("IKitaplik.Entities.Concrete.Donation", "BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("IKitaplık.Entities.Concrete.Student", "Student")
+                    b.HasOne("IKitaplik.Entities.Concrete.Student", "Student")
                         .WithMany("Donations")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -230,19 +230,19 @@ namespace IKitaplik.DataAccess.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Book", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Book", b =>
                 {
                     b.Navigation("Deposits");
 
                     b.Navigation("Donation");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Category", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Category", b =>
                 {
                     b.Navigation("Books");
                 });
 
-            modelBuilder.Entity("IKitaplık.Entities.Concrete.Student", b =>
+            modelBuilder.Entity("IKitaplik.Entities.Concrete.Student", b =>
                 {
                     b.Navigation("Deposits");
 
