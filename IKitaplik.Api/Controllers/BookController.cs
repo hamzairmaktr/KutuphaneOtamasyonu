@@ -30,24 +30,23 @@ namespace IKitaplik.Api.Controllers
         [HttpPost("add")]
         public ActionResult Add([FromBody] BookAddDto bookAddDto)
         {
-            var book = _mapper.Map<Book>(bookAddDto);
-            var res = _bookService.Add(book);
+            var res = _bookService.Add(bookAddDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpPut("bookAddPiece")]
-        public ActionResult BookAddPiece([FromBody] Book book)
+        public ActionResult BookAddPiece([FromBody] int id, int beAdded)
         {
-            var res = _bookService.BookAddedPiece(book);
+            var res = _bookService.BookAddedPiece(id,beAdded);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpPut("update")]
-        public ActionResult Update([FromBody] Book book)
+        public ActionResult Update([FromBody] BookUpdateDto bookUpdateDto)
         {
-            var res = _bookService.Update(book);
+            var res = _bookService.Update(bookUpdateDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);

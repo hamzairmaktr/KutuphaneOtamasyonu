@@ -5,6 +5,7 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using IKitaplik.Entities.DTOs.BookDTOs;
+using AutoMapper;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -13,19 +14,22 @@ namespace IKitaplik.Business.Concrete
         private readonly IValidator<Book> _validator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMovementService _movementService;
+        private readonly IMapper _mapper;
 
-        public BookManager(IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork)
+        public BookManager(IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _movementService = movementService;
             _unitOfWork = unitOfWork;
             _validator = validator;
+            _mapper = mapper;
         }
 
-        public IDataResult<Book> Add(Book book)
+        public IDataResult<Book> Add(BookAddDto bookAddDto)
         {
             try
             {
-                book.Id = 0;
+                var book = _mapper.Map<Book>(bookAddDto);
+                book.CreatedDate = DateTime.Now;
                 var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {
@@ -36,7 +40,7 @@ namespace IKitaplik.Business.Concrete
                 var bookBarcodeSearch = GetByBarcode(book.Barcode);
                 if (bookBarcodeSearch.Success)
                 {
-                    var res = BookAddedPiece(bookBarcodeSearch.Data);
+                    var res = BookAddedPiece(bookBarcodeSearch.Data.Id, 1);
                     return new SuccessDataResult<Book>(res.Message);
                 }
 
@@ -90,17 +94,25 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult BookAddedPiece(Book books)
+        public IResult BookAddedPiece(int id, int beAdded)
         {
             try
             {
-                if (GetById(books.Id).Success)
+                var res = GetById(id);
+                if (res.Success)
                 {
                     _unitOfWork.BeginTransaction();
-                    books.Piece += 1;
-                    _unitOfWork.Books.Update(books);
+                    res.Data.Piece += beAdded;
+                    _unitOfWork.Books.Update(res.Data);
                     _unitOfWork.Commit();
-                    return new SuccessResult("İlgili kitapın adedi 1 arttı");
+                    if (beAdded >= 0)
+                    {
+                        return new SuccessResult($"İlgili kitapın adedi {beAdded} arttı");
+                    }
+                    else
+                    {
+                        return new SuccessResult($"İlgili kitapın adedi {beAdded} azaldı");
+                    }
                 }
                 else
                 {
@@ -182,10 +194,12 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(Book book)
+        public IResult Update(BookUpdateDto bookUpdateDto)
         {
             try
             {
+                var book = _mapper.Map<Book>(bookUpdateDto);
+                book.UpdatedDate = DateTime.Now;
                 var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {

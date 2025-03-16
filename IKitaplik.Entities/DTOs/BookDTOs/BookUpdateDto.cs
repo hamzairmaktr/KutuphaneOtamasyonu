@@ -1,5 +1,4 @@
-﻿using IKitaplik.Entities.Concrete;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace IKitaplik.Entities.DTOs.BookDTOs
 {
-    public class BookAddDto
+    public class BookUpdateDto
     {
+        public int Id { get; set; }
         public string Barcode { get; set; }
         public string Name { get; set; }
         public string Writer { get; set; }

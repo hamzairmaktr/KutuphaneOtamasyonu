@@ -1,6 +1,7 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
+using IKitaplik.Entities.DTOs.BookDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IDonationService
     {
-        IResult Add(Book book, Donation donation);
+        IResult Add(BookAddDto bookAddDto, Donation donation);
 
         IDataResult<List<DonationGetDTO>> GetAllDTO();
         IDataResult<DonationGetDTO> GetByIdDTO(int id);

@@ -12,7 +12,7 @@ namespace Core.Entities
     {
         [Key]
         public int Id { get; set; }
-        DateTime CreatedDate { get; set; }
-        DateTime UpdatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

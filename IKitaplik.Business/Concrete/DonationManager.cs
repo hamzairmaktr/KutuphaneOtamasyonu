@@ -3,6 +3,8 @@ using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
 using IKitaplik.DataAccess.UnitOfWork;
+using IKitaplik.Entities.DTOs.BookDTOs;
+using AutoMapper;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -11,25 +13,27 @@ namespace IKitaplik.Business.Concrete
         private readonly IBookService _bookService;
         private readonly IStudentService _studentService;
         private readonly IUnitOfWork _unitOfWork;
-        public DonationManager(IBookService bookService, IStudentService studentService, IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public DonationManager(IBookService bookService, IStudentService studentService, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _bookService = bookService;
             _studentService = studentService;
+            _mapper = mapper;
         }
-        public IResult Add(Book book, Donation donation)
+        public IResult Add(BookAddDto bookAddDto, Donation donation)
         {
             try
             {
                 _unitOfWork.BeginTransaction();
                 int bookId;
                 // Kitap barcodunu kontrol et eğer ilgili barcode varsa +1 yap yoksa yeni kitap ekle
-                var bookControl = _bookService.GetByBarcode(book.Barcode);
+                var bookControl = _bookService.GetByBarcode(bookAddDto?.Barcode ?? "0");
                 if (bookControl.Success)
                 {
                     bookControl.Data.Piece += 1;
                     bookId = bookControl.Data.Id;
-                    var updatedBook = _bookService.Update(bookControl.Data);
+                    var updatedBook = _bookService.BookAddedPiece(bookControl.Data.Id, bookAddDto.Piece);
                     if (!updatedBook.Success)
                     {
                         _unitOfWork.Rollback();
@@ -38,18 +42,18 @@ namespace IKitaplik.Business.Concrete
                 }
                 else
                 {
-                    var addedBook = _bookService.Add(book);
-                    bookId = addedBook.Data.Id;
-                    if (!addedBook.Success)
+                    var addedBook = _bookService.Add(bookAddDto);
+                    if (!addedBook.Success || addedBook.Data == null)
                     {
                         _unitOfWork.Rollback();
                         return new ErrorResult(addedBook.Message);
                     }
+                    bookId = addedBook.Data.Id;
                 }
 
                 // Öğrenciyi bul eğer öğrenci var ise kitap sağlam ise 20 hasarlı ise 10 puan ekle
                 var student = _studentService.GetById(donation.StudentId);
-                if (student.Success)
+                if (student.Success && student.Data != null)
                 {
                     if (donation.IsItDamaged == true)
                     {

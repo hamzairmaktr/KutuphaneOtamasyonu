@@ -12,10 +12,10 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IBookService
     {
-        IDataResult<Book> Add(Book book);
-        IResult Update(Book book);
+        IDataResult<Book> Add(BookAddDto bookAddDto);
+        IResult Update(BookUpdateDto bookUpdateDto);
         IResult Delete(int id);
-        IResult BookAddedPiece(Book books);
+        IResult BookAddedPiece(int id, int beAdded);
 
         IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter);
         IDataResult<List<BookGetDTO>> GetAll();

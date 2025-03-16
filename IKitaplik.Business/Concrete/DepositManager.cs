@@ -3,6 +3,7 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
 using IKitaplik.Business.Abstract;
 using IKitaplik.DataAccess.UnitOfWork;
+using IKitaplik.Entities.DTOs.BookDTOs;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -34,7 +35,8 @@ namespace IKitaplik.Business.Concrete
                 if (book.Data.Piece <= 0) return new ErrorResult("Kitabın mevcut sayısı yetersiz.");
                 if (student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
 
-                UpdateBookPiece(book, -1);
+                _bookService.BookAddedPiece(bookId, -1);
+                
                 UpdateStudentStatus(student, true);
 
                 deposit.BookId = bookId;
@@ -57,7 +59,7 @@ namespace IKitaplik.Business.Concrete
                 var book = ValidateBook(existingDeposit.BookId);
                 var student = ValidateStudent(existingDeposit.StudentId);
 
-                UpdateBookPiece(book, 1);
+                _bookService.BookAddedPiece(existingDeposit.BookId, 1);
                 UpdateStudentOnReturn(student, deposit);
 
                 existingDeposit.DeliveryDate = DateTime.Now;
@@ -127,13 +129,6 @@ namespace IKitaplik.Business.Concrete
                 return new ErrorResult("İşlem sırasında hata oluştu: " + ex.Message);
             }
         }
-
-        private void UpdateBookPiece(IDataResult<Book> book, int pieceChange)
-        {
-            book.Data.Piece += pieceChange;
-            _bookService.Update(book.Data);
-        }
-
         private void UpdateStudentStatus(IDataResult<Student> student, bool isBorrowing)
         {
             student.Data.Situation = isBorrowing;

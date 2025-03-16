@@ -14,6 +14,7 @@ namespace IKitaplik.Business.Mapping
         public MappingProfile()
         {
             CreateMap<BookAddDto, Book>();
+            CreateMap<BookUpdateDto, Book>();
         }
     }
 }
