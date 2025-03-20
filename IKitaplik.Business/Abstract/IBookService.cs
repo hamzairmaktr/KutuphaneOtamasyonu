@@ -15,7 +15,7 @@ namespace IKitaplik.Business.Abstract
         IDataResult<Book> Add(BookAddDto bookAddDto);
         IResult Update(BookUpdateDto bookUpdateDto);
         IResult Delete(int id);
-        IResult BookAddedPiece(int id, int beAdded);
+        IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto);
 
         IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter);
         IDataResult<List<BookGetDTO>> GetAll();

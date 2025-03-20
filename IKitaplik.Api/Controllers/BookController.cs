@@ -13,7 +13,7 @@ namespace IKitaplik.Api.Controllers
     {
         IBookService _bookService;
         IMapper _mapper;
-        public BookController(IBookService bookService,IMapper mapper)
+        public BookController(IBookService bookService, IMapper mapper)
         {
             _bookService = bookService;
             _mapper = mapper;
@@ -36,9 +36,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
         [HttpPut("bookAddPiece")]
-        public ActionResult BookAddPiece([FromBody] int id, int beAdded)
+        public ActionResult BookAddPiece([FromBody] BookAddPieceDto bookAddPieceDto)
         {
-            var res = _bookService.BookAddedPiece(id,beAdded);
+            var res = _bookService.BookAddedPiece(bookAddPieceDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);

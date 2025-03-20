@@ -94,24 +94,24 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult BookAddedPiece(int id, int beAdded)
+        public IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto)
         {
             try
             {
-                var res = GetById(id);
+                var res = GetById(bookAddPieceDto.Id);
                 if (res.Success)
                 {
                     _unitOfWork.BeginTransaction();
-                    res.Data.Piece += beAdded;
+                    res.Data.Piece += bookAddPieceDto.BeAdded;
                     _unitOfWork.Books.Update(res.Data);
                     _unitOfWork.Commit();
-                    if (beAdded >= 0)
+                    if (bookAddPieceDto.BeAdded >= 0)
                     {
-                        return new SuccessResult($"İlgili kitapın adedi {beAdded} arttı");
+                        return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} arttı");
                     }
                     else
                     {
-                        return new SuccessResult($"İlgili kitapın adedi {beAdded} azaldı");
+                        return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} azaldı");
                     }
                 }
                 else
