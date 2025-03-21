@@ -40,7 +40,7 @@ namespace IKitaplik.Business.Concrete
                 var bookBarcodeSearch = GetByBarcode(book.Barcode);
                 if (bookBarcodeSearch.Success)
                 {
-                    var res = BookAddedPiece(bookBarcodeSearch.Data.Id, 1);
+                    var res = BookAddedPiece(new BookAddPieceDto() {Id = bookBarcodeSearch.Data.Id,BeAdded = 1});
                     return new SuccessDataResult<Book>(res.Message);
                 }
 

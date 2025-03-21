@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
+using IKitaplik.Entities.DTOs.CategoryDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,10 @@ namespace IKitaplik.Business.Mapping
         {
             CreateMap<BookAddDto, Book>();
             CreateMap<BookUpdateDto, Book>();
+
+            CreateMap<CategoryAddDto, Category>();
+            CreateMap<CategoryUpdateDto, Category>();
+            CreateMap<CategoryGetDto, Category>();
         }
     }
 }

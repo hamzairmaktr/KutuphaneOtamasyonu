@@ -33,7 +33,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     bookControl.Data.Piece += 1;
                     bookId = bookControl.Data.Id;
-                    var updatedBook = _bookService.BookAddedPiece(bookControl.Data.Id, bookAddDto.Piece);
+                    var updatedBook = _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookControl.Data.Id, BeAdded = bookControl.Data.Piece});
                     if (!updatedBook.Success)
                     {
                         _unitOfWork.Rollback();
@@ -42,7 +42,7 @@ namespace IKitaplik.Business.Concrete
                 }
                 else
                 {
-                    var addedBook = _bookService.Add(bookAddDto);
+                    var addedBook = _bookService.Add(bookAddDto ?? new BookAddDto());
                     if (!addedBook.Success || addedBook.Data == null)
                     {
                         _unitOfWork.Rollback();

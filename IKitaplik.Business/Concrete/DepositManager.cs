@@ -35,7 +35,7 @@ namespace IKitaplik.Business.Concrete
                 if (book.Data.Piece <= 0) return new ErrorResult("Kitabın mevcut sayısı yetersiz.");
                 if (student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
 
-                _bookService.BookAddedPiece(bookId, -1);
+                _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookId, BeAdded = -1 });
                 
                 UpdateStudentStatus(student, true);
 
@@ -59,7 +59,7 @@ namespace IKitaplik.Business.Concrete
                 var book = ValidateBook(existingDeposit.BookId);
                 var student = ValidateStudent(existingDeposit.StudentId);
 
-                _bookService.BookAddedPiece(existingDeposit.BookId, 1);
+                _bookService.BookAddedPiece(new BookAddPieceDto { Id = existingDeposit.BookId, BeAdded = 1 });
                 UpdateStudentOnReturn(student, deposit);
 
                 existingDeposit.DeliveryDate = DateTime.Now;
