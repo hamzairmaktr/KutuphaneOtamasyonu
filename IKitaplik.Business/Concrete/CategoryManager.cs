@@ -64,16 +64,17 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<Category>> GetAll()
+        public IDataResult<List<CategoryGetDto>> GetAll()
         {
             try
             {
                 var list = _unitOfWork.Categorys.GetAll();
-                return new SuccessDataResult<List<Category>>(list, "Kategoriler çekildi");
+                var dtoList = _mapper.Map<List<CategoryGetDto>>(list);
+                return new SuccessDataResult<List<CategoryGetDto>>(dtoList, "Kategoriler çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<Category>>("Kategoriler çekilirken hata oluştu" + ex.Message);
+                return new ErrorDataResult<List<CategoryGetDto>>("Kategoriler çekilirken hata oluştu" + ex.Message);
             }
         }
 
@@ -112,20 +113,20 @@ namespace IKitaplik.Business.Concrete
                 var createdDate = existingCategory.Data.CreatedDate;
 
                 // DTO'dan gelen bilgileri mevcut kategoriye mapleyelim
-                _mapper.Map(categoryUpdateDto, existingCategory);
+                var category = _mapper.Map<Category>(categoryUpdateDto);
 
                 // CreatedDate'i koruyalım ve UpdatedDate'i güncelleyelim
-                existingCategory.Data.CreatedDate = createdDate;
-                existingCategory.Data.UpdatedDate = DateTime.Now;
+                category.CreatedDate = createdDate;
+                category.UpdatedDate = DateTime.Now;
 
-                var validator = _validator.Validate(existingCategory.Data);
+                var validator = _validator.Validate(category);
                 if (!validator.IsValid)
                 {
-                    return new ErrorResult(validator.Errors.First().ErrorMessage);
+                    return new ErrorResult(validator.Errors.ToString() ?? "Bulunamayan bir validasyon hatası var");
                 }
 
                 _unitOfWork.BeginTransaction();
-                _unitOfWork.Categorys.Update(existingCategory.Data);
+                _unitOfWork.Categorys.Update(category);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kategori güncellendi");
             }

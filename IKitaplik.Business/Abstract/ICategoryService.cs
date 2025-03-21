@@ -15,7 +15,7 @@ namespace IKitaplik.Business.Abstract
         IResult Update(CategoryUpdateDto categoryUpdateDto);
         IResult Delete(int id);
 
-        IDataResult<List<Category>> GetAll();
+        IDataResult<List<CategoryGetDto>> GetAll();
         IDataResult<Category> GetById(int id);
     }
 }

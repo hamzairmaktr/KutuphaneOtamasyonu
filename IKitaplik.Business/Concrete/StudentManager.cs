@@ -3,6 +3,7 @@ using FluentValidation;
 using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
+using AutoMapper;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -11,28 +12,34 @@ namespace IKitaplik.Business.Concrete
         private readonly IValidator<Student> _validator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMovementService _movementService;
+        private readonly IMapper _mapper;
 
         public StudentManager(IValidator<Student> validator,
                               IUnitOfWork unitOfWork,
-                              IMovementService movementService)
+                              IMovementService movementService,
+                              IMapper mapper)
         {
             _movementService = movementService;
             _unitOfWork = unitOfWork;
             _validator = validator;
+            _mapper = mapper;
         }
 
-        public IResult Add(Student student)
+        public IResult Add(StudentAddDto studentAddDto)
         {
             try
             {
+                var student = _mapper.Map<Student>(studentAddDto);
                 var isValid = _validator.Validate(student);
                 if (!isValid.IsValid)
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
                 _unitOfWork.BeginTransaction();
-
+                student.CreatedDate = DateTime.Now;
                 student.Point = 100;
+                student.NumberofBooksRead = 0;
+                student.Situation = true;
                 _unitOfWork.Students.Add(student);
 
                 var movementResponse = _movementService.Add(new Movement{
@@ -91,29 +98,31 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<Student>> GetAll()
+        public IDataResult<List<StudentGetDto>> GetAll()
         {
             try
             {
                 List<Student> students = _unitOfWork.Students.GetAll().ToList();
-                return new SuccessDataResult<List<Student>>(students, "Öğrenciler başarı ile çekildi");
+                var listDto = _mapper.Map<List<StudentGetDto>>(students);
+                return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<Student>>("Öğrenciler çekilirken bir hata oluştu: " + ex.Message);
+                return new ErrorDataResult<List<StudentGetDto>>("Öğrenciler çekilirken bir hata oluştu: " + ex.Message);
             }
         }
 
-        public IDataResult<List<Student>> GetAllByName(string name)
+        public IDataResult<List<StudentGetDto>> GetAllByName(string name)
         {
             try
             {
                 List<Student> students = _unitOfWork.Students.GetAll(p => p.Name.ToUpper().Contains(name.ToUpper())).ToList();
-                return new SuccessDataResult<List<Student>>(students, "Öğrenciler başarı ile çekildi");
+                var listDto = _mapper.Map<List<StudentGetDto>>(students);
+                return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<Student>>("İlgili öğrenciler çekilirken hata oluştu: " + ex.Message);
+                return new ErrorDataResult<List<StudentGetDto>>("İlgili öğrenciler çekilirken hata oluştu: " + ex.Message);
             }
         }
 
@@ -134,16 +143,25 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(Student student)
+        public IResult Update(StudentUpdateDto studentUpdateDto)
         {
             try
             {
+                var studentExisting = GetById(studentUpdateDto.Id);
+                if (!studentExisting.Success)
+                {
+                    return new ErrorResult(studentExisting.Message);
+                }
+                DateTime createdDate = studentExisting.Data.CreatedDate;
+                var student = _mapper.Map<Student>(studentUpdateDto);
                 var isValid = _validator.Validate(student);
                 if (!isValid.IsValid)
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
                 _unitOfWork.BeginTransaction();
+                student.CreatedDate = createdDate;
+                student.UpdatedDate = DateTime.Now;
                 _unitOfWork.Students.Update(student);
 
                 var movementResponse = _movementService.Add(new Movement{

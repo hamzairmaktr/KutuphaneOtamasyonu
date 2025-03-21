@@ -20,6 +20,13 @@ namespace IKitaplik.Business.Mapping
             CreateMap<CategoryAddDto, Category>();
             CreateMap<CategoryUpdateDto, Category>();
             CreateMap<CategoryGetDto, Category>();
+            CreateMap<Category, CategoryGetDto>();
+            CreateMap<Category, CategoryUpdateDto>();
+            CreateMap<Category, CategoryAddDto>();
+
+            CreateMap<StudentAddDto, Student>();
+            CreateMap<StudentUpdateDto, Student>();
+            CreateMap<StudentGetDto, Student>();
         }
     }
 }

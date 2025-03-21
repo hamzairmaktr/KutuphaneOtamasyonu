@@ -18,5 +18,7 @@ namespace IKitaplik.Entities.DTOs.BookDTOs
         public int Piece { get; set; }
         public bool Situation { get; set; }
         public int PageSize { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

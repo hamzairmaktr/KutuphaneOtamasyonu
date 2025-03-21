@@ -40,7 +40,7 @@ namespace IKitaplik.Business.Concrete
                 var bookBarcodeSearch = GetByBarcode(book.Barcode);
                 if (bookBarcodeSearch.Success)
                 {
-                    var res = BookAddedPiece(new BookAddPieceDto() {Id = bookBarcodeSearch.Data.Id,BeAdded = 1});
+                    var res = BookAddedPiece(new BookAddPieceDto() { Id = bookBarcodeSearch.Data.Id, BeAdded = 1 });
                     return new SuccessDataResult<Book>(res.Message);
                 }
 
@@ -198,40 +198,30 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var book = GetById(bookUpdateDto.Id);
-                if (!book.Success)
+                var bookExisting = GetById(bookUpdateDto.Id);
+                if (!bookExisting.Success)
                 {
-                    return new ErrorResult(book.Message);
+                    return new ErrorResult(bookExisting.Message);
                 }
-                DateTime createdDate = book.Data.CreatedDate;
-                _mapper.Map(bookUpdateDto, book.Data);
-                book.Data.CreatedDate = createdDate;
-                book.Data.UpdatedDate = DateTime.Now;
-                var validationResult = _validator.Validate(book.Data);
+                DateTime createdDate = bookExisting.Data.CreatedDate;
+                Book book = _mapper.Map<Book>(bookUpdateDto);
+                book.CreatedDate = createdDate;
+                book.UpdatedDate = DateTime.Now;
+                var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {
-                    return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
+                    return new ErrorResult(validationResult.Errors.ToString() ?? "Bulunamayan bir validason hatası var");
                 }
 
                 _unitOfWork.BeginTransaction();
-
-                try
-                {
-                    _unitOfWork.Books.Update(book.Data);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    _unitOfWork.Rollback();
-                    return new ErrorResult(
-                        "Kitap başka bir işlem tarafından güncellendi veya silindi. Lütfen tekrar deneyin.");
-                }
+                _unitOfWork.Books.Update(book);
 
                 var result = _movementService.Add(new Movement
                 {
-                    BookId = book.Data.Id,
+                    BookId = book.Id,
                     MovementDate = DateTime.Now,
                     Title = "Kitap Güncellendi",
-                    Note = $"{DateTime.Now:g} tarihinde {book.Data.Name} adlı kitap güncellendi",
+                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap güncellendi",
                 });
 
                 if (!result.Success)

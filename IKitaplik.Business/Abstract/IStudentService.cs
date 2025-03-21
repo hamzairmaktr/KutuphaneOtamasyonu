@@ -11,12 +11,12 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IStudentService
     {
-        IResult Add(Student student);
-        IResult Update(Student student);
+        IResult Add(StudentAddDto studentAddDto);
+        IResult Update(StudentUpdateDto studentUpdateDto);
         IResult Delete(int id);
 
-        IDataResult<List<Student>> GetAll();
-        IDataResult<List<Student>> GetAllByName(string name);
+        IDataResult<List<StudentGetDto>> GetAll();
+        IDataResult<List<StudentGetDto>> GetAllByName(string name);
         IDataResult<Student> GetById(int id);
     }
 }
