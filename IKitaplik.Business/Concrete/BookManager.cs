@@ -198,9 +198,16 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var book = _mapper.Map<Book>(bookUpdateDto);
-                book.UpdatedDate = DateTime.Now;
-                var validationResult = _validator.Validate(book);
+                var book = GetById(bookUpdateDto.Id);
+                if (!book.Success)
+                {
+                    return new ErrorResult(book.Message);
+                }
+                DateTime createdDate = book.Data.CreatedDate;
+                _mapper.Map(bookUpdateDto, book.Data);
+                book.Data.CreatedDate = createdDate;
+                book.Data.UpdatedDate = DateTime.Now;
+                var validationResult = _validator.Validate(book.Data);
                 if (!validationResult.IsValid)
                 {
                     return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage).First());
@@ -208,15 +215,9 @@ namespace IKitaplik.Business.Concrete
 
                 _unitOfWork.BeginTransaction();
 
-
-                if (book.Id <= 0)
-                {
-                    return new ErrorResult("Id değeri gelmiyor");
-                }
-
                 try
                 {
-                    _unitOfWork.Books.Update(book);
+                    _unitOfWork.Books.Update(book.Data);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -227,10 +228,10 @@ namespace IKitaplik.Business.Concrete
 
                 var result = _movementService.Add(new Movement
                 {
-                    BookId = book.Id,
+                    BookId = book.Data.Id,
                     MovementDate = DateTime.Now,
                     Title = "Kitap Güncellendi",
-                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap güncellendi",
+                    Note = $"{DateTime.Now:g} tarihinde {book.Data.Name} adlı kitap güncellendi",
                 });
 
                 if (!result.Success)

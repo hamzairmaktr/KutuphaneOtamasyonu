@@ -101,15 +101,31 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var category = _mapper.Map<Category>(categoryUpdateDto);
-                var validator = _validator.Validate(category);
+                // Önce mevcut kategoriyi veritabanından alalım
+                var existingCategory = GetById(categoryUpdateDto.Id);
+                if (!existingCategory.Success)
+                {
+                    return new ErrorResult(existingCategory.Message);
+                }
+
+                // Mevcut kategorinin CreatedDate bilgisini saklayalım
+                var createdDate = existingCategory.Data.CreatedDate;
+
+                // DTO'dan gelen bilgileri mevcut kategoriye mapleyelim
+                _mapper.Map(categoryUpdateDto, existingCategory);
+
+                // CreatedDate'i koruyalım ve UpdatedDate'i güncelleyelim
+                existingCategory.Data.CreatedDate = createdDate;
+                existingCategory.Data.UpdatedDate = DateTime.Now;
+
+                var validator = _validator.Validate(existingCategory.Data);
                 if (!validator.IsValid)
                 {
                     return new ErrorResult(validator.Errors.First().ErrorMessage);
                 }
+
                 _unitOfWork.BeginTransaction();
-                category.UpdatedDate = DateTime.Now;
-                _unitOfWork.Categorys.Update(category);
+                _unitOfWork.Categorys.Update(existingCategory.Data);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kategori güncellendi");
             }
