@@ -26,6 +26,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                        on d.StudentId equals s.Id
                        join b in _context.Books
                        on d.BookId equals b.Id
+                       where d.IsDeleted == false
                        select new DonationGetDTO
                        {
                            BookBarcode = b.Barcode,
@@ -45,6 +46,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                        on d.StudentId equals s.Id
                        join b in _context.Books
                        on d.BookId equals b.Id
+                       where d.IsDeleted == false
                        select new DonationGetDTO
                        {
                            BookBarcode = b.Barcode,

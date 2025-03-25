@@ -4,6 +4,7 @@ using IKitaplik.Entities.DTOs;
 using IKitaplik.Business.Abstract;
 using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.BookDTOs;
+using AutoMapper;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -13,16 +14,18 @@ namespace IKitaplik.Business.Concrete
         private readonly IStudentService _studentService;
         private readonly IMovementService _movementService;
         private readonly IUnitOfWork _unitOfWork;
-
+        private readonly IMapper _mapper;
         public DepositManager(IBookService bookService,
                               IStudentService studentService,
                               IMovementService movementService,
-                              IUnitOfWork unitOfWork)
+                              IUnitOfWork unitOfWork,
+                              IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _movementService = movementService;
             _bookService = bookService;
             _studentService = studentService;
+            _mapper = mapper;
         }
 
         public IResult DepositGiven(Deposit deposit, int bookId, int studentId)
@@ -132,7 +135,8 @@ namespace IKitaplik.Business.Concrete
         private void UpdateStudentStatus(IDataResult<Student> student, bool isBorrowing)
         {
             student.Data.Situation = isBorrowing;
-            _studentService.Update(student.Data);
+            var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
+            _studentService.Update(studentDto);
         }
 
         private void UpdateStudentOnReturn(IDataResult<Student> student, Deposit deposit)
@@ -143,8 +147,8 @@ namespace IKitaplik.Business.Concrete
             if (deposit.IsItDamaged) student.Data.Point -= 10;
             if (deposit.AmILate) student.Data.Point -= 5;
             student.Data.Point += 10;
-
-            _studentService.Update(student.Data);
+            var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
+            _studentService.Update(studentDto);
         }
 
         private IDataResult<Book> ValidateBook(int bookId)

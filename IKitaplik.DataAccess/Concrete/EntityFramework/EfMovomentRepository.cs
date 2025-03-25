@@ -19,39 +19,41 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
-        public List<MovementGetDTO> GetAllDTO(Expression<Func<MovementGetDTO,bool>> filter = null)
-        {
-            var result = from movement in _context.Movements
-                          join book in _context.Books
-                          on movement.BookId equals book.Id
-                          join student in _context.Students
-                          on movement.StudentId equals student.Id
-                          select new MovementGetDTO
-                          {
-                              Id = movement.Id,
-                              BookName = book.Name,
-                              MovementDate = movement.MovementDate,
-                              Note = movement.Note,
-                              StudentName = student.Name,
-                              Title = movement.Title,
-                              BookId = book.Id,
-                              DepositId = movement.DepositId,
-                              DonationId = movement.DonationId,
-                              StudentId = movement.StudentId,
-                              Type = movement.Type
-                          };
-            return filter == null
-                ? result.ToList()
-                : result.Where(filter).ToList();
-        }
-
-        public MovementGetDTO GetDTO(Expression<Func<MovementGetDTO,bool>> filter)
+        public List<MovementGetDTO> GetAllDTO(Expression<Func<MovementGetDTO, bool>> filter = null)
         {
             var result = from movement in _context.Movements
                          join book in _context.Books
                          on movement.BookId equals book.Id
                          join student in _context.Students
                          on movement.StudentId equals student.Id
+                         where movement.IsDeleted == false
+                         select new MovementGetDTO
+                         {
+                             Id = movement.Id,
+                             BookName = book.Name,
+                             MovementDate = movement.MovementDate,
+                             Note = movement.Note,
+                             StudentName = student.Name,
+                             Title = movement.Title,
+                             BookId = book.Id,
+                             DepositId = movement.DepositId,
+                             DonationId = movement.DonationId,
+                             StudentId = movement.StudentId,
+                             Type = movement.Type
+                         };
+            return filter == null
+                ? result.ToList()
+                : result.Where(filter).ToList();
+        }
+
+        public MovementGetDTO GetDTO(Expression<Func<MovementGetDTO, bool>> filter)
+        {
+            var result = from movement in _context.Movements
+                         join book in _context.Books
+                         on movement.BookId equals book.Id
+                         join student in _context.Students
+                         on movement.StudentId equals student.Id
+                         where movement.IsDeleted == false
                          select new MovementGetDTO
                          {
                              Id = movement.Id,

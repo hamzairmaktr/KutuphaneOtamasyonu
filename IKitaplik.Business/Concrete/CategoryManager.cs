@@ -5,6 +5,7 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using AutoMapper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -122,7 +123,8 @@ namespace IKitaplik.Business.Concrete
                 var validator = _validator.Validate(category);
                 if (!validator.IsValid)
                 {
-                    return new ErrorResult(validator.Errors.ToString() ?? "Bulunamayan bir validasyon hatası var");
+                    return new ErrorResult(validator.Errors.Select(e => e.ErrorMessage)
+                        .First());
                 }
 
                 _unitOfWork.BeginTransaction();

@@ -16,6 +16,10 @@ namespace IKitaplik.Business.Mapping
         {
             CreateMap<BookAddDto, Book>();
             CreateMap<BookUpdateDto, Book>();
+            CreateMap<BookGetDTO, Book>();
+            CreateMap<Book, BookAddDto>();
+            CreateMap<Book, BookUpdateDto>();
+            CreateMap<Book, BookGetDTO>();
 
             CreateMap<CategoryAddDto, Category>();
             CreateMap<CategoryUpdateDto, Category>();
@@ -27,6 +31,9 @@ namespace IKitaplik.Business.Mapping
             CreateMap<StudentAddDto, Student>();
             CreateMap<StudentUpdateDto, Student>();
             CreateMap<StudentGetDto, Student>();
+            CreateMap<Student, StudentAddDto>();
+            CreateMap<Student, StudentUpdateDto>();
+            CreateMap<Student, StudentGetDto>();
         }
     }
 }

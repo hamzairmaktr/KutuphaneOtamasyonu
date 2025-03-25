@@ -4,6 +4,7 @@ using IKitaplik.DataAccess.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IKitaplik.DataAccess.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20250324192915_mig-added-IsDeletedColumn-tables")]
+    partial class migaddedIsDeletedColumntables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,7 @@ namespace IKitaplik.DataAccess.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Books", (string)null);
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("IKitaplik.Entities.Concrete.Category", b =>
@@ -92,7 +95,7 @@ namespace IKitaplik.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("IKitaplik.Entities.Concrete.Deposit", b =>
@@ -139,7 +142,7 @@ namespace IKitaplik.DataAccess.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Deposits", (string)null);
+                    b.ToTable("Deposits");
                 });
 
             modelBuilder.Entity("IKitaplik.Entities.Concrete.Donation", b =>
@@ -178,7 +181,7 @@ namespace IKitaplik.DataAccess.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Donations", (string)null);
+                    b.ToTable("Donations");
                 });
 
             modelBuilder.Entity("IKitaplik.Entities.Concrete.Movement", b =>
@@ -232,7 +235,7 @@ namespace IKitaplik.DataAccess.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Movements", (string)null);
+                    b.ToTable("Movements");
                 });
 
             modelBuilder.Entity("IKitaplik.Entities.Concrete.Student", b =>
@@ -278,7 +281,7 @@ namespace IKitaplik.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("IKitaplik.Entities.Concrete.Book", b =>

@@ -12,8 +12,7 @@ namespace IKitaplik.DataAccess.Abstract
 {
     public interface IDepositRepository:IEntityRepository<Deposit>
     {
-        List<DepositGetDTO> GetAllDepositDTOs();
-        List<DepositGetDTO> GetAllDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter);
+        List<DepositGetDTO> GetAllDepositDTOs(Expression<Func<DepositGetDTO, bool>> filter = null);
         DepositGetDTO GetDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter);
     }
 }

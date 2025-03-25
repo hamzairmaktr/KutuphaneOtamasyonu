@@ -34,29 +34,39 @@ namespace Core.DataAccess.EntityFramework
 
         public void Delete(TEntity entity)
         {
-
-            var deletedEntity = _context.Entry(entity);
-            deletedEntity.State = EntityState.Deleted;
-            _context.SaveChanges();
-            deletedEntity.State = EntityState.Detached;
-
+            if (entity is BaseEntities softDeletable)
+            {
+                var updatedEntity = _context.Entry(entity);
+                updatedEntity.State = EntityState.Modified;
+                softDeletable.IsDeleted = true;
+                _context.SaveChanges();
+                updatedEntity.State = EntityState.Detached;
+            }
+            else
+            {
+                var deletedEntity = _context.Entry(entity);
+                deletedEntity.State = EntityState.Deleted;
+                _context.SaveChanges();
+                deletedEntity.State = EntityState.Detached;
+            }
         }
 
         public List<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null)
         {
-            return filter == null ? _context.Set<TEntity>().AsNoTracking().ToList() : _context.Set<TEntity>().AsNoTracking().Where(filter).ToList();
+            return filter == null
+                ? _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).ToList()
+                : _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted")).Where(filter).ToList();
         }
 
         public TEntity Get(Expression<Func<TEntity, bool>> filter)
         {
 
-            return _context.Set<TEntity>().AsNoTracking().FirstOrDefault(filter);
+            return _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).FirstOrDefault(filter);
 
         }
 
         public void Update(TEntity entity)
         {
-
             var updatedEntity = _context.Entry(entity);
             updatedEntity.State = EntityState.Modified;
             _context.SaveChanges();

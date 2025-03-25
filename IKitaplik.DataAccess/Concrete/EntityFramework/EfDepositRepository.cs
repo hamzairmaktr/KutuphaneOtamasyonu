@@ -19,46 +19,28 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             this._context = context;
         }
 
-        public List<DepositGetDTO> GetAllDepositDTOs()
-        {
-            var result =  from d in _context.Deposits
-                   join b in _context.Books
-                   on d.BookId equals b.Id
-                   join s in _context.Students
-                   on d.StudentId equals s.Id
-                   select new DepositGetDTO
-                   {
-                       AmILate = d.AmILate,
-                       BookName = b.Name,
-                       DeliveryDate = d.DeliveryDate,
-                       Id = d.Id,
-                       IsItDamaged = d.IsItDamaged,
-                       IssueDate = d.IssueDate,
-                       Note = d.Note,
-                       StudentName = s.Name,
-                   };
-            return result.ToList();
-        }
-
-        public List<DepositGetDTO> GetAllDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter)
+        public List<DepositGetDTO> GetAllDepositDTOs(Expression<Func<DepositGetDTO, bool>> filter = null)
         {
             var result = from d in _context.Deposits
-                   join b in _context.Books
-                   on d.BookId equals b.Id
-                   join s in _context.Students
-                   on d.StudentId equals s.Id
-                   select new DepositGetDTO
-                   {
-                       AmILate = d.AmILate,
-                       BookName = b.Name,
-                       DeliveryDate = d.DeliveryDate,
-                       Id = d.Id,
-                       IsItDamaged = d.IsItDamaged,
-                       IssueDate = d.IssueDate,
-                       Note = d.Note,
-                       StudentName = s.Name,
-                   };
-            return result.Where(filter).ToList();
+                         join b in _context.Books
+                         on d.BookId equals b.Id
+                         join s in _context.Students
+                         on d.StudentId equals s.Id
+                         where d.IsDeleted == false
+                         select new DepositGetDTO
+                         {
+                             AmILate = d.AmILate,
+                             BookName = b.Name,
+                             DeliveryDate = d.DeliveryDate,
+                             Id = d.Id,
+                             IsItDamaged = d.IsItDamaged,
+                             IssueDate = d.IssueDate,
+                             Note = d.Note,
+                             StudentName = s.Name,
+                         };
+            return filter == null 
+                ? result.ToList()
+                : result.Where(filter).ToList();
         }
 
         public DepositGetDTO GetDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter)
@@ -68,6 +50,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                          on d.BookId equals b.Id
                          join s in _context.Students
                          on d.StudentId equals s.Id
+                         where d.IsDeleted == false
                          select new DepositGetDTO
                          {
                              AmILate = d.AmILate,

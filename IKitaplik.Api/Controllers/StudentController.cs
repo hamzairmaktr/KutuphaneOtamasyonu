@@ -19,9 +19,9 @@ namespace IKitaplik.Api.Controllers
             var result = _studentService.GetAll();
             if (result.Success)
             {
-                return Ok(result.Data);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
 
         [HttpGet("getallbyname")]
@@ -30,9 +30,9 @@ namespace IKitaplik.Api.Controllers
             var result = _studentService.GetAllByName(name);
             if (result.Success)
             {
-                return Ok(result.Data);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
 
         [HttpGet("getbyid")]
@@ -41,9 +41,9 @@ namespace IKitaplik.Api.Controllers
             var result = _studentService.GetById(id);
             if (result.Success)
             {
-                return Ok(result.Data);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
 
         [HttpPost("add")]
@@ -52,9 +52,9 @@ namespace IKitaplik.Api.Controllers
             var result = _studentService.Add(studentAddDto);
             if (result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
 
         [HttpPut("update")]
@@ -63,9 +63,9 @@ namespace IKitaplik.Api.Controllers
             var result = _studentService.Update(studentUpdateDto);
             if (result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
 
         [HttpDelete("delete")]
@@ -74,9 +74,9 @@ namespace IKitaplik.Api.Controllers
             var result = _studentService.Delete(id);
             if (result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
     }
 }

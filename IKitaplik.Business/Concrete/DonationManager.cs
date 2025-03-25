@@ -63,7 +63,8 @@ namespace IKitaplik.Business.Concrete
                     {
                         student.Data.Point += 20;
                     }
-                    _studentService.Update(student.Data);
+                    var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
+                    _studentService.Update(studentDto);
                 }
                 else
                 {

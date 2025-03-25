@@ -82,7 +82,6 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(res.Message);
                 }
-
                 _unitOfWork.Books.Delete(res.Data);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile silindi");
@@ -210,7 +209,8 @@ namespace IKitaplik.Business.Concrete
                 var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {
-                    return new ErrorResult(validationResult.Errors.ToString() ?? "Bulunamayan bir validason hatası var");
+                    return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage)
+                        .First());
                 }
 
                 _unitOfWork.BeginTransaction();
