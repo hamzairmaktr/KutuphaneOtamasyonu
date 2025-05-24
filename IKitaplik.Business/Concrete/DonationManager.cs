@@ -14,8 +14,10 @@ namespace IKitaplik.Business.Concrete
         private readonly IStudentService _studentService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public DonationManager(IBookService bookService, IStudentService studentService, IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IMovementService _movementService;
+        public DonationManager(IBookService bookService, IStudentService studentService, IUnitOfWork unitOfWork, IMovementService movementService,IMapper mapper)
         {
+            _movementService = movementService;
             _unitOfWork = unitOfWork;
             _bookService = bookService;
             _studentService = studentService;
@@ -23,9 +25,8 @@ namespace IKitaplik.Business.Concrete
         }
         public IResult Add(BookAddDto bookAddDto, Donation donation)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
-                _unitOfWork.BeginTransaction();
                 int bookId;
                 // Kitap barcodunu kontrol et eğer ilgili barcode varsa +1 yap yoksa yeni kitap ekle
                 var bookControl = _bookService.GetByBarcode(bookAddDto?.Barcode ?? "0");
@@ -33,10 +34,9 @@ namespace IKitaplik.Business.Concrete
                 {
                     bookControl.Data.Piece += 1;
                     bookId = bookControl.Data.Id;
-                    var updatedBook = _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookControl.Data.Id, BeAdded = bookControl.Data.Piece});
+                    var updatedBook = _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookControl.Data.Id, BeAdded = bookControl.Data.Piece });
                     if (!updatedBook.Success)
                     {
-                        _unitOfWork.Rollback();
                         return new ErrorResult(updatedBook.Message);
                     }
                 }
@@ -45,7 +45,6 @@ namespace IKitaplik.Business.Concrete
                     var addedBook = _bookService.Add(bookAddDto ?? new BookAddDto());
                     if (!addedBook.Success || addedBook.Data == null)
                     {
-                        _unitOfWork.Rollback();
                         return new ErrorResult(addedBook.Message);
                     }
                     bookId = addedBook.Data.Id;
@@ -68,20 +67,25 @@ namespace IKitaplik.Business.Concrete
                 }
                 else
                 {
-                    _unitOfWork.Rollback();
                     return new ErrorResult("Öğrenci bulunamadı");
                 }
 
                 donation.BookId = bookId; // Kitap ID'sini donation'a ekle
                 _unitOfWork.Donations.Add(donation);
-                _unitOfWork.Commit();
+                _movementService.Add(new Movement
+                {
+                    BookId = bookId,
+                    CreatedDate = DateTime.Now,
+                    DonationId = donation.Id,
+                    StudentId = donation.StudentId,
+                    MovementDate = DateTime.Now,
+                    Type = Entities.Enums.MovementType.Donation,
+                    Title = "Bağış yapıldı",
+                    Note = $"{student.Data.Name} adlı öğrenci {bookAddDto.Name} adlı kitabı bağış olarak teslim etti"
+                });
                 return new SuccessResult("Bağış başarıyla eklendi.");
-            }
-            catch (Exception e)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Bağış eklenirken hata oluştu : " + e.Message);
-            }
+
+            }, _unitOfWork);
         }
 
         public IDataResult<List<DonationGetDTO>> GetAllDTO()

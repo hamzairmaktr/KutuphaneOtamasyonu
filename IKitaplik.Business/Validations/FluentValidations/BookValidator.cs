@@ -24,10 +24,6 @@ namespace IKitaplik.Business.Validations.FluentValidations
 
             RuleFor(b => b.Barcode)
                 .NotEmpty().WithMessage("Barkod giriniz");
-
-            RuleFor(b => b.Writer)
-                .NotEmpty().WithMessage("Yazar alanı boş olamaz")
-                .Length(5, 100).WithMessage("Yazar alanı 5 ile 100 karakter arası olmalıdır");
         }
     }
 }

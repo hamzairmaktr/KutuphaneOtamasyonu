@@ -20,6 +20,7 @@ builder.Services.AddScoped<IStudentRepository, EfStudentRepository>();
 builder.Services.AddScoped<IDepositRepository, EfDepositRepository>();
 builder.Services.AddScoped<IDonationRepository, EfDonationRepository>();
 builder.Services.AddScoped<IMovementRepository, EfMovomentRepository>();
+builder.Services.AddScoped<IWriterRepository, EfWriterRepository>();
 
 builder.Services.AddScoped<IBookService, BookManager>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IStudentService, StudentManager>();
 builder.Services.AddScoped<IDepositService, DepositManager>();
 builder.Services.AddScoped<IDonationService, DonationManager>();
 builder.Services.AddScoped<IMovementService, MovementManager>();
+builder.Services.AddScoped<IWriterService, WriterManager>();
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -34,6 +36,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CategoryValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<StudentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<WriterValidator>();
 
 
 

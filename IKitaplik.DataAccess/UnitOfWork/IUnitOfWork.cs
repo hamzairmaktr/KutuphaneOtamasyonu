@@ -10,6 +10,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
         public IDonationRepository Donations { get; }
         public IMovementRepository Movements { get; }
         public IStudentRepository Students { get; }
+        public IWriterRepository Writer { get; }
         public void BeginTransaction();
         public void Commit();
         public void Rollback();

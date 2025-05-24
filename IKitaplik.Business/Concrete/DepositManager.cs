@@ -30,7 +30,7 @@ namespace IKitaplik.Business.Concrete
 
         public IResult DepositGiven(Deposit deposit, int bookId, int studentId)
         {
-            return HandleWithTransaction(() =>
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var book = ValidateBook(bookId);
                 var student = ValidateStudent(studentId);
@@ -39,7 +39,7 @@ namespace IKitaplik.Business.Concrete
                 if (student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
 
                 _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookId, BeAdded = -1 });
-                
+
                 UpdateStudentStatus(student, true);
 
                 deposit.BookId = bookId;
@@ -49,12 +49,12 @@ namespace IKitaplik.Business.Concrete
                 AddMovement("Emanet Verildi", $"{student.Data.Name} adlı öğrenciye {book.Data.Name} adlı kitap emanet verildi", bookId, studentId, deposit.Id);
 
                 return new SuccessResult("Kitap başarıyla emanet verildi.");
-            });
+            }, _unitOfWork);
         }
 
         public IResult DepositReceived(Deposit deposit)
         {
-            return HandleWithTransaction(() =>
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var existingDeposit = _unitOfWork.Deposits.Get(d => d.Id == deposit.Id);
                 if (existingDeposit == null) return new ErrorResult("Emanet kaydı bulunamadı.");
@@ -71,22 +71,22 @@ namespace IKitaplik.Business.Concrete
                 AddMovement("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(deposit)} teslim etti", book.Data.Id, student.Data.Id, deposit.Id);
 
                 return new SuccessResult("Kitap başarıyla iade alındı.");
-            });
+            }, _unitOfWork);
         }
 
         public IResult Delete(Deposit deposit)
         {
-            return HandleWithTransaction(() =>
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 _unitOfWork.Deposits.Delete(deposit);
                 AddMovement("Emanet Kaydı Silindi", "Emanet kaydı silindi.", deposit.BookId, deposit.StudentId, deposit.Id);
                 return new SuccessResult("Emanet kaydı başarıyla silindi.");
-            });
+            }, _unitOfWork);
         }
 
         public IResult ExtendDueDate(int depositId, int additionalDays, DateTime date, bool asDate)
         {
-            return HandleWithTransaction(() =>
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var deposit = GetById(depositId).Data;
                 if (asDate)
@@ -96,7 +96,7 @@ namespace IKitaplik.Business.Concrete
 
                 _unitOfWork.Deposits.Update(deposit);
                 return new SuccessResult("Emanete ek süre verildi.");
-            });
+            }, _unitOfWork);
         }
 
         private void AddMovement(string title, string note, int bookId, int studentId, int depositId)
@@ -110,27 +110,6 @@ namespace IKitaplik.Business.Concrete
                 Title = title,
                 Note = $"{DateTime.Now:g} - {note}"
             });
-        }
-
-        private IResult HandleWithTransaction(Func<IResult> operation)
-        {
-            try
-            {
-                _unitOfWork.BeginTransaction();
-                var result = operation();
-                if (!result.Success)
-                {
-                    _unitOfWork.Rollback();
-                    return result;
-                }
-                _unitOfWork.Commit();
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("İşlem sırasında hata oluştu: " + ex.Message);
-            }
         }
         private void UpdateStudentStatus(IDataResult<Student> student, bool isBorrowing)
         {
@@ -190,7 +169,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var deposit = _unitOfWork.Deposits.GetDepositFilteredDTOs(p=>p.Id == id);
+                var deposit = _unitOfWork.Deposits.GetDepositFilteredDTOs(p => p.Id == id);
                 if (deposit != null)
                 {
                     return new SuccessDataResult<DepositGetDTO>(deposit, "Emanet kaydı başarıyla çekildi.");

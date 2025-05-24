@@ -24,6 +24,8 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             var result = from b in _context.Books
                          join c in _context.Categories
                          on b.CategoryId equals c.Id
+                         join w in _context.Writers
+                         on b.WriterId equals w.Id
                          where b.IsDeleted == false
                          select new BookGetDTO
                          {
@@ -34,7 +36,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              Id = b.Id,
                              ShelfNo = b.ShelfNo,
                              Situation = b.Situation,
-                             Writer = b.Writer,
+                             WriterName = w.WriterName,
                              PageSize = b.PageSize,
                              CreatedDate = b.CreatedDate,
                              UpdatedDate = b.UpdatedDate
@@ -47,6 +49,8 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             var result = from b in _context.Books
                          join c in _context.Categories
                          on b.CategoryId equals c.Id
+                         join w in _context.Writers
+                         on b.WriterId equals w.Id
                          where b.IsDeleted == false
                          select new BookGetDTO
                          {
@@ -57,7 +61,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              Id = b.Id,
                              ShelfNo = b.ShelfNo,
                              Situation = b.Situation,
-                             Writer = b.Writer,
+                             WriterName = w.WriterName,
                              PageSize = b.PageSize,
                              CreatedDate = b.CreatedDate,
                              UpdatedDate = b.UpdatedDate

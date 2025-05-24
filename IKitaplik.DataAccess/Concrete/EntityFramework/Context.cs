@@ -38,6 +38,12 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                 .HasOne(d => d.Student)
                 .WithMany(b => b.Deposits)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Writer>()
+                .HasMany(b=>b.Books)
+                .WithOne(d=>d.Writer)
+                .OnDelete(DeleteBehavior.NoAction);
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -47,5 +53,6 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         public DbSet<Student> Students { get; set; }
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Movement> Movements { get; set; }
+        public DbSet<Writer> Writers { get; set; }
     }
 }

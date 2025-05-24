@@ -2,6 +2,7 @@
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
+using IKitaplik.Entities.DTOs.WriterDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,13 @@ namespace IKitaplik.Business.Mapping
             CreateMap<Student, StudentAddDto>();
             CreateMap<Student, StudentUpdateDto>();
             CreateMap<Student, StudentGetDto>();
+
+            CreateMap<WriterAddDto, Writer>();
+            CreateMap<WriterUpdateDto, Writer>();
+            CreateMap<WriterGetDto, Writer>();
+            CreateMap<Writer,WriterAddDto>();
+            CreateMap<Writer,WriterUpdateDto>();
+            CreateMap<Writer,WriterGetDto>();
         }
     }
 }

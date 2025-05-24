@@ -5,7 +5,6 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using AutoMapper;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -23,46 +22,33 @@ namespace IKitaplik.Business.Concrete
 
         public IResult Add(CategoryAddDto categoryAddDto)
         {
-            try
-            {
+            return HandleWithTransactionHelper.Handling(() => {
                 var category = _mapper.Map<Category>(categoryAddDto);
                 var validator = _validator.Validate(category);
                 if (!validator.IsValid)
                 {
                     return new ErrorResult(validator.Errors.First().ErrorMessage);
                 }
-                _unitOfWork.BeginTransaction();
                 category.CreatedDate = DateTime.Now;
                 _unitOfWork.Categorys.Add(category);
-                _unitOfWork.Commit();
                 return new SuccessResult("Kategori başarı ile eklendi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Kategori eklenirken hata oluştu : " + ex.Message);
-            }
+            }, _unitOfWork);
+           
+
         }
 
         public IResult Delete(int id)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var category = GetById(id);
                 if (!category.Success)
                 {
                     return new ErrorResult(category.Message);
                 }
-                _unitOfWork.BeginTransaction();
                 _unitOfWork.Categorys.Delete(category.Data);
-                _unitOfWork.Commit();
                 return new SuccessResult("Kategori silindi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Kategori silinirken hata oluştu : " + ex.Message);
-            }
+            }, _unitOfWork);
         }
 
         public IDataResult<List<CategoryGetDto>> GetAll()
@@ -101,8 +87,8 @@ namespace IKitaplik.Business.Concrete
 
         public IResult Update(CategoryUpdateDto categoryUpdateDto)
         {
-            try
-            {
+            return HandleWithTransactionHelper.Handling(() =>
+            { 
                 // Önce mevcut kategoriyi veritabanından alalım
                 var existingCategory = GetById(categoryUpdateDto.Id);
                 if (!existingCategory.Success)
@@ -127,16 +113,11 @@ namespace IKitaplik.Business.Concrete
                         .First());
                 }
 
-                _unitOfWork.BeginTransaction();
                 _unitOfWork.Categorys.Update(category);
-                _unitOfWork.Commit();
                 return new SuccessResult("Kategori güncellendi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Kategori güncellenirken hata oluştu : " + ex.Message);
-            }
+            }, _unitOfWork);
+                
+           
         }
     }
 }

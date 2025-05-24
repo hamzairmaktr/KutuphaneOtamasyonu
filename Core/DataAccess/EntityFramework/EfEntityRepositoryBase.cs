@@ -55,7 +55,7 @@ namespace Core.DataAccess.EntityFramework
         {
             return filter == null
                 ? _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).ToList()
-                : _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted")).Where(filter).ToList();
+                : _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).Where(filter).ToList();
         }
 
         public TEntity Get(Expression<Func<TEntity, bool>> filter)

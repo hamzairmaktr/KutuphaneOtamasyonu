@@ -1,4 +1,6 @@
-public class StudentUpdateDto
+using Core.Entities;
+
+public class StudentUpdateDto: IDto
 {
     public int Id { get; set; }
     public int StudentNumber { get; set; }

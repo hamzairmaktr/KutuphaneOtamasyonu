@@ -27,7 +27,7 @@ namespace IKitaplik.Business.Concrete
 
         public IResult Add(StudentAddDto studentAddDto)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var student = _mapper.Map<Student>(studentAddDto);
                 var isValid = _validator.Validate(student);
@@ -35,14 +35,14 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
-                _unitOfWork.BeginTransaction();
                 student.CreatedDate = DateTime.Now;
                 student.Point = 100;
                 student.NumberofBooksRead = 0;
                 student.Situation = true;
                 _unitOfWork.Students.Add(student);
 
-                var movementResponse = _movementService.Add(new Movement{
+                var movementResponse = _movementService.Add(new Movement
+                {
                     StudentId = student.Id,
                     Title = "Öğrenci Eklendi",
                     MovementDate = DateTime.Now,
@@ -51,31 +51,23 @@ namespace IKitaplik.Business.Concrete
 
                 if (!movementResponse.Success)
                 {
-                    _unitOfWork.Rollback();
                     return new ErrorResult(movementResponse.Message);
                 }
-
-                _unitOfWork.Commit();
                 return new SuccessResult("Öğrenci başarı ile eklendi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Öğrenci eklenirken hata oluştu: " + ex.Message);
-            }
+            }, _unitOfWork);
         }
 
         public IResult Delete(int id)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
-                _unitOfWork.BeginTransaction();
                 var student = GetById(id);
-                if(!student.Success)
+                if (!student.Success)
                     return new ErrorResult(student.Message);
                 _unitOfWork.Students.Delete(student.Data);
 
-                var movementResponse = _movementService.Add(new Movement{
+                var movementResponse = _movementService.Add(new Movement
+                {
                     StudentId = student.Data.Id,
                     Title = "Öğrenci Silindi",
                     MovementDate = DateTime.Now,
@@ -84,18 +76,12 @@ namespace IKitaplik.Business.Concrete
 
                 if (!movementResponse.Success)
                 {
-                    _unitOfWork.Rollback();
                     return new ErrorResult(movementResponse.Message);
                 }
 
-                _unitOfWork.Commit();
                 return new SuccessResult("Öğrenci başarı ile silindi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Öğrenci silinirken hata oluştu: " + ex.Message);
-            }
+
+            }, _unitOfWork);
         }
 
         public IDataResult<List<StudentGetDto>> GetAll()
@@ -145,7 +131,7 @@ namespace IKitaplik.Business.Concrete
 
         public IResult Update(StudentUpdateDto studentUpdateDto)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var studentExisting = GetById(studentUpdateDto.Id);
                 if (!studentExisting.Success)
@@ -159,30 +145,25 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(isValid.Errors.First().ErrorMessage);
                 }
-                _unitOfWork.BeginTransaction();
                 student.CreatedDate = createdDate;
                 student.UpdatedDate = DateTime.Now;
                 _unitOfWork.Students.Update(student);
 
-                var movementResponse = _movementService.Add(new Movement{
+                var movementResponse = _movementService.Add(new Movement
+                {
                     StudentId = student.Id,
                     MovementDate = DateTime.Now,
                     Title = "Öğrenci Güncellendi",
                     Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci güncellendi"
                 });
 
-                if(!movementResponse.Success){
-                    _unitOfWork.Rollback();
+                if (!movementResponse.Success)
+                {
                     return new ErrorResult(movementResponse.Message);
                 }
-                _unitOfWork.Commit();
                 return new SuccessResult("Öğrenci başarı ile güncellendi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Öğrenci güncellenirken hata oluştu: " + ex.Message);
-            }
+
+            }, _unitOfWork);
         }
     }
 }

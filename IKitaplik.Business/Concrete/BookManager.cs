@@ -26,7 +26,7 @@ namespace IKitaplik.Business.Concrete
 
         public IDataResult<Book> Add(BookAddDto bookAddDto)
         {
-            try
+            return HandleWithTransactionHelper.Handling<Book>(() =>
             {
                 var book = _mapper.Map<Book>(bookAddDto);
                 book.CreatedDate = DateTime.Now;
@@ -44,7 +44,6 @@ namespace IKitaplik.Business.Concrete
                     return new SuccessDataResult<Book>(res.Message);
                 }
 
-                _unitOfWork.BeginTransaction();
                 _unitOfWork.Books.Add(book);
 
                 var result = _movementService.Add(new Movement
@@ -57,26 +56,16 @@ namespace IKitaplik.Business.Concrete
 
                 if (!result.Success)
                 {
-                    _unitOfWork.Rollback();
                     return new ErrorDataResult<Book>(result.Message);
                 }
-
-                _unitOfWork.Commit();
                 return new SuccessDataResult<Book>(book, message: "Kitap başarı ile oluşturuldu");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorDataResult<Book>(message: "Kitap oluşturulurken hata oluştu : " + ex.Message);
-            }
+            }, _unitOfWork);
         }
 
         public IResult Delete(int id)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
-                _unitOfWork.BeginTransaction();
-
                 var res = GetById(id);
                 if (!res.Success)
                 {
@@ -85,25 +74,19 @@ namespace IKitaplik.Business.Concrete
                 _unitOfWork.Books.Delete(res.Data);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile silindi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Kitap silinirken hata oluştu : " + ex.Message);
-            }
+
+            }, _unitOfWork);
         }
 
         public IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var res = GetById(bookAddPieceDto.Id);
                 if (res.Success)
                 {
-                    _unitOfWork.BeginTransaction();
                     res.Data.Piece += bookAddPieceDto.BeAdded;
                     _unitOfWork.Books.Update(res.Data);
-                    _unitOfWork.Commit();
                     if (bookAddPieceDto.BeAdded >= 0)
                     {
                         return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} arttı");
@@ -115,15 +98,10 @@ namespace IKitaplik.Business.Concrete
                 }
                 else
                 {
-                    _unitOfWork.Rollback();
                     return new ErrorResult("İlgili kitap bulunamadı");
                 }
-            }
-            catch (Exception e)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Kitap sayısı arttırılırken hata oluştu : " + e.Message);
-            }
+
+            }, _unitOfWork);
         }
 
         public IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter)
@@ -195,7 +173,7 @@ namespace IKitaplik.Business.Concrete
 
         public IResult Update(BookUpdateDto bookUpdateDto)
         {
-            try
+            return HandleWithTransactionHelper.Handling(() =>
             {
                 var bookExisting = GetById(bookUpdateDto.Id);
                 if (!bookExisting.Success)
@@ -213,7 +191,6 @@ namespace IKitaplik.Business.Concrete
                         .First());
                 }
 
-                _unitOfWork.BeginTransaction();
                 _unitOfWork.Books.Update(book);
 
                 var result = _movementService.Add(new Movement
@@ -226,18 +203,12 @@ namespace IKitaplik.Business.Concrete
 
                 if (!result.Success)
                 {
-                    _unitOfWork.Rollback();
                     return new ErrorResult(result.Message);
                 }
 
-                _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile güncellendi");
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return new ErrorResult("Kitap güncellenirken hata oluştu : " + ex.Message);
-            }
+
+            }, _unitOfWork);
         }
 
         public IDataResult<Book> GetByBarcode(string barcode)

@@ -12,11 +12,9 @@ namespace IKitaplik.Api.Controllers
     public class BookController : ControllerBase
     {
         IBookService _bookService;
-        IMapper _mapper;
-        public BookController(IBookService bookService, IMapper mapper)
+        public BookController(IBookService bookService)
         {
             _bookService = bookService;
-            _mapper = mapper;
         }
 
         [HttpGet("getall")]

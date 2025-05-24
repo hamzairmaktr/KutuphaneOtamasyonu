@@ -14,6 +14,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
         public IDonationRepository Donations { get; private set; }
         public IMovementRepository Movements { get; private set; }
         public IStudentRepository Students { get; private set; }
+        public IWriterRepository Writer { get; private set; }
         public UnitOfWork(Context context)
         {
             _context = context;
@@ -23,6 +24,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
             Donations = new EfDonationRepository(_context);
             Movements = new EfMovomentRepository(_context);
             Students = new EfStudentRepository(_context);
+            Writer = new EfWriterRepository(_context);
         }
 
         public void BeginTransaction()

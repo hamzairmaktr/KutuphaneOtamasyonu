@@ -1,4 +1,6 @@
-public class StudentGetDto
+using Core.Entities;
+
+public class StudentGetDto: IDto
 {
     public int Id { get; set; }
     public int StudentNumber { get; set; }
