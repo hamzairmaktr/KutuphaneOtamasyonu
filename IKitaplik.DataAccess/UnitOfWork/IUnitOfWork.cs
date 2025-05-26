@@ -11,6 +11,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
         public IMovementRepository Movements { get; }
         public IStudentRepository Students { get; }
         public IWriterRepository Writer { get; }
+        public IUserRepository Users { get; }
         public void BeginTransaction();
         public void Commit();
         public void Rollback();

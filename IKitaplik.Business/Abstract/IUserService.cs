@@ -1,4 +1,5 @@
 ﻿using Core.Utilities.Results;
+using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.UserDTOs;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace IKitaplik.Business.Abstract
     public interface IUserService
     {
         IResult Register(UserRegisterDto userRegisterDto);
-        IResult Login(UserLoginDto userLoginDto);
+        IDataResult<User> Login(UserLoginDto userLoginDto);
     }
 }

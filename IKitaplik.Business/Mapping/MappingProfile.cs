@@ -4,6 +4,7 @@ using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using IKitaplik.Entities.DTOs.DepositDTOs;
 using IKitaplik.Entities.DTOs.DonationDTOs;
+using IKitaplik.Entities.DTOs.UserDTOs;
 using IKitaplik.Entities.DTOs.WriterDTOs;
 using System;
 using System.Collections.Generic;
@@ -56,6 +57,11 @@ namespace IKitaplik.Business.Mapping
             CreateMap<Deposit, DepositAddDto>();
             CreateMap<Deposit, DepositUpdateDto>();
             CreateMap<Deposit, DepositGetDTO>();
+
+            CreateMap<UserRegisterDto, User>();
+            CreateMap<UserLoginDto, User>();
+            CreateMap<User, UserRegisterDto>();
+            CreateMap<User, UserLoginDto>();
         }
     }
 }
