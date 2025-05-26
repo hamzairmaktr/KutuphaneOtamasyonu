@@ -1,6 +1,6 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
-using IKitaplik.Entities.DTOs;
+using IKitaplik.Entities.DTOs.DepositDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +11,10 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IDepositService
     {
-        IResult DepositGiven(Deposit deposit, int bookId, int studentId);
-        IResult DepositReceived(Deposit deposit);
-        IResult Delete(Deposit deposit);
-        IResult ExtendDueDate(int depositId, int additionalDays, DateTime date, bool asDate);
+        IResult DepositGiven(DepositAddDto depositAddDto);
+        IResult DepositReceived(DepositUpdateDto depositUpdateDto);
+        IResult Delete(int id);
+        IResult ExtendDueDate(DepositExtentDueDateDto depositExtentDueDateDto);
 
         IDataResult<List<DepositGetDTO>> GetAllDTO();
         IDataResult<DepositGetDTO> GetByIdDTO(int id);

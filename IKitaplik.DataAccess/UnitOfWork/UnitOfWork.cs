@@ -46,5 +46,10 @@ namespace IKitaplik.DataAccess.UnitOfWork
             _transaction.Rollback();
             _transaction = null;
         }
+
+        public bool IsTransactionActive()
+        {
+            return _transaction != null;
+        }
     }
 }

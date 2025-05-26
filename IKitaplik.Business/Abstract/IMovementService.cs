@@ -19,6 +19,7 @@ namespace IKitaplik.Business.Abstract
         IDataResult<List<MovementGetDTO>> GetAllFilteredBookId(int id);
         IDataResult<List<MovementGetDTO>> GetAllFilteredBookName(string name);
         IDataResult<List<MovementGetDTO>> GetAllFilteredDepositId(int id);
+        IDataResult<List<MovementGetDTO>> GetAllFilteredDonationId(int id);
         IDataResult<MovementGetDTO> GetByIdDto(int id);
         IDataResult<Movement> GetById(int id);
     }

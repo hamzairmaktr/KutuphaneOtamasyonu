@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IKitaplik.Entities.DTOs
+namespace IKitaplik.Entities.DTOs.DonationDTOs
 {
     public class DonationGetDTO:IDto
     {

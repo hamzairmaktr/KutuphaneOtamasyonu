@@ -129,41 +129,49 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(StudentUpdateDto studentUpdateDto)
+        public IResult Update(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false)
         {
+            if (isDonationOrDeposit)
+            {
+                return UpdateLocal(studentUpdateDto);
+            }
             return HandleWithTransactionHelper.Handling(() =>
             {
-                var studentExisting = GetById(studentUpdateDto.Id);
-                if (!studentExisting.Success)
-                {
-                    return new ErrorResult(studentExisting.Message);
-                }
-                DateTime createdDate = studentExisting.Data.CreatedDate;
-                var student = _mapper.Map<Student>(studentUpdateDto);
-                var isValid = _validator.Validate(student);
-                if (!isValid.IsValid)
-                {
-                    return new ErrorResult(isValid.Errors.First().ErrorMessage);
-                }
-                student.CreatedDate = createdDate;
-                student.UpdatedDate = DateTime.Now;
-                _unitOfWork.Students.Update(student);
-
-                var movementResponse = _movementService.Add(new Movement
-                {
-                    StudentId = student.Id,
-                    MovementDate = DateTime.Now,
-                    Title = "Öğrenci Güncellendi",
-                    Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci güncellendi"
-                });
-
-                if (!movementResponse.Success)
-                {
-                    return new ErrorResult(movementResponse.Message);
-                }
-                return new SuccessResult("Öğrenci başarı ile güncellendi");
-
+                return UpdateLocal(studentUpdateDto);
             }, _unitOfWork);
+        }
+
+        private IResult UpdateLocal(StudentUpdateDto studentUpdateDto)
+        {
+            var studentExisting = GetById(studentUpdateDto.Id);
+            if (!studentExisting.Success)
+            {
+                return new ErrorResult(studentExisting.Message);
+            }
+            DateTime createdDate = studentExisting.Data.CreatedDate;
+            var student = _mapper.Map<Student>(studentUpdateDto);
+            var isValid = _validator.Validate(student);
+            if (!isValid.IsValid)
+            {
+                return new ErrorResult(isValid.Errors.First().ErrorMessage);
+            }
+            student.CreatedDate = createdDate;
+            student.UpdatedDate = DateTime.Now;
+            _unitOfWork.Students.Update(student);
+
+            var movementResponse = _movementService.Add(new Movement
+            {
+                StudentId = student.Id,
+                MovementDate = DateTime.Now,
+                Title = "Öğrenci Güncellendi",
+                Note = $"{DateTime.Now:g} tarihinde {student.Name} adlı öğrenci güncellendi"
+            });
+
+            if (!movementResponse.Success)
+            {
+                return new ErrorResult(movementResponse.Message);
+            }
+            return new SuccessResult("Öğrenci başarı ile güncellendi");
         }
     }
 }

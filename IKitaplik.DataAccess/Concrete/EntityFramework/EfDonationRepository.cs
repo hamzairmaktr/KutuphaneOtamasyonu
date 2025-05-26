@@ -1,7 +1,7 @@
 ﻿using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
-using IKitaplik.Entities.DTOs;
+using IKitaplik.Entities.DTOs.DonationDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

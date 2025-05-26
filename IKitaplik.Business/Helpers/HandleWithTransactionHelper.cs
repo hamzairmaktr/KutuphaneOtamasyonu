@@ -5,6 +5,7 @@ public static class HandleWithTransactionHelper
 {
     public static IResult Handling(Func<IResult> operation, IUnitOfWork _unitOfWork)
     {
+
         try
         {
             _unitOfWork.BeginTransaction();
@@ -22,10 +23,12 @@ public static class HandleWithTransactionHelper
             _unitOfWork.Rollback();
             return new ErrorResult("İşlem sırasında hata oluştu: " + ex.Message);
         }
+
     }
 
     public static IDataResult<T> Handling<T>(Func<IDataResult<T>> operation, IUnitOfWork _unitOfWork) where T : new()
     {
+
         try
         {
             _unitOfWork.BeginTransaction();

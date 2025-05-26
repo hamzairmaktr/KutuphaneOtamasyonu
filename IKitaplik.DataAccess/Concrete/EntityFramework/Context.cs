@@ -14,7 +14,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(_configuration.GetConnectionString("conStringLocal"));
+            options.UseSqlServer(_configuration.GetConnectionString("conString"));
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,5 +54,6 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Movement> Movements { get; set; }
         public DbSet<Writer> Writers { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

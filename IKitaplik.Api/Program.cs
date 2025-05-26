@@ -39,7 +39,16 @@ builder.Services.AddValidatorsFromAssemblyContaining<StudentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<WriterValidator>();
 
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -54,6 +63,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 app.MapControllers();
+app.UseCors("AllowAll");
 
 
 

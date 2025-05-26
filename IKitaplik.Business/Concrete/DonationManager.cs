@@ -1,10 +1,10 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
-using IKitaplik.Entities.DTOs;
 using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using AutoMapper;
+using IKitaplik.Entities.DTOs.DonationDTOs;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -23,10 +23,12 @@ namespace IKitaplik.Business.Concrete
             _studentService = studentService;
             _mapper = mapper;
         }
-        public IResult Add(BookAddDto bookAddDto, Donation donation)
+        public IResult Add(BookAddDto bookAddDto, DonationAddDto donationAddDto)
         {
             return HandleWithTransactionHelper.Handling(() =>
             {
+                var donation = _mapper.Map<Donation>(donationAddDto);
+                donation.CreatedDate = DateTime.Now;
                 int bookId;
                 // Kitap barcodunu kontrol et eğer ilgili barcode varsa +1 yap yoksa yeni kitap ekle
                 var bookControl = _bookService.GetByBarcode(bookAddDto?.Barcode ?? "0");
@@ -34,7 +36,7 @@ namespace IKitaplik.Business.Concrete
                 {
                     bookControl.Data.Piece += 1;
                     bookId = bookControl.Data.Id;
-                    var updatedBook = _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookControl.Data.Id, BeAdded = bookControl.Data.Piece });
+                    var updatedBook = _bookService.BookAddedPiece(new BookAddPieceDto { Id = bookControl.Data.Id, BeAdded = bookControl.Data.Piece }, true);
                     if (!updatedBook.Success)
                     {
                         return new ErrorResult(updatedBook.Message);
@@ -42,7 +44,7 @@ namespace IKitaplik.Business.Concrete
                 }
                 else
                 {
-                    var addedBook = _bookService.Add(bookAddDto ?? new BookAddDto());
+                    var addedBook = _bookService.Add(bookAddDto ?? new BookAddDto(), true);
                     if (!addedBook.Success || addedBook.Data == null)
                     {
                         return new ErrorResult(addedBook.Message);
@@ -63,7 +65,7 @@ namespace IKitaplik.Business.Concrete
                         student.Data.Point += 20;
                     }
                     var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
-                    _studentService.Update(studentDto);
+                    _studentService.Update(studentDto,true);
                 }
                 else
                 {

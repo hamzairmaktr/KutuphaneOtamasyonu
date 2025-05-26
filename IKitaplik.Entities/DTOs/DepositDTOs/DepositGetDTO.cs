@@ -5,20 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IKitaplik.Entities.Concrete
+namespace IKitaplik.Entities.DTOs.DepositDTOs
 {
-    public class Deposit:BaseEntities
+    public class DepositGetDTO : IDto
     {
-        public int BookId { get; set; }
-        public int StudentId { get; set; }
+        public int Id { get; set; }
+        public string BookName { get; set; }
+        public string StudentName { get; set; }
         public DateTime IssueDate { get; set; }
         public DateTime DeliveryDate { get; set; }
         public bool AmILate { get; set; }
         public bool IsItDamaged { get; set; }
+        public bool IsDelivered { get; set; }
         public string Note { get; set; }
-        public bool IsDelivered { get; set; } = false;
-
-        public Book Book { get; set; }
-        public Student Student { get; set; }
     }
 }

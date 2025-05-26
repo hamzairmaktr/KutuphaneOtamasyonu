@@ -24,42 +24,19 @@ namespace IKitaplik.Business.Concrete
             _mapper = mapper;
         }
 
-        public IDataResult<Book> Add(BookAddDto bookAddDto)
+        public IDataResult<Book> Add(BookAddDto bookAddDto, bool isDonation = false)
         {
-            return HandleWithTransactionHelper.Handling<Book>(() =>
+            if (isDonation)
             {
-                var book = _mapper.Map<Book>(bookAddDto);
-                book.CreatedDate = DateTime.Now;
-                var validationResult = _validator.Validate(book);
-                if (!validationResult.IsValid)
+                return AddLocal(bookAddDto);
+            }
+            else
+            {
+                return HandleWithTransactionHelper.Handling<Book>(() =>
                 {
-                    return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage)
-                        .First());
-                }
-
-                var bookBarcodeSearch = GetByBarcode(book.Barcode);
-                if (bookBarcodeSearch.Success)
-                {
-                    var res = BookAddedPiece(new BookAddPieceDto() { Id = bookBarcodeSearch.Data.Id, BeAdded = 1 });
-                    return new SuccessDataResult<Book>(res.Message);
-                }
-
-                _unitOfWork.Books.Add(book);
-
-                var result = _movementService.Add(new Movement
-                {
-                    BookId = book.Id,
-                    MovementDate = DateTime.Now,
-                    Title = "Kitap Eklendi",
-                    Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap kayıt edildi"
-                });
-
-                if (!result.Success)
-                {
-                    return new ErrorDataResult<Book>(result.Message);
-                }
-                return new SuccessDataResult<Book>(book, message: "Kitap başarı ile oluşturuldu");
-            }, _unitOfWork);
+                    return AddLocal(bookAddDto);
+                }, _unitOfWork);
+            }
         }
 
         public IResult Delete(int id)
@@ -78,30 +55,20 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto)
+        public IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            if (isDonationOrDeposit)
             {
-                var res = GetById(bookAddPieceDto.Id);
-                if (res.Success)
+                return BookAddedPieceLocal(bookAddPieceDto);
+            }
+            else
+            {
+                return HandleWithTransactionHelper.Handling(() =>
                 {
-                    res.Data.Piece += bookAddPieceDto.BeAdded;
-                    _unitOfWork.Books.Update(res.Data);
-                    if (bookAddPieceDto.BeAdded >= 0)
-                    {
-                        return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} arttı");
-                    }
-                    else
-                    {
-                        return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} azaldı");
-                    }
-                }
-                else
-                {
-                    return new ErrorResult("İlgili kitap bulunamadı");
-                }
+                    return BookAddedPieceLocal(bookAddPieceDto);
+                }, _unitOfWork);
 
-            }, _unitOfWork);
+            }
         }
 
         public IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter)
@@ -226,6 +193,63 @@ namespace IKitaplik.Business.Concrete
             catch (Exception ex)
             {
                 return new ErrorDataResult<Book>("İlgili kitap çekilirken hata oluştu : " + ex.Message);
+            }
+        }
+
+        private IDataResult<Book> AddLocal(BookAddDto bookAddDto)
+        {
+            var book = _mapper.Map<Book>(bookAddDto);
+            book.CreatedDate = DateTime.Now;
+            book.Situation = true;
+            var validationResult = _validator.Validate(book);
+            if (!validationResult.IsValid)
+            {
+                return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage)
+                    .First());
+            }
+
+            var bookBarcodeSearch = GetByBarcode(book.Barcode);
+            if (bookBarcodeSearch.Success)
+            {
+                var res = BookAddedPiece(new BookAddPieceDto() { Id = bookBarcodeSearch.Data.Id, BeAdded = 1 });
+                return new SuccessDataResult<Book>(res.Message);
+            }
+
+            _unitOfWork.Books.Add(book);
+
+            var result = _movementService.Add(new Movement
+            {
+                BookId = book.Id,
+                MovementDate = DateTime.Now,
+                Title = "Kitap Eklendi",
+                Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap kayıt edildi"
+            });
+
+            if (!result.Success)
+            {
+                return new ErrorDataResult<Book>(result.Message);
+            }
+            return new SuccessDataResult<Book>(book, message: "Kitap başarı ile oluşturuldu");
+        }
+        private IResult BookAddedPieceLocal(BookAddPieceDto bookAddPieceDto)
+        {
+            var res = GetById(bookAddPieceDto.Id);
+            if (res.Success)
+            {
+                res.Data.Piece += bookAddPieceDto.BeAdded;
+                _unitOfWork.Books.Update(res.Data);
+                if (bookAddPieceDto.BeAdded >= 0)
+                {
+                    return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} arttı");
+                }
+                else
+                {
+                    return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} azaldı");
+                }
+            }
+            else
+            {
+                return new ErrorResult("İlgili kitap bulunamadı");
             }
         }
     }

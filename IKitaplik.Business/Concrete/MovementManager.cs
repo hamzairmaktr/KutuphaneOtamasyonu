@@ -67,6 +67,14 @@ namespace IKitaplik.Business.Concrete
             return new SuccessDataResult<List<MovementGetDTO>>(result);
         }
 
+        public IDataResult<List<MovementGetDTO>> GetAllFilteredDonationId(int id)
+        {
+            var res = _unitOfWork.Movements.GetAllDTO(p => p.DonationId == id);
+            if (res.Count <= 0)
+                return new ErrorDataResult<List<MovementGetDTO>>("Kayıt bulunamadı");
+            return new SuccessDataResult<List<MovementGetDTO>>(res,"Kayıt çekildi");
+        }
+
         public IDataResult<List<MovementGetDTO>> GetAllFilteredStudentId(int id)
         {
             var result = _unitOfWork.Movements.GetAllDTO(p => p.StudentId == id);

@@ -14,5 +14,6 @@ namespace IKitaplik.DataAccess.UnitOfWork
         public void BeginTransaction();
         public void Commit();
         public void Rollback();
+        public bool IsTransactionActive();
     }
 }

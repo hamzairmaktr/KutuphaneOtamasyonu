@@ -1,5 +1,6 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.DataAccess.Abstract;
+using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using System;
@@ -12,10 +13,10 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IBookService
     {
-        IDataResult<Book> Add(BookAddDto bookAddDto);
+        IDataResult<Book> Add(BookAddDto bookAddDto, bool isDonation = false);
         IResult Update(BookUpdateDto bookUpdateDto);
         IResult Delete(int id);
-        IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto);
+        IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false);
 
         IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter);
         IDataResult<List<BookGetDTO>> GetAll();

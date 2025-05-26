@@ -12,7 +12,7 @@ namespace IKitaplik.Business.Abstract
     public interface IStudentService
     {
         IResult Add(StudentAddDto studentAddDto);
-        IResult Update(StudentUpdateDto studentUpdateDto);
+        IResult Update(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false);
         IResult Delete(int id);
 
         IDataResult<List<StudentGetDto>> GetAll();
