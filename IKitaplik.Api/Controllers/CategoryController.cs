@@ -1,6 +1,7 @@
 ﻿using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace IKitaplik.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,User")]
     public class CategoryController : ControllerBase
     {
         ICategoryService _categoryService;

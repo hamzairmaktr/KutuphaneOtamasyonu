@@ -13,5 +13,7 @@ namespace IKitaplik.Business.Abstract
     {
         IResult Register(UserRegisterDto userRegisterDto);
         IDataResult<User> Login(UserLoginDto userLoginDto);
+        IDataResult<User> GetByRefreshToken(string refreshToken);
+        IResult SetRefreshToken(string refreshToken, DateTime refreshTokenExpiryTime,int id);
     }
 }

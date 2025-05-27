@@ -2,6 +2,7 @@
 using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.UserDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IKitaplik.Api.Controllers
@@ -17,14 +18,20 @@ namespace IKitaplik.Api.Controllers
             _userService = userService;
             _jwtService = jwtService;
         }
-        [HttpGet("login")]
-        public IActionResult Login([FromQuery]UserLoginDto userLoginDto)
+        [HttpPost("login")]
+        public IActionResult Login([FromForm] UserLoginDto userLoginDto)
         {
             var res = _userService.Login(userLoginDto);
-            if (!res.Success) return BadRequest(res);
+            if (!res.Success)
+                return BadRequest(res);
 
-            var token = _jwtService.GenerateToken(res.Data);
-            return Ok(new { token = token, res });
+            var accessToken = _jwtService.GenerateToken(res.Data);
+            var refreshToken = _jwtService.CreateRefreshToken();
+            var setRefreshTokenResponse = _userService.SetRefreshToken(refreshToken, DateTime.Now.AddDays(7), res.Data.Id);
+            if (!setRefreshTokenResponse.Success)
+                return BadRequest(setRefreshTokenResponse);
+
+            return Ok(new { data = new { accessToken = accessToken, refreshToken = refreshToken }, success = res.Success, message = res.Message });
         }
 
         [HttpPost("register")]
@@ -33,6 +40,18 @@ namespace IKitaplik.Api.Controllers
             var res = _userService.Register(userRegisterDto);
             if (!res.Success) return BadRequest(res);
             return Ok(res);
+        }
+
+        [HttpPost("refresh-token")]
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult RefeshToken(RefreshTokenDto refreshTokenDto)
+        {
+            var res = _userService.GetByRefreshToken(refreshTokenDto.RefreshToken);
+            if (!res.Success)
+                return BadRequest(res);
+            string accessToken = _jwtService.GenerateToken(res.Data);
+
+            return Ok(new { data = new { accessToken = accessToken, refreshToken = refreshTokenDto.RefreshToken }, message = res.Message, success = true });
         }
     }
 }

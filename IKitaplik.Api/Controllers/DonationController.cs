@@ -1,6 +1,7 @@
 ﻿using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.DonationDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace IKitaplik.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,User")]
     public class DonationController : ControllerBase
     {
         private readonly IDonationService _donationService;

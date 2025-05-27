@@ -1,5 +1,6 @@
 ﻿using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.DTOs.DepositDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace IKitaplik.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,User")]
     public class DepositController : ControllerBase
     {
         private readonly IDepositService _depositService;

@@ -26,13 +26,21 @@ namespace IKitaplik.Business.Concrete
             _userValidator = userValidator;
         }
 
+        public IDataResult<User> GetByRefreshToken(string refreshToken)
+        {
+            var user = _unitOfWork.Users.Get(p => p.RefreshToken == refreshToken && p.RefreshTokenExpiryTime > DateTime.Now);
+            if (user == null)
+                return new ErrorDataResult<User>("Refresh tokenın süresi doldu login olunuz");
+            return new SuccessDataResult<User>(user);
+        }
+
         public IDataResult<User> Login(UserLoginDto userLoginDto)
         {
             var user = _unitOfWork.Users.Get(u => u.Username == userLoginDto.Username);
 
             if (user == null || !PasswordHasher.Verify(userLoginDto.Password, user.PasswordHash))
                 return new ErrorDataResult<User>("Hatalı giriş bilgileri");
-            return new SuccessDataResult<User>(user,"Giriş başarılı");
+            return new SuccessDataResult<User>(user, "Giriş başarılı");
         }
 
         public IResult Register(UserRegisterDto userRegisterDto)
@@ -51,6 +59,20 @@ namespace IKitaplik.Business.Concrete
 
             _unitOfWork.Users.Add(user);
             return new SuccessResult("Kullanıcı eklendi");
+        }
+
+        public IResult SetRefreshToken(string refreshToken, DateTime refreshTokenExpiryTime, int id)
+        {
+            return HandleWithTransactionHelper.Handling(() =>
+            {
+                var user = _unitOfWork.Users.Get(p => p.Id == id);
+                if (user == null)
+                    return new ErrorResult("Refresh token verilecek kullanıcı bulunamadı");
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = refreshTokenExpiryTime;
+                _unitOfWork.Users.Update(user);
+                return new SuccessResult("Refresh işlemi başarılı");
+            }, _unitOfWork);
         }
     }
 }

@@ -74,6 +74,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -81,7 +86,16 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+            .WithPreferredScheme("Bearer")
+            .WithHttpBearerAuthentication(bearer =>
+            {
+                bearer.Token = "";
+            });
+    });
     app.MapOpenApi();
 }
 
@@ -92,6 +106,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseCors("AllowAll");
+
 
 
 
