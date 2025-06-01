@@ -92,5 +92,14 @@ namespace IKitaplik.Api.Controllers
                 return Ok(res);
             return BadRequest(res);
         }
+
+        [HttpPut("bookAddedPiece")]
+        public IActionResult BookAddedPiece(BookAddPieceDto bookAddPieceDto)
+        {
+            var res = _bookService.BookAddedPiece(bookAddPieceDto);
+            if(res.Success)
+                return Ok(res);
+            return BadRequest(res);
+        }
     }
 }
