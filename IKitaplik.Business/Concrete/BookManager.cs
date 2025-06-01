@@ -201,18 +201,19 @@ namespace IKitaplik.Business.Concrete
             var book = _mapper.Map<Book>(bookAddDto);
             book.CreatedDate = DateTime.Now;
             book.Situation = true;
-            var validationResult = _validator.Validate(book);
-            if (!validationResult.IsValid)
-            {
-                return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage)
-                    .First());
-            }
 
             var bookBarcodeSearch = GetByBarcode(book.Barcode);
             if (bookBarcodeSearch.Success)
             {
                 var res = BookAddedPiece(new BookAddPieceDto() { Id = bookBarcodeSearch.Data.Id, BeAdded = 1 });
                 return new SuccessDataResult<Book>(res.Message);
+            }
+
+            var validationResult = _validator.Validate(book);
+            if (!validationResult.IsValid)
+            {
+                return new ErrorDataResult<Book>(message: validationResult.Errors.Select(e => e.ErrorMessage)
+                    .First());
             }
 
             _unitOfWork.Books.Add(book);
