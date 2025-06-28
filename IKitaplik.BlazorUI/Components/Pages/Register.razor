@@ -1,0 +1,60 @@
+﻿@page "/register"
+@using IKitaplik.Entities.DTOs.UserDTOs
+@inject HttpClient httpClient
+@inject NavigationManager Nav
+@inject ProtectedSessionStorage SessionStorage
+
+<MudForm>
+    <MudText Typo="Typo.h4" Class="mb-4">Kayıt Ol</MudText>
+    <MudTextField Label="İsim Soyisim" @bind-Value="fullname" Required="true" RequiredError="İsim soyisim gereklidir." />
+    <MudTextField Label="Kullanıcı Adı" @bind-Value="username" Required="true" RequiredError="Kullanıcı adı gereklidir." />
+    <MudTextField Label="E-Mail" @bind-Value="email" Required="true" RequiredError="Email gereklidir." />
+    <MudTextField Label="Şifre" @bind-Value="password" Type="password" Required="true" RequiredError="Şifre gereklidir." />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@KayitOl">Kayıt Ol</MudButton>
+    @if (errorMessage != null)
+    {
+        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+    }
+</MudForm>
+
+@code {
+    string username = string.Empty;
+    string password = string.Empty;
+    string fullname = string.Empty;
+    string email = string.Empty;
+    string? errorMessage = null;
+
+    private async Task KayitOl()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/Auth/register");
+        UserRegisterDto userRegisterDto = new UserRegisterDto
+        {
+            Username = username,
+            FullName = fullname,
+            Email = email,
+            Password = password
+        };
+        request.Content = new StringContent(JsonSerializer.Serialize(userRegisterDto), Encoding.UTF8, "application/json");
+
+        var response = await httpClient.SendAsync(request);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadFromJsonAsync<Response>();
+            if (!content.Success)
+            {
+                errorMessage = content.Message ?? "Kayit islemi basarisiz.";
+            }
+            Nav.NavigateTo("/login");
+        }
+        else
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<Response>(json, options);
+            errorMessage = result?.Message ?? "Kayit islemi basarisiz.";
+        }
+    }
+}

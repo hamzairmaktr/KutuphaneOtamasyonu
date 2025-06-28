@@ -1,0 +1,50 @@
+﻿@page "/login"
+@using IKitaplik.Entities.DTOs.UserDTOs
+@inject HttpClient httpClient
+@inject NavigationManager Nav
+@inject ProtectedSessionStorage SessionStorage
+
+
+<MudForm>
+    <MudText Typo="Typo.h4" Class="mb-4">Giriş Yap</MudText>
+    <MudTextField Label="Kullanıcı Adı" @bind-Value="username" Required="true" RequiredError="Kullanıcı adı gereklidir." />
+    <MudTextField Label="Şifre" @bind-Value="password" Type="password" Required="true" RequiredError="Şifre gereklidir." />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoginOl">Giriş Yap</MudButton>
+    @if (errorMessage != null)
+    {
+        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+    }
+</MudForm>
+
+@code {
+    string username = string.Empty;
+    string password = string.Empty;
+    string? errorMessage = null;
+
+    private async Task LoginOl()
+    {
+        var response = await httpClient.PostAsJsonAsync("http://localhost:5000/api/Auth/login", new UserLoginDto
+        {
+            Username = username,
+            Password = password
+        });
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadFromJsonAsync<Response<LoginResponse>>();
+            await SessionStorage.SetAsync("authToken", content.Data.AccessToken);
+            await SessionStorage.SetAsync("refreshToken", content.Data.RefreshToken);
+            Nav.NavigateTo("/",forceLoad:true);
+        }
+        else
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<Response<LoginResponse>>(json, options);
+            errorMessage = result?.Message ?? "Login failed.";
+        }
+    }
+}

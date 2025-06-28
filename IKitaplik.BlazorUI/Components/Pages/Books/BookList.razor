@@ -1,0 +1,111 @@
+﻿@page "/books/list"
+
+@using System.Net.Http.Json
+@using IKitaplik.Entities.DTOs.BookDTOs
+@using MudBlazor
+@using System.Net
+@using System.Text.Json
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject JwtAuthenticationStateProvider AuthProvider
+
+
+@if (error)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<BookGetDTO, bool>(FilterFunc)"
+              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Periodic Elements</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Barcode)">Barkod</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Name)">İsim</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.WriterName)">Yazar</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.CategoryName)">Kategori</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.ShelfNo)">Raf No</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Piece)">Adet</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Situation)">Durum</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.PageSize)">Sayfa Sayısı</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="Barkod">@context.Barcode</MudTd>
+            <MudTd DataLabel="İsim">@context.Name</MudTd>
+            <MudTd DataLabel="Yazar">@context.WriterName</MudTd>
+            <MudTd DataLabel="Kategori">@context.CategoryName</MudTd>
+            <MudTd DataLabel="Raf No">@context.ShelfNo</MudTd>
+            <MudTd DataLabel="Adet">@context.Piece</MudTd>
+            <MudTd DataLabel="Durum">@context.Situation</MudTd>
+            <MudTd DataLabel="Sayfa Sayısı">@context.PageSize</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private string searchString = "", errorMessage = "";
+    private IEnumerable<BookGetDTO> Elements = new List<BookGetDTO>();
+    private bool error = false;
+    private HttpClient httpClient;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        //await AuthProvider.InitializeAsync();
+        httpClient = HttpClientFactory.CreateClient("DefaultClient");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "book/getall");
+
+        var res = await httpClient.SendAsync(request);
+
+        if (res.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            error = true;
+            errorMessage = "Unauthorized access. Please log in.";
+        }
+        else if (res.IsSuccessStatusCode)
+        {
+            error = false;
+            var json = await res.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            Elements = result!.Data;
+        }
+        else
+        {
+            var json = await res.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            error = true;
+            errorMessage = result?.Message ?? "Error fetching data";
+
+        }
+    }
+
+    private bool FilterFunc(BookGetDTO element)
+    {
+        searchString = searchString?.Trim().ToLower() ?? "";
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Name.ToLower().Contains(searchString))
+            return true;
+        if (element.WriterName.ToLower().Contains(searchString))
+            return true;
+        if ($"{element.CategoryName.ToLower()} {element.Barcode.ToString()} {element.Id}".Contains(searchString))
+            return true;
+        if ($"{element.Situation.ToString().ToLower()} {element.ShelfNo.ToLower()}".Contains(searchString))
+            return true;
+        return false;
+    }
+}

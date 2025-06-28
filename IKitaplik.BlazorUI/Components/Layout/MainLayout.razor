@@ -1,0 +1,89 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject JwtAuthenticationStateProvider AuthProvider
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        My Application
+        <AuthorizeView>
+            <Authorized>
+                Giriş Yapıldı
+            </Authorized>
+            <NotAuthorized>
+                Giriş Yapılmadı
+            </NotAuthorized>
+        </AuthorizeView>
+        <MudSpacer></MudSpacer>
+        <MudMenu>
+
+            <ActivatorContent>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Hamza IRMAK</MudChip>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Giriş Yapınız</MudChip>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ActivatorContent>
+            <ChildContent>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudMenuItem Label="Çıkış Yap" OnClick="logout" />
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudMenuItem Label="Giriş Yap" OnClick="login" />
+                        <MudMenuItem Label="Kayıt Ol" OnClick="register" />
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ChildContent>
+
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen" Class="mt-3">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    void register()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+    void login()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+    void logout()
+    {
+        AuthProvider.NotifyUserLogout();
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await AuthProvider.InitializeAsync();
+            StateHasChanged();
+        }
+    }
+}

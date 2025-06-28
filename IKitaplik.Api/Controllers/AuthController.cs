@@ -19,7 +19,7 @@ namespace IKitaplik.Api.Controllers
             _jwtService = jwtService;
         }
         [HttpPost("login")]
-        public IActionResult Login([FromForm] UserLoginDto userLoginDto)
+        public IActionResult Login([FromBody] UserLoginDto userLoginDto)
         {
             var res = _userService.Login(userLoginDto);
             if (!res.Success)

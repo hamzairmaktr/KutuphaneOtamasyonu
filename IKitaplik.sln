@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IKitaplik.Api", "IKitaplik.Api\IKitaplik.Api.csproj", "{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IKitaplik.BlazorUI", "IKitaplik.BlazorUI\IKitaplik.BlazorUI.csproj", "{C210A868-D03C-4135-8825-724D446EFE8A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{078DEDCB-5EBD-4AE3-801F-7F06800DA66A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C210A868-D03C-4135-8825-724D446EFE8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C210A868-D03C-4135-8825-724D446EFE8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C210A868-D03C-4135-8825-724D446EFE8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C210A868-D03C-4135-8825-724D446EFE8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
