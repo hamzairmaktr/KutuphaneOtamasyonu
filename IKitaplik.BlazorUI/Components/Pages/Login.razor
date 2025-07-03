@@ -2,8 +2,8 @@
 @using IKitaplik.Entities.DTOs.UserDTOs
 @inject HttpClient httpClient
 @inject NavigationManager Nav
-@inject ProtectedSessionStorage SessionStorage
-
+@inject ILocalStorageService LocalStorage
+@inject JwtAuthenticationStateProvider AuthProvider
 
 <MudForm>
     <MudText Typo="Typo.h4" Class="mb-4">Giriş Yap</MudText>
@@ -36,9 +36,10 @@
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadFromJsonAsync<Response<LoginResponse>>();
-            await SessionStorage.SetAsync("authToken", content.Data.AccessToken);
-            await SessionStorage.SetAsync("refreshToken", content.Data.RefreshToken);
-            Nav.NavigateTo("/",forceLoad:true);
+            await LocalStorage.SetItemAsync("authToken", content.Data.AccessToken);
+            await LocalStorage.SetItemAsync("refreshToken", content.Data.RefreshToken);
+            AuthProvider.NotifyUserAuthentication(content.Data.AccessToken);
+            Nav.NavigateTo("/");
         }
         else
         {

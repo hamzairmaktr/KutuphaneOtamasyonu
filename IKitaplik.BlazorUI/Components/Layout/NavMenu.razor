@@ -2,17 +2,25 @@
     <MudText Typo="Typo.h6">IKitaplik</MudText>
 </MudDrawerHeader>
 <MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" >
-        Anasayfa
-    </MudNavLink>
-    <MudNavGroup Title="Kitaplar" Icon="@Icons.Material.Filled.Book">
-        <MudNavLink Href="/kitaplar/ekle">
-            <MudIcon Icon="@Icons.Material.Filled.Add" />
-            Kitap Ekle
-        </MudNavLink>
-        <MudNavLink Href="/books/list">
-            <MudIcon Icon="@Icons.Material.Filled.List" />
-            Kitap Listele
-        </MudNavLink>
-    </MudNavGroup>
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+                Anasayfa
+            </MudNavLink>
+            <MudNavGroup Title="Kitaplar" Icon="@Icons.Material.Filled.Book">
+                <MudNavLink Href="/kitaplar/ekle">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                    Kitap Ekle
+                </MudNavLink>
+                <MudNavLink Href="/books/list">
+                    <MudIcon Icon="@Icons.Material.Filled.List" />
+                    Kitap Listele
+                </MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+        <NotAuthorized>
+            <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Giriş Yap</MudNavLink>
+            <MudNavLink Href="/register" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AppRegistration">Kayıt Ol</MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
 </MudNavMenu>

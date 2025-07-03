@@ -1,37 +1,23 @@
-﻿using IKitaplik.BlazorUI.Components;
-using IKitaplik.BlazorUI.Helpers;
+﻿using Blazored.LocalStorage;
+using IKitaplik.BlazorUI.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<ProtectedSessionStorage>();
-
 builder.Services.AddMudServices();
 
-builder.Services.AddScoped<AuthMessageHandler>();
-
-builder.Services.AddHttpClient("DefaultClient", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5000/api/");
-}).AddHttpMessageHandler<AuthMessageHandler>();
-
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddHttpContextAccessor();
-
-
-builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();
-
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthenticationStateProvider>());
-
+builder.Services.AddHttpClient();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 
@@ -43,11 +29,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-
 app.UseAntiforgery();
-
 app.MapStaticAssets();
+
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

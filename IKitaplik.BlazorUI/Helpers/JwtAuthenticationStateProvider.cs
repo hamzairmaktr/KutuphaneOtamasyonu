@@ -1,25 +1,26 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using System.Security.Claims;
 
 public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly v _sessionStorage;
     private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
     public string? _jwtToken;
     private bool _isInitialized;
-
-    public JwtAuthenticationStateProvider(ProtectedSessionStorage sessionStorage)
+    ILocalStorageService localStorageService;
+    public JwtAuthenticationStateProvider(ILocalStorageService localStorage)
     {
-        _sessionStorage = sessionStorage;
+
+        localStorageService = localStorage;
     }
 
     public async Task InitializeAsync()
     {
         try
         {
-            var result = await _sessionStorage.GetAsync<string>("authToken");
-            _jwtToken = result.Success ? result.Value : null;
+            var result = await localStorageService.GetItemAsStringAsync("authToken");
+            _jwtToken = result;
             _isInitialized = true;
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
@@ -40,7 +41,6 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         {
             return Task.FromResult(new AuthenticationState(_anonymous));
         }
-
         var claims = ParseClaimsFromJwt(_jwtToken);
         if (IsTokenExpired(claims))
         {
@@ -90,11 +90,10 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     }
 
     // Token güncelleme ve bildirme metodu
-    public async void NotifyUserAuthentication(string token)
+    public void NotifyUserAuthentication(string token)
     {
         _jwtToken = token;
         _isInitialized = true;
-        await _sessionStorage.SetAsync("authToken", token);
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
@@ -102,12 +101,20 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     {
         _jwtToken = null;
         _isInitialized = true;
-        await _sessionStorage.DeleteAsync("authToken");
+        await localStorageService.RemoveItemAsync("authToken");
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
     }
 
     public async Task<string?> GetToken()
     {
-        return _jwtToken;
+        try
+        {
+            var token = await localStorageService.GetItemAsStringAsync("authToken");
+            return token?.Replace('"', ' ').Trim();
+        }
+        catch (Exception)
+        {
+            return "";
+        }
     }
 }

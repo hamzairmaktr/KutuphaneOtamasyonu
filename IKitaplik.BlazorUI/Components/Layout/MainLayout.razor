@@ -24,7 +24,7 @@
             <ActivatorContent>
                 <AuthorizeView>
                     <Authorized>
-                        <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Hamza IRMAK</MudChip>
+                        <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">@context.User.FindFirst("FullName")?.Value</MudChip>
                     </Authorized>
                     <NotAuthorized>
                         <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Giriş Yapınız</MudChip>
@@ -76,7 +76,10 @@
         AuthProvider.NotifyUserLogout();
         NavigationManager.NavigateTo("/", forceLoad: true);
     }
-
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthProvider.InitializeAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
