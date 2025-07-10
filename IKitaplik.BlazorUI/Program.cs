@@ -1,7 +1,8 @@
 ﻿using Blazored.LocalStorage;
 using IKitaplik.BlazorUI.Components;
+using IKitaplik.BlazorUI.Services.Abstract;
+using IKitaplik.BlazorUI.Services.Concrete;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthenticationStateProvider>());
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<IBookService,BookService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

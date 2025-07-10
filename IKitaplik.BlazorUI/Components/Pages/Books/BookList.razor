@@ -1,12 +1,11 @@
 ﻿@page "/books/list"
 
-@inject HttpClient httpClient
 @inject ISnackbar Snackbar
-@inject JwtAuthenticationStateProvider AuthProvider
 @inject NavigationManager Nav
+@inject IBookService _service
 
 
-@if (error)
+@if (!string.IsNullOrEmpty(errorMessage))
 {
     <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
         <MudText>@errorMessage</MudText>
@@ -52,39 +51,25 @@ else
 @code {
     private string searchString = "", errorMessage = "";
     private IEnumerable<BookGetDTO> Elements = new List<BookGetDTO>();
-    private bool error = false;
 
 
     protected override async Task OnInitializedAsync()
     {
-        var token = await AuthProvider.GetToken();
-
-        var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:5000/api/book/getall");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        var res = await httpClient.SendAsync(request);
-
-        if (res.StatusCode == HttpStatusCode.Unauthorized)
+        try
         {
-            error = true;
-            errorMessage = "Unauthorized access. Please log in.";
+            var res = await _service.GetAllBooksAsync();
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+            }
+            else
+            {
+                Elements = res.Data;
+            }
         }
-        else if (res.IsSuccessStatusCode)
+        catch (Exception ex)
         {
-            error = false;
-            var json = await res.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            Elements = result!.Data;
-        }
-        else
-        {
-            var json = await res.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            error = true;
-            errorMessage = result?.Message ?? "Error fetching data";
-
+            //errorMessage = ex.Message;
         }
     }
 
