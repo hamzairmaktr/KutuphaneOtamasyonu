@@ -1,19 +1,16 @@
 ﻿@page "/login"
-@using IKitaplik.Entities.DTOs.UserDTOs
-@inject HttpClient httpClient
-@inject NavigationManager Nav
-@inject ILocalStorageService LocalStorage
-@inject JwtAuthenticationStateProvider AuthProvider
+@inject IAuthService _authService
 
 <MudForm>
-    <MudText Typo="Typo.h4" Class="mb-4">Giriş Yap</MudText>
-    <MudTextField Label="Kullanıcı Adı" @bind-Value="username" Required="true" RequiredError="Kullanıcı adı gereklidir." />
-    <MudTextField Label="Şifre" @bind-Value="password" Type="password" Required="true" RequiredError="Şifre gereklidir." />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoginOl">Giriş Yap</MudButton>
+    <MudText Typo="Typo.h4" Class="mt-4">Giriş Yap</MudText>
     @if (errorMessage != null)
     {
-        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+        <MudAlert Class="mt-3 mb-3" Severity="Severity.Error">@errorMessage</MudAlert>
     }
+    <MudTextField Class="mt-2" Label="Kullanıcı Adı" @bind-Value="username" Required="true" RequiredError="Kullanıcı adı gereklidir." />
+    <MudTextField Class="mt-2" Label="Şifre" @bind-Value="password" Type="password" Required="true" RequiredError="Şifre gereklidir." />
+    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoginOl">Giriş Yap</MudButton>
+
 </MudForm>
 
 @code {
@@ -23,29 +20,13 @@
 
     private async Task LoginOl()
     {
-        var response = await httpClient.PostAsJsonAsync("http://localhost:5000/api/Auth/login", new UserLoginDto
+        UserLoginDto loginDto = new UserLoginDto
         {
             Username = username,
             Password = password
-        });
-
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
         };
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadFromJsonAsync<Response<LoginResponse>>();
-            await LocalStorage.SetItemAsync("authToken", content.Data.AccessToken);
-            await LocalStorage.SetItemAsync("refreshToken", content.Data.RefreshToken);
-            AuthProvider.NotifyUserAuthentication(content.Data.AccessToken);
-            Nav.NavigateTo("/");
-        }
-        else
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<Response<LoginResponse>>(json, options);
-            errorMessage = result?.Message ?? "Login failed.";
-        }
+        var res = await _authService.Login(loginDto);
+        if (!res.Success)
+            errorMessage = res?.Message ?? "Giriş yapılamadı.";
     }
 }

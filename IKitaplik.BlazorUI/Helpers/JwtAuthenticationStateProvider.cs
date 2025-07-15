@@ -44,6 +44,7 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         var claims = ParseClaimsFromJwt(_jwtToken);
         if (IsTokenExpired(claims))
         {
+
             _jwtToken = null;
             return Task.FromResult(new AuthenticationState(_anonymous));
         }

@@ -1,6 +1,5 @@
 ﻿@page "/register"
-@inject HttpClient httpClient
-@inject NavigationManager Nav
+@inject IAuthService _authService
 
 <MudForm>
     <MudText Typo="Typo.h4" Class="mb-4">Kayıt Ol</MudText>
@@ -24,7 +23,6 @@
 
     private async Task KayitOl()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/Auth/register");
         UserRegisterDto userRegisterDto = new UserRegisterDto
         {
             Username = username,
@@ -32,27 +30,11 @@
             Email = email,
             Password = password
         };
-        request.Content = new StringContent(JsonSerializer.Serialize(userRegisterDto), Encoding.UTF8, "application/json");
 
-        var response = await httpClient.SendAsync(request);
-        var options = new JsonSerializerOptions
+        var res = await _authService.Register(userRegisterDto);
+        if (!res.Success)
         {
-            PropertyNameCaseInsensitive = true
-        };
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadFromJsonAsync<Response>();
-            if (!content.Success)
-            {
-                errorMessage = content.Message ?? "Kayit islemi basarisiz.";
-            }
-            Nav.NavigateTo("/login");
-        }
-        else
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<Response>(json, options);
-            errorMessage = result?.Message ?? "Kayit islemi basarisiz.";
+            errorMessage = res.Message ?? "Kayit islemi basarisiz.";
         }
     }
 }

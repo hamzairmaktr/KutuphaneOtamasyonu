@@ -43,7 +43,7 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("refresh-token")]
-        [Authorize(Roles = "User,Admin")]
+        [Authorize]
         public IActionResult RefeshToken(RefreshTokenDto refreshTokenDto)
         {
             var res = _userService.GetByRefreshToken(refreshTokenDto.RefreshToken);

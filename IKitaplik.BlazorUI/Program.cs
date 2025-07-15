@@ -13,7 +13,8 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthenticationStateProvider>());
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IBookService,BookService>();
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
