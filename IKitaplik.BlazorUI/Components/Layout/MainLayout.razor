@@ -67,10 +67,6 @@
         AuthProvider.NotifyUserLogout();
         NavigationManager.NavigateTo("/", forceLoad: true);
     }
-    protected override async Task OnInitializedAsync()
-    {
-        await AuthProvider.InitializeAsync();
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

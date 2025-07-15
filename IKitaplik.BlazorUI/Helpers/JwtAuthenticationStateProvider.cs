@@ -1,7 +1,8 @@
 ﻿using Blazored.LocalStorage;
+using IKitaplik.BlazorUI.Services.Abstract;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using System.Security.Claims;
+using IKitaplik.Entities.DTOs.UserDTOs;
 
 public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 {
@@ -9,10 +10,12 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     public string? _jwtToken;
     private bool _isInitialized;
     ILocalStorageService localStorageService;
-    public JwtAuthenticationStateProvider(ILocalStorageService localStorage)
+    IAuthService _authService;
+    public JwtAuthenticationStateProvider(ILocalStorageService localStorage, IAuthService authService)
     {
 
         localStorageService = localStorage;
+        _authService = authService;
     }
 
     public async Task InitializeAsync()
@@ -29,28 +32,34 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         }
     }
 
-    public override Task<AuthenticationState> GetAuthenticationStateAsync()
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         if (!_isInitialized)
         {
             // Eğer henüz Init edilmediyse, anonim kullanıcı döner.
-            return Task.FromResult(new AuthenticationState(_anonymous));
+            return await Task.FromResult(new AuthenticationState(_anonymous));
         }
 
         if (string.IsNullOrWhiteSpace(_jwtToken))
         {
-            return Task.FromResult(new AuthenticationState(_anonymous));
+            return await Task.FromResult(new AuthenticationState(_anonymous));
         }
         var claims = ParseClaimsFromJwt(_jwtToken);
         if (IsTokenExpired(claims))
         {
-
+            string refreshToken = await localStorageService.GetItemAsStringAsync("refreshToken");
+            var res = await _authService.RefresToken(new RefreshTokenDto { RefreshToken = refreshToken });
+            if (res.Success)
+            {
+                NotifyUserAuthentication(res.Data.AccessToken);
+                return await GetAuthenticationStateAsync();
+            }
             _jwtToken = null;
-            return Task.FromResult(new AuthenticationState(_anonymous));
+            return await Task.FromResult(new AuthenticationState(_anonymous));
         }
         var identity = new ClaimsIdentity(claims, "jwt");
         var user = new ClaimsPrincipal(identity);
-        return Task.FromResult(new AuthenticationState(user));
+        return await Task.FromResult(new AuthenticationState(user));
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
