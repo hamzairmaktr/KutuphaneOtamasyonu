@@ -50,7 +50,7 @@ namespace IKitaplik.Api.Controllers
             }
             return BadRequest(result);
         }
-        [HttpPut("update")]
+        [HttpPost("update")]
         public IActionResult Update(CategoryUpdateDto categoryUpdateDto)
         {
             var result = _categoryService.Update(categoryUpdateDto);
@@ -60,7 +60,7 @@ namespace IKitaplik.Api.Controllers
             }
             return BadRequest(result);
         }
-        [HttpDelete("delete")]
+        [HttpPost("delete")]
         public IActionResult Delete(int id)
         {
             var result = _categoryService.Delete(id);

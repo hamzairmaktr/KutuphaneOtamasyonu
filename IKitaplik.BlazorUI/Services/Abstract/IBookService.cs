@@ -8,7 +8,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
     {
         Task<Response<List<BookGetDTO>>> GetAllBooksAsync();
         Task<Response<BookGetDTO>> GetBookDetailsAsync(int id);
-        Task<Response> AddBookAsync<T>(BookAddDto dto);
+        Task<Response> AddBookAsync(BookAddDto dto);
         Task<Response> UpdateBookAsync(BookUpdateDto dto);
         Task<Response> DeleteBookAsync(int id);
     }

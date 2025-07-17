@@ -35,7 +35,7 @@ namespace IKitaplik.Api.Controllers
                 return Ok(res);
             return BadRequest(res);
         }
-        [HttpPut("bookAddPiece")]
+        [HttpPost("bookAddPiece")]
         public ActionResult BookAddPiece([FromBody] BookAddPieceDto bookAddPieceDto)
         {
             var res = _bookService.BookAddedPiece(bookAddPieceDto);
@@ -43,7 +43,7 @@ namespace IKitaplik.Api.Controllers
                 return Ok(res);
             return BadRequest(res);
         }
-        [HttpPut("update")]
+        [HttpPost("update")]
         public ActionResult Update([FromBody] BookUpdateDto bookUpdateDto)
         {
             var res = _bookService.Update(bookUpdateDto);
@@ -51,8 +51,8 @@ namespace IKitaplik.Api.Controllers
                 return Ok(res);
             return BadRequest(res);
         }
-        [HttpDelete("delete")]
-        public ActionResult Update([FromBody] int id)
+        [HttpPost("delete")]
+        public ActionResult Delete([FromBody] int id)
         {
             var res = _bookService.Delete(id);
             if (res.Success)
@@ -93,7 +93,7 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
 
-        [HttpPut("bookAddedPiece")]
+        [HttpPost("bookAddedPiece")]
         public IActionResult BookAddedPiece(BookAddPieceDto bookAddPieceDto)
         {
             var res = _bookService.BookAddedPiece(bookAddPieceDto);

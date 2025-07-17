@@ -54,7 +54,7 @@ namespace IKitaplik.Api.Controllers
             return Ok(res);
         }
 
-        [HttpPut("update")]
+        [HttpPost("update")]
         public IActionResult Update(WriterUpdateDto writerUpdateDto)
         {
             var res = _writerService.Update(writerUpdateDto);
@@ -63,7 +63,7 @@ namespace IKitaplik.Api.Controllers
             return Ok(res);
         }
 
-        [HttpDelete("delete")]
+        [HttpPost("delete")]
         public IActionResult Delete(int id)
         {
             var res = _writerService.Delete(id);

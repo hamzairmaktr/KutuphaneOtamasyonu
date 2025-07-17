@@ -27,7 +27,7 @@ namespace IKitaplik.Api.Controllers
             return Ok(res);
         }
 
-        [HttpPut("depositReceived")]
+        [HttpPost("depositReceived")]
         public IActionResult DepositReceived(DepositUpdateDto depositUpdateDto)
         {
             var res = _depositService.DepositReceived(depositUpdateDto);
@@ -36,7 +36,7 @@ namespace IKitaplik.Api.Controllers
             return Ok(res);
         }
 
-        [HttpDelete("delete")]
+        [HttpPost("delete")]
         public IActionResult Delete(int id)
         {
             var res = _depositService.Delete(id);
@@ -45,7 +45,7 @@ namespace IKitaplik.Api.Controllers
             return Ok(res);
         }
 
-        [HttpPut("extendDuDate")]
+        [HttpPost("extendDuDate")]
         public IActionResult ExtendDueDate(DepositExtentDueDateDto depositExtentDueDateDto)
         {
             var res = _depositService.ExtendDueDate(depositExtentDueDateDto);

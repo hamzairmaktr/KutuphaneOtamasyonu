@@ -3,30 +3,31 @@ using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs.BookDTOs;
+using IKitaplik.Entities.DTOs.WriterDTOs;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace IKitaplik.BlazorUI.Services.Concrete
 {
-    public class BookService : IBookService
+    public class WriterService : IWriterService
     {
         private readonly HttpClient _httpClient;
         private readonly JwtAuthenticationStateProvider _jwtAuthenticationStateProvider;
         private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-        public BookService(HttpClient httpClient, JwtAuthenticationStateProvider jwtAuthenticationStateProvider)
+        public WriterService(HttpClient httpClient, JwtAuthenticationStateProvider jwt)
         {
             _httpClient = httpClient;
-            _jwtAuthenticationStateProvider = jwtAuthenticationStateProvider;
+            _jwtAuthenticationStateProvider = jwt;
             _httpClient.BaseAddress = new Uri(Settings.apiUrl);
         }
 
-        public async Task<Response> AddBookAsync(BookAddDto dto)
+        public async Task<Response> AddAsync(WriterAddDto writerAddDto)
         {
             string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.PostAsJsonAsync("book/add", dto);
+                var res = await _httpClient.PostAsJsonAsync("writer/add", writerAddDto);
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
             }
@@ -36,13 +37,13 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response> DeleteBookAsync(int id)
+        public async Task<Response> DeleteAsync(int id)
         {
             string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.PostAsJsonAsync("book/delete", id);
+                var res = await _httpClient.PostAsJsonAsync("writer/delete", id);
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
             }
@@ -52,46 +53,45 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<BookGetDTO>>> GetAllBooksAsync()
+        public async Task<Response<List<WriterGetDto>>> GetAllAsync()
         {
             string token = await _jwtAuthenticationStateProvider.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.GetAsync("book/getall");
+                var res = await _httpClient.GetAsync("writer/getall");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<List<WriterGetDto>>>(content, _jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<List<BookGetDTO>>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<List<WriterGetDto>>>(new Exception("Login Olunamadı"));
             }
         }
 
-
-        public async Task<Response<BookGetDTO>> GetBookDetailsAsync(int id)
+        public async Task<Response<WriterGetDto>> GetAsync(int id)
         {
             string token = await _jwtAuthenticationStateProvider.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = await _httpClient.GetAsync($"api/books/getById/{id}");
+                var response = await _httpClient.GetAsync($"writer/getById/{id}");
                 response.EnsureSuccessStatusCode();
-                return await response.Content.ReadFromJsonAsync<Response<BookGetDTO>>(_jsonOptions)!;
+                return await response.Content.ReadFromJsonAsync<Response<WriterGetDto>>(_jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<BookGetDTO>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<WriterGetDto>>(new Exception("Login Olunamadı"));
             }
         }
 
-        public async Task<Response> UpdateBookAsync(BookUpdateDto dto)
+        public async Task<Response> UpdateAsync(WriterUpdateDto writerUpdateDto)
         {
             string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.PostAsJsonAsync("book/update", dto);
+                var res = await _httpClient.PostAsJsonAsync("writer/update", writerUpdateDto);
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
             }

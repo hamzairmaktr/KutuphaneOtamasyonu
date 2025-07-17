@@ -15,6 +15,12 @@ builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.Get
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IWriterService, WriterService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IDepositService, DepositService>();
+builder.Services.AddScoped<IDonationService, DonationService>();
+builder.Services.AddScoped<IMovementService, MovementService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

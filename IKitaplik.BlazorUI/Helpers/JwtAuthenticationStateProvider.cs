@@ -54,8 +54,11 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
                 NotifyUserAuthentication(res.Data.AccessToken);
                 return await GetAuthenticationStateAsync();
             }
-            _jwtToken = null;
-            return await Task.FromResult(new AuthenticationState(_anonymous));
+            else
+            {
+                _jwtToken = null;
+                return await Task.FromResult(new AuthenticationState(_anonymous));
+            }
         }
         var identity = new ClaimsIdentity(claims, "jwt");
         var user = new ClaimsPrincipal(identity);
@@ -119,12 +122,27 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     {
         try
         {
-            var token = await localStorageService.GetItemAsStringAsync("authToken");
-            return token?.Replace('"', ' ').Trim();
+            string token = await localStorageService.GetItemAsStringAsync("authToken") ?? "";
+            _jwtToken = token;
+            var cliam = ParseClaimsFromJwt(token);
+            if (IsTokenExpired(cliam))
+            {
+                string refreshToken = await localStorageService.GetItemAsStringAsync("refreshToken") ?? "";
+                var res = await _authService.RefresToken(new RefreshTokenDto { RefreshToken = refreshToken });
+                if (res.Success)
+                {
+                    NotifyUserAuthentication(res.Data.AccessToken);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            return _jwtToken?.Replace('"', ' ').Trim();
         }
         catch (Exception)
         {
-            return "";
+            return null;
         }
     }
 }

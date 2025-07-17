@@ -20,9 +20,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult Add([FromForm]BookAddDto bookAddDto, [FromForm]DonationAddDto donationAddDto)
+        public IActionResult Add([FromBody]DonationAddDto donationAddDto)
         {
-            var res = _donationService.Add(bookAddDto, donationAddDto);
+            var res = _donationService.Add(donationAddDto.BookAddDto, donationAddDto);
             if(!res.Success)
                 return BadRequest(res);
             return Ok(res);

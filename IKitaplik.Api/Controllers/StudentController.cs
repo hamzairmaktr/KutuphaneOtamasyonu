@@ -59,7 +59,7 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
 
-        [HttpPut("update")]
+        [HttpPost("update")]
         public IActionResult Update(StudentUpdateDto studentUpdateDto)
         {
             var result = _studentService.Update(studentUpdateDto);
@@ -70,7 +70,7 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
 
-        [HttpDelete("delete")]
+        [HttpPost("delete")]
         public IActionResult Delete(int id)
         {
             var result = _studentService.Delete(id);
