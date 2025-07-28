@@ -1,4 +1,5 @@
 ﻿using IKitaplik.Business.Abstract;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.WriterDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -64,9 +65,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("delete")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(DeleteDto deleteDto)
         {
-            var res = _writerService.Delete(id);
+            var res = _writerService.Delete(deleteDto.Id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);

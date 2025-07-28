@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -52,9 +53,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
         [HttpPost("delete")]
-        public ActionResult Delete([FromBody] int id)
+        public ActionResult Delete([FromBody] DeleteDto deleteDto)
         {
-            var res = _bookService.Delete(id);
+            var res = _bookService.Delete(deleteDto.Id);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);

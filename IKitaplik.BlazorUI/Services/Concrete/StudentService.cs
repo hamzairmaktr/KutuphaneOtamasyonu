@@ -1,6 +1,7 @@
 ﻿using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
+using IKitaplik.Entities.DTOs;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -54,7 +55,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 await SetAuthorizationHeader();
                 // API'niz PostAsJsonAsync ile int kabul ediyorsa bu şekilde devam edilebilir.
                 // Genellikle DELETE operasyonları için HTTP DELETE metodu veya Query/Route parametresi tercih edilir.
-                var res = await _httpClient.PostAsJsonAsync("Student/delete", id);
+                var res = await _httpClient.PostAsJsonAsync("Student/delete", new DeleteDto { Id = id });
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
             }

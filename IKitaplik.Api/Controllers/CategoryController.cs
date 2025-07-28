@@ -1,5 +1,6 @@
 ﻿using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -61,9 +62,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
         [HttpPost("delete")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete([FromBody]DeleteDto deleteDto)
         {
-            var result = _categoryService.Delete(id);
+            var result = _categoryService.Delete(deleteDto.Id);
             if (result.Success)
             {
                 return Ok(result);

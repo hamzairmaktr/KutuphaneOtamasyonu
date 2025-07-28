@@ -8,13 +8,23 @@
                 Anasayfa
             </MudNavLink>
             <MudNavGroup Title="Kitaplar" Icon="@Icons.Material.Filled.Book">
-                <MudNavLink Href="/kitaplar/ekle">
+                <MudNavLink Href="/books/add">
                     <MudIcon Icon="@Icons.Material.Filled.Add" />
                     Kitap Ekle
                 </MudNavLink>
                 <MudNavLink Href="/books/list">
                     <MudIcon Icon="@Icons.Material.Filled.List" />
                     Kitap Listele
+                </MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="Kategori" Icon="@Icons.Material.Filled.Category">
+                <MudNavLink Href="/category/add">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                    Kategori Ekle
+                </MudNavLink>
+                <MudNavLink Href="/category/list">
+                    <MudIcon Icon="@Icons.Material.Filled.List" />
+                    Kategori Listele
                 </MudNavLink>
             </MudNavGroup>
         </Authorized>

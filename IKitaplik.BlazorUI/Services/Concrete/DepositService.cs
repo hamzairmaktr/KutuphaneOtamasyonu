@@ -1,6 +1,7 @@
 ﻿using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.DepositDTOs; 
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -68,7 +69,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.PostAsJsonAsync("Deposit/delete", id);
+                var res = await _httpClient.PostAsJsonAsync("Deposit/delete", new DeleteDto { Id = id });
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
             }

@@ -2,6 +2,7 @@
 using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -42,7 +43,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.PostAsJsonAsync("book/delete", id);
+                var res = await _httpClient.PostAsJsonAsync("book/delete", new DeleteDto { Id = id});
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
             }
