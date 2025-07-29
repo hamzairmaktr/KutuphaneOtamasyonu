@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using IKitaplik.BlazorUI.Components;
+using IKitaplik.BlazorUI.Helpers;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.BlazorUI.Services.Concrete;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -12,6 +13,7 @@ builder.Services.AddMudServices();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthenticationStateProvider>());
+builder.Services.AddScoped<MessageBoxService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

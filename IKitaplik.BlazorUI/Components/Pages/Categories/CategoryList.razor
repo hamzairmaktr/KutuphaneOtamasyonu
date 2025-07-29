@@ -2,6 +2,7 @@
 @inject ICategoryService _categoryService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject MessageBoxService MessageBoxService
 
 <MudItem Class="mt-2 mb-2 text-end">
     <MudButton Href="category/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
@@ -73,7 +74,7 @@ else
     }
     private async Task CategoryDelete(int id)
     {
-        bool? result = await DialogService.ShowMessageBox("Uyarı", "Kategori silinsin mi ?", yesText: "Sil", noText: "İptal");
+        bool? result = await MessageBoxService.ShowConfirmDialog("Uyarı", "Kategori silinsin mi ?");
         if (result.GetValueOrDefault())
         {
             var res = await _categoryService.DeleteAsync(id);
