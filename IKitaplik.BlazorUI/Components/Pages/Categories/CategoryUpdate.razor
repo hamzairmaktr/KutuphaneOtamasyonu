@@ -1,0 +1,55 @@
+﻿@page "/category/update/{Id:int}"
+@inject ICategoryService _service
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+
+<h3 class="mt-2">Kategori Güncelle</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Class="my-3" Severity="Severity.Error">@errorMessage</MudAlert>
+}
+
+<MudTextField T="string" @bind-Value="kategoriAdi" Variant="Variant.Filled" Label="Kategori Adı" />
+<MudButton OnClick="Kaydet" Class="mt-2" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.Save" Color="Color.Warning">Güncelle</MudButton>
+<MudButton OnClick="Vazgec" Class="mt-2 ms-1" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.TwoTone.Cancel" Color="Color.Error">Vazgeç</MudButton>
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    string errorMessage = string.Empty;
+    string kategoriAdi = string.Empty;
+    private void Vazgec(MouseEventArgs args)
+    {
+        Nav.NavigateTo("category/list");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await _service.GetByIdAsync(Id);
+        if (res.Success)
+        {
+            kategoriAdi = res.Data.Name;
+        }
+        else
+            errorMessage = res.Message;
+    }
+    private async Task Kaydet(MouseEventArgs args)
+    {
+        errorMessage = string.Empty;
+        if (string.IsNullOrEmpty(kategoriAdi))
+        {
+            errorMessage = "Kategori adı giriniz";
+            return;
+        }
+
+        var res = await _service.UpdateAsync(new CategoryUpdateDto { Id = Id, Name = kategoriAdi });
+        if (!res.Success)
+        {
+            errorMessage = res.Message;
+            return;
+        }
+
+        Snackbar.Add(res.Message, Severity.Success);
+        Nav.NavigateTo("category/list");
+    }
+}

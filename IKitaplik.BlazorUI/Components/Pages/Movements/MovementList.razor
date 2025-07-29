@@ -1,0 +1,118 @@
+﻿@page "/movement/list/{Type:int}&{Id:int}"
+@using IKitaplik.Entities.Enums
+@inject IMovementService _service
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<MovementGetDTO, bool>(FilterFunc)"
+              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Kategoriler</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.MovementDate)">Tarih</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.Title)">Başlık</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.Note)">Mesaj</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.BookName)">Kitap İsmi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.StudentName)">Öğrenci İsmi</MudTableSortLabel></MudTh>
+            <MudTh>İşlemler</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="Barkod">@context.MovementDate</MudTd>
+            <MudTd DataLabel="Barkod">@context.Title</MudTd>
+            <MudTd DataLabel="Barkod">@context.Note</MudTd>
+            <MudTd DataLabel="Barkod">@context.BookName</MudTd>
+            <MudTd DataLabel="Barkod">@context.StudentName</MudTd>
+            <MudTd>
+                <MudButtonGroup>
+                    <MudIconButton Color="Color.Info" Icon="@Icons.Material.Filled.RemoveRedEye"></MudIconButton>
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    [Parameter]
+    public int Type { get; set; }
+    [Parameter]
+    public int Id { get; set; }
+
+    private string errorMessage = "", searchString = "";
+    private List<MovementGetDTO> Elements = new List<MovementGetDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if ((int)MovementType.Deposit == Type)
+        {
+            var res = await _service.GetAllByDepositIdAsync(Id);
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+                return;
+            }
+            Elements = res.Data;
+        }
+        else if((int)MovementType.Book == Type)
+        {
+            var res = await _service.GetAllByBookIdAsync(Id);
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+                return;
+            }
+            Elements = res.Data;
+        }
+        else if ((int)MovementType.Student == Type)
+        {
+            var res = await _service.GetAllByStudentIdAsync(Id);
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+                return;
+            }
+            Elements = res.Data;
+        }
+        else if ((int)MovementType.Donation == Type)
+        {
+            var res = await _service.GetAllByDonationIdAsync(Id);
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+                return;
+            }
+            Elements = res.Data;
+        }
+        else
+        {
+            errorMessage = "Geçersiz tip";
+        }
+    }
+
+    private bool FilterFunc(MovementGetDTO element)
+    {
+        searchString = searchString?.Trim().ToLower() ?? "";
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.BookName.ToLower().Contains(searchString))
+            return true;
+        if (element.StudentName.ToLower().Contains(searchString))
+            return true;
+        if (element.Title.ToLower().Contains(searchString))
+            return true;
+        return false;
+    }
+}

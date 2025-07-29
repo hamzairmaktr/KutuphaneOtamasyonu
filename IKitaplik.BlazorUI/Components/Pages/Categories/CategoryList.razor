@@ -2,6 +2,7 @@
 @inject ICategoryService _categoryService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager Nav
 @inject MessageBoxService MessageBoxService
 
 <MudItem Class="mt-2 mb-2 text-end">
@@ -25,8 +26,8 @@ else
             <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
         <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Barcode)">Kategori Adı</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<CategoryGetDto, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<CategoryGetDto, object>(x => x.Name)">Kategori Adı</MudTableSortLabel></MudTh>
             <MudTh>İşlemler</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -34,8 +35,7 @@ else
             <MudTd DataLabel="Barkod">@context.Name</MudTd>
             <MudTd>
                 <MudButtonGroup>
-                    <MudIconButton Color="Color.Info" Icon="@Icons.Material.Filled.RemoveRedEye"></MudIconButton>
-                    <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => CategoryUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
                     <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => CategoryDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
                 </MudButtonGroup>
             </MudTd>
@@ -94,5 +94,9 @@ else
             }
             StateHasChanged();
         }
+    }
+    private async Task CategoryUpdate(int id)
+    {
+        Nav.NavigateTo("category/update/" + id);
     }
 }
