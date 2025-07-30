@@ -27,6 +27,16 @@
                     Kategori Listele
                 </MudNavLink>
             </MudNavGroup>
+            <MudNavGroup Title="Yazarlar" Icon="@Icons.Material.Filled.People">
+                <MudNavLink Href="/writer/add">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                    Yazar Ekle
+                </MudNavLink>
+                <MudNavLink Href="/writer/list">
+                    <MudIcon Icon="@Icons.Material.Filled.List" />
+                    Yazar Listele
+                </MudNavLink>
+            </MudNavGroup>
         </Authorized>
         <NotAuthorized>
             <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Giriş Yap</MudNavLink>

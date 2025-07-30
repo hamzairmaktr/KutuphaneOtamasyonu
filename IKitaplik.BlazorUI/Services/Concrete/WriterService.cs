@@ -72,17 +72,24 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response<WriterGetDto>> GetAsync(int id)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken();
-            if (!string.IsNullOrEmpty(token))
+            try
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = await _httpClient.GetAsync($"writer/getById/{id}");
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadFromJsonAsync<Response<WriterGetDto>>(_jsonOptions)!;
+                string token = await _jwtAuthenticationStateProvider.GetToken();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    var response = await _httpClient.GetAsync($"writer/getById?id={id}");
+                    response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadFromJsonAsync<Response<WriterGetDto>>(_jsonOptions)!;
+                }
+                else
+                {
+                    return await Task.FromException<Response<WriterGetDto>>(new Exception("Login Olunamadı"));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return await Task.FromException<Response<WriterGetDto>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<WriterGetDto>>(new Exception(ex.Message));
             }
         }
 

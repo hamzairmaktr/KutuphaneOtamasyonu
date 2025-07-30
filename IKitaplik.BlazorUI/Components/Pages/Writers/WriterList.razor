@@ -1,0 +1,108 @@
+﻿@page "/writer/list"
+@inject IWriterService _writerService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Nav
+@inject MessageBoxService MessageBoxService
+
+<MudItem Class="mt-2 mb-2 text-end">
+    <MudButton Href="writer/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
+        Yeni Yazar Ekle
+    </MudButton>
+</MudItem>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<WriterGetDto, bool>(FilterFunc)"
+              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Kategoriler</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.WriterName)">İsmi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.BirthDate)">Doğum Tarihi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.DeathDate)">Ölüm Tarihi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.Biography)">Biyografisi</MudTableSortLabel></MudTh>
+            <MudTh>İşlemler</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="İsmi">@context.WriterName</MudTd>
+            <MudTd DataLabel="Doğum Tarihi">@context?.BirthDate?.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Ölüm Tarihi">@context?.DeathDate?.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Biyografisi">@context.Biography</MudTd>
+            <MudTd>
+                <MudButtonGroup>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => WriterUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => WriterDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private string errorMessage = string.Empty;
+    private string searchString = string.Empty;
+    IEnumerable<WriterGetDto> Elements = new List<WriterGetDto>();
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await _writerService.GetAllAsync();
+        if (res.Success)
+        {
+            Elements = res.Data.ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            errorMessage = res.Message;
+        }
+    }
+    private bool FilterFunc(WriterGetDto element)
+    {
+        searchString = searchString?.Trim().ToLower() ?? "";
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.WriterName.ToLower().Contains(searchString))
+            return true;
+        return false;
+    }
+    private async Task WriterDelete(int id)
+    {
+        bool? result = await MessageBoxService.ShowConfirmDialog("Uyarı", "Yazar silinsin mi ?");
+        if (result.GetValueOrDefault())
+        {
+            var res = await _writerService.DeleteAsync(id);
+            Snackbar.Add(res.Message, severity: res.Success ? Severity.Success : Severity.Error);
+            if (res.Success)
+            {
+                var res1 = await _writerService.GetAllAsync();
+                if (res1.Success)
+                {
+                    Elements = res1.Data.ToList();
+                    StateHasChanged();
+                }
+                else
+                {
+                    errorMessage = res1.Message;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+    private async Task WriterUpdate(int id)
+    {
+        Nav.NavigateTo("writer/update/" + id);
+    }
+}
