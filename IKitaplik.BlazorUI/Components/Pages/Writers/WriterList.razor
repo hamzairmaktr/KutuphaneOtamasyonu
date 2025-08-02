@@ -21,7 +21,7 @@ else
     <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<WriterGetDto, bool>(FilterFunc)"
               SortLabel="Sort By" CommitEditTooltip="Commit Edit">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Kategoriler</MudText>
+            <MudText Typo="Typo.h6">Yazarlar</MudText>
             <MudSpacer />
             <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>

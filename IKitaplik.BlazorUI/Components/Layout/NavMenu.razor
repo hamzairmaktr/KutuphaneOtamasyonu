@@ -37,6 +37,16 @@
                     Yazar Listele
                 </MudNavLink>
             </MudNavGroup>
+            <MudNavGroup Title="Öğrenciler" Icon="@Icons.Material.Filled.School">
+                <MudNavLink Href="/student/add">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                    Yazar Ekle
+                </MudNavLink>
+                <MudNavLink Href="/student/list">
+                    <MudIcon Icon="@Icons.Material.Filled.List" />
+                    Yazar Listele
+                </MudNavLink>
+            </MudNavGroup>
         </Authorized>
         <NotAuthorized>
             <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Giriş Yap</MudNavLink>

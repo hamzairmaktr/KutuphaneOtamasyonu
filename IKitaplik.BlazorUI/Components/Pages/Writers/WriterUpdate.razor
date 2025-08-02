@@ -19,7 +19,7 @@
                Date="@deathDate"
                DateChanged="@((DateTime? val) => deathDate = val)"
                Variant="Variant.Outlined" />
-<MudTextField AutoGrow @bind-Value="bio" Variant="Variant.Outlined" Label="Biyografi"></MudTextField>
+<MudTextField AutoGrow @bind-Value="bio" Variant="Variant.Outlined" Lines="5" Label="Biyografi"></MudTextField>
 
 <MudButton OnClick="Kaydet" Class="mt-2" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.Save" Color="Color.Warning">Kaydet</MudButton>
 <MudButton OnClick="Vazgec" Class="mt-2 ms-1" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.TwoTone.Cancel" Color="Color.Error">Vazgeç</MudButton>
