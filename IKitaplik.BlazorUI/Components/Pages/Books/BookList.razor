@@ -1,7 +1,9 @@
-﻿@page "/books/list"
+﻿@page "/book/list"
 @inject NavigationManager Nav
 @inject IBookService _service
-
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject MessageBoxService MessageBoxService
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -28,6 +30,7 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Piece)">Adet</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Situation)">Durum</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.PageSize)">Sayfa Sayısı</MudTableSortLabel></MudTh>
+            <MudTh>İşlemler</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Nr">@context.Id</MudTd>
@@ -39,6 +42,12 @@ else
             <MudTd DataLabel="Adet">@context.Piece</MudTd>
             <MudTd DataLabel="Durum">@context.Situation</MudTd>
             <MudTd DataLabel="Sayfa Sayısı">@context.PageSize</MudTd>
+            <MudTd>
+                <MudButtonGroup>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => BookUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => BookDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                </MudButtonGroup>
+            </MudTd>
         </RowTemplate>
         <PagerContent>
             <MudTablePager />
@@ -85,5 +94,33 @@ else
         if ($"{element.Situation.ToString().ToLower()} {element.ShelfNo.ToLower()}".Contains(searchString))
             return true;
         return false;
+    }
+
+    private async Task BookDelete(int id)
+    {
+        bool? result = await MessageBoxService.ShowConfirmDialog("Uyarı", "Kitap silinsin mi ?");
+        if (result.GetValueOrDefault())
+        {
+            var res = await _service.DeleteBookAsync(id);
+            Snackbar.Add(res.Message, severity: res.Success ? Severity.Success : Severity.Error);
+            if (res.Success)
+            {
+                var res1 = await _service.GetAllBooksAsync();
+                if (res1.Success)
+                {
+                    Elements = res1.Data.ToList();
+                    StateHasChanged();
+                }
+                else
+                {
+                    errorMessage = res1.Message;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+    private async Task BookUpdate(int id)
+    {
+        Nav.NavigateTo("book/update/" + id);
     }
 }

@@ -1,5 +1,99 @@
-﻿<h3>BookAdd</h3>
+﻿@page "/book/add"
+@inject IBookService _service
+@inject ICategoryService _categoryService
+@inject IWriterService _writerService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<h3 class="mt-2">Kitap Ekle</h3>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Class="my-3" Severity="Severity.Error">@errorMessage</MudAlert>
+}
+
+<MudTextField T="string" @bind-Value="barcode" Variant="Variant.Outlined" Label="Barkod"></MudTextField>
+<MudTextField T="string" @bind-Value="name" Variant="Variant.Outlined" Label="Kitap Adı"></MudTextField>
+<MudTextField T="string" @bind-Value="shelfNo" Variant="Variant.Outlined" Label="Raf No"></MudTextField>
+<MudTextField T="int" @bind-Value="pageSize" Variant="Variant.Outlined" Label="Sayfa Sayısı"></MudTextField>
+<MudTextField T="int" @bind-Value="piece" Variant="Variant.Outlined" Label="Adet"></MudTextField>
+<MudSelect T="CategoryGetDto" @bind-Value="Category" Label="Kategori" Variant="Variant.Outlined" Class="mb-2">
+    @foreach (var category in Categories)
+    {
+        <MudSelectItem Value="@category">@category.Name</MudSelectItem>
+    }
+</MudSelect>
+<MudSelect T="WriterGetDto" @bind-Value="Writer" Label="Yazar" Variant="Variant.Outlined" Class="mb-2">
+    @foreach (var writer in Writers)
+    {
+        <MudSelectItem Value="@writer">@writer.WriterName</MudSelectItem>
+    }
+</MudSelect>
+
+<MudButton OnClick="Kaydet" Class="mt-2" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.Add" Color="Color.Info">Yeni Kayıt Ekle</MudButton>
+<MudButton OnClick="Vazgec" Class="mt-2 ms-1" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.TwoTone.Cancel" Color="Color.Error">Vazgeç</MudButton>
+
 
 @code {
+    private string errorMessage = "";
+    private string barcode = "";
+    private string name = "";
+    private string shelfNo = "";
+    private int pageSize = 0;
+    private int piece = 0;
+    private CategoryGetDto Category = null;
+    private WriterGetDto Writer = null;
 
+    private List<CategoryGetDto> Categories = new List<CategoryGetDto>();
+    private List<WriterGetDto> Writers = new List<WriterGetDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var categories = await _categoryService.GetAllAsync();
+        if (categories.Success)
+        {
+            Categories = categories.Data;
+        }
+        else
+        {
+            errorMessage = categories.Message;
+        }
+        var writers = await _writerService.GetAllAsync();
+        if (writers.Success)
+        {
+            Writers = writers.Data;
+        }
+        else
+        {
+            errorMessage = writers.Message;
+        }
+    }
+
+
+    private void Vazgec(MouseEventArgs args)
+    {
+        Nav.NavigateTo("book/list");
+    }
+    private async Task Kaydet(MouseEventArgs args)
+    {
+        errorMessage = string.Empty;
+
+        var res = await _service.AddBookAsync(new BookAddDto
+        {
+            Barcode = barcode,
+            Name = name,
+            ShelfNo = shelfNo,
+            PageSize = pageSize,
+            Piece = piece,
+            CategoryId = Category?.Id ?? 0,
+            WriterId = Writer?.Id ?? 0
+        });
+        if (!res.Success)
+        {
+            errorMessage = res.Message;
+            return;
+        }
+
+        Snackbar.Add(res.Message, Severity.Success);
+        Nav.NavigateTo("book/list");
+    }
 }
