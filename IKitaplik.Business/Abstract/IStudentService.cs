@@ -16,6 +16,7 @@ namespace IKitaplik.Business.Abstract
         IResult Delete(int id);
 
         IDataResult<List<StudentGetDto>> GetAll();
+        IDataResult<List<StudentGetDto>> GetAllActive();
         IDataResult<List<StudentGetDto>> GetAllByName(string name);
         IDataResult<Student> GetById(int id);
     }

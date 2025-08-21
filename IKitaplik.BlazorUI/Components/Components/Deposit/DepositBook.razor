@@ -1,0 +1,45 @@
+﻿@inject IBookService _service
+<MudDialog>
+    <DialogContent>
+        <MudDataGrid T="BookGetDTO"
+                     Items="list"
+                     Bordered="true"
+                     Hover="true"
+                     Filterable="true"
+                     FilterCaseSensitivity="DataGridFilterCaseSensitivity.Ignore"
+                     FilterMode="DataGridFilterMode.ColumnFilterRow"
+                     SortMode="SortMode.Single">
+            <Columns>
+                <PropertyColumn Title="Barkod" Property="x => x.Barcode"></PropertyColumn>
+                <PropertyColumn Title="Kitap Adı" Property="x => x.Name"></PropertyColumn>
+                <TemplateColumn Title="İşlemler">
+                    <CellTemplate>
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="(() => Select(context.Item))">Seç</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </DialogContent>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    IMudDialogInstance Dialog { get; set; }
+
+    private List<BookGetDTO> list = new List<BookGetDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await _service.GetAllActiveBooksAsync();
+        if (res.Success)
+        {
+            list = res.Data;
+        }
+    }
+
+    private void Select(BookGetDTO bookGetDTO)
+    {
+        Dialog.Close(DialogResult.Ok(bookGetDTO));
+    }
+}

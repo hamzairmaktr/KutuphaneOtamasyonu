@@ -1,0 +1,123 @@
+﻿@page "/deposit/list"
+
+@inject NavigationManager Nav
+@inject IDepositService _service
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject MessageBoxService MessageBoxService
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<DepositGetDTO, bool>(FilterFunc)"
+              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Emanetler</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.BookName)">Kitap</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.StudentName)">Öğrenci</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.IssueDate)">Verilme Tarihi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.DeliveryDate)">Alış Tarihi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.IsDelivered)">Teslim Edildi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.IsItDamaged)">Hasarlı Teslim</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.AmILate)">Geç Teslim</MudTableSortLabel></MudTh>
+            <MudTh>İşlemler</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="Kitap">@context.BookName</MudTd>
+            <MudTd DataLabel="Öğrenci">@context.StudentName</MudTd>
+            <MudTd DataLabel="Verilme Tarihi">@context.IssueDate</MudTd>
+            <MudTd DataLabel="Alış Tarihi">@context.DeliveryDate</MudTd>
+            <MudTd DataLabel="Teslim Edildi">@context.IsDelivered</MudTd>
+            <MudTd DataLabel="Hasarlı Teslim">@context.IsItDamaged</MudTd>
+            <MudTd DataLabel="Geç Teslim">@context.AmILate</MudTd>
+            <MudTd>
+                <MudButtonGroup>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => DepositUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => DepositDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private string searchString = "", errorMessage = "";
+    private IEnumerable<DepositGetDTO> Elements = new List<DepositGetDTO>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var res = await _service.GetAllAsync();
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+            }
+            else
+            {
+                Elements = res.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            //errorMessage = ex.Message;
+        }
+    }
+
+    private bool FilterFunc(DepositGetDTO element)
+    {
+        searchString = searchString?.Trim().ToLower() ?? "";
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.BookName.ToLower().Contains(searchString))
+            return true;
+        if (element.StudentName.ToLower().Contains(searchString))
+            return true;
+        if (element.Note.ToLower().Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private async Task DepositDelete(int id)
+    {
+        bool? result = await MessageBoxService.ShowConfirmDialog("Uyarı", "Emanet silinsin mi ?");
+        if (result.GetValueOrDefault())
+        {
+            var res = await _service.DeleteAsync(id);
+            Snackbar.Add(res.Message, severity: res.Success ? Severity.Success : Severity.Error);
+            if (res.Success)
+            {
+                var res1 = await _service.GetAllAsync();
+                if (res1.Success)
+                {
+                    Elements = res1.Data.ToList();
+                    StateHasChanged();
+                }
+                else
+                {
+                    errorMessage = res1.Message;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+    private async Task DepositUpdate(int id)
+    {
+        Nav.NavigateTo("deposit/update/" + id);
+    }
+}

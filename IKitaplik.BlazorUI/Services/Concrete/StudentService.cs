@@ -128,5 +128,21 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 return new Response { Success = false, Message = $"Öğrenci güncellenirken hata oluştu: {ex.Message}" };
             }
         }
+
+        public async Task<Response<List<StudentGetDto>>> GetAllActiveAsync()
+        {
+            try
+            {
+                await SetAuthorizationHeader();
+                var res = await _httpClient.GetAsync("Student/getallisactive");
+                res.EnsureSuccessStatusCode(); // HTTP olmayan bir durum kodu varsa hata fırlatır
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response<List<StudentGetDto>>>(content, _jsonOptions)!;
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<StudentGetDto>> { Success = false, Message = $"Öğrenciler getirilirken hata oluştu: {ex.Message}", Data = new List<StudentGetDto>() };
+            }
+        }
     }
 }

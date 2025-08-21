@@ -97,7 +97,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookDTOs().Take(50).ToList();
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookDTOs().ToList();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name.Contains(name)).Take(50)
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name.Contains(name))
                     .ToList();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
@@ -251,6 +251,19 @@ namespace IKitaplik.Business.Concrete
             else
             {
                 return new ErrorResult("İlgili kitap bulunamadı");
+            }
+        }
+
+        public IDataResult<List<BookGetDTO>> GetAllActive()
+        {
+            try
+            {
+                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Piece > 0).ToList();
+                return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<List<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
             }
         }
     }

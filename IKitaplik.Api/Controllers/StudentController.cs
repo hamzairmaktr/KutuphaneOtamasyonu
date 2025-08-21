@@ -26,6 +26,14 @@ namespace IKitaplik.Api.Controllers
             }
             return BadRequest(result);
         }
+        [HttpGet("getallisactive")]
+        public ActionResult GetAllActive()
+        {
+            var res = _studentService.GetAllActive();
+            if (res.Success)
+                return Ok(res);
+            return BadRequest(res);
+        }
 
         [HttpGet("getallbyname")]
         public IActionResult GetAllByName(string name)

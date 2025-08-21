@@ -1,0 +1,352 @@
+﻿@page "/deposit/add"
+@inject IDialogService DialogService
+@inject IBookService _bookService
+@inject IDepositService _service
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-4">
+    <!-- Başlık Bölümü -->
+    <MudPaper Class="pa-6 mb-6" Elevation="3">
+        <div class="d-flex align-center gap-3">
+            <MudIcon Icon="@Icons.Material.Filled.LibraryBooks" Size="Size.Large" Color="Color.Primary" />
+            <div>
+                <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-1">Emanet Ver</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Kitap ve öğrenci seçerek emanet işlemi gerçekleştirin</MudText>
+            </div>
+        </div>
+    </MudPaper>
+
+    <!-- Emanet Bilgileri Bölümü -->
+    <MudCard Elevation="4" Class="mb-6">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <div class="d-flex align-center gap-2">
+                    <MudIcon Icon="@Icons.Material.Filled.Assignment" Color="Color.Tertiary" />
+                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Emanet Bilgileri</MudText>
+                </div>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker Date="@depositDate"
+                                   DateChanged="DepositDateChanged"
+                                   Label="Emanet Tarihi"
+                                   Variant="Variant.Outlined"
+                                   Required="true"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.CalendarToday" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="@returnDate"
+                                   Disabled="true"
+                                   Label="Geri Verme Tarihi"
+                                   Variant="Variant.Outlined"
+                                   MinDate="@(depositDate ?? DateTime.Today)"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Event" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField T="string"
+                                  @bind-Value="@depositNote"
+                                  Label="Emanet Notu"
+                                  Variant="Variant.Outlined"
+                                  ReadOnly="true"
+                                  Lines="3"
+                                  MaxLength="500"
+                                  Counter="500"
+                                  Placeholder="Emanet ile ilgili notlarınızı buraya yazabilirsiniz..."
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Notes" />
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+
+    <MudGrid Spacing="4">
+        <!-- Kitap Seçimi Bölümü -->
+        <MudItem xs="12" lg="6">
+            <MudCard Elevation="4" Class="h-100">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Filled.MenuBook" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6" Color="Color.Primary">Kitap Bilgileri</MudText>
+                        </div>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <div class="mb-4">
+                        <MudButton ButtonType="ButtonType.Button"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Large"
+                                   FullWidth="true"
+                                   StartIcon="@Icons.Material.Filled.Search"
+                                   OnClick="SelectBook">
+                            Kitap Seç
+                        </MudButton>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedBook.Name))
+                    {
+                        <MudAlert Severity="Severity.Success" Class="mb-4" Dense="true">
+                            <div class="d-flex align-center gap-2">
+                                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" />
+                                <span>Kitap seçildi</span>
+                            </div>
+                        </MudAlert>
+                    }
+
+                    <MudGrid Spacing="3">
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedBook.Barcode)"
+                                          Label="Barkod"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.QrCode" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="int"
+                                          @bind-Value="@(selectedBook.Piece)"
+                                          Label="Adet"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Numbers" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedBook.Name)"
+                                          Label="Kitap Adı"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Title" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedBook.WriterName)"
+                                          Label="Yazar Adı"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Person" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedBook.CategoryName)"
+                                          Label="Kategori"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Category" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="int"
+                                          @bind-Value="@(selectedBook.PageSize)"
+                                          Label="Sayfa Sayısı"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Article" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedBook.ShelfNo)"
+                                          Label="Raf Numarası"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Numbers" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- Öğrenci Seçimi Bölümü -->
+        <MudItem xs="12" lg="6">
+            <MudCard Elevation="4" Class="h-100">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6" Color="Color.Secondary">Öğrenci Bilgileri</MudText>
+                        </div>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <div class="mb-4">
+                        <MudButton ButtonType="ButtonType.Button"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Secondary"
+                                   Size="Size.Large"
+                                   FullWidth="true"
+                                   StartIcon="@Icons.Material.Filled.Search"
+                                   OnClick="SelectStudent">
+                            Öğrenci Seç
+                        </MudButton>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedStudent.Name))
+                    {
+                        <MudAlert Severity="Severity.Success" Class="mb-4" Dense="true">
+                            <div class="d-flex align-center gap-2">
+                                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" />
+                                <span>Öğrenci seçildi</span>
+                            </div>
+                        </MudAlert>
+                    }
+
+                    <MudGrid Spacing="3">
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="int"
+                                          @bind-Value="@(selectedStudent.StudentNumber)"
+                                          Label="Öğrenci Numarası"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Badge" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="int"
+                                          @bind-Value="@(selectedStudent.Point)"
+                                          Label="Puanı"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Stars" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedStudent.Name)"
+                                          Label="Öğrenci Adı"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Person" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedStudent.Class)"
+                                          Label="Sınıfı"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Class" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedStudent.TelephoneNumber)"
+                                          Label="Telefonu"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Phone" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField ReadOnly="true"
+                                          T="string"
+                                          @bind-Value="@(selectedStudent.EMail)"
+                                          Label="E-posta"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Email" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- İşlem Butonları -->
+    <MudPaper Class="pa-4 mt-6" Elevation="2">
+        <div class="d-flex justify-end gap-3">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Error"
+                       Size="Size.Large"
+                       OnClick="Vazgec"
+                       StartIcon="@Icons.Material.Filled.Close">
+                Vazgeç
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Success"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       OnClick="Kaydet"
+                       Disabled="@(string.IsNullOrEmpty(selectedBook.Name) || string.IsNullOrEmpty(selectedStudent.Name) || !depositDate.HasValue)">
+                Emaneti Kaydet
+            </MudButton>
+        </div>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    public BookGetDTO selectedBook = new();
+    public StudentGetDto selectedStudent = new();
+    public DateTime? depositDate = DateTime.Today;
+    public DateTime? returnDate = DateTime.Now.AddDays(14);
+    public string depositNote = string.Empty;
+
+    private async Task SelectBook(MouseEventArgs args)
+    {
+        var dialogRes = await DialogService.ShowAsync<DepositBook>("Kitap Seç", options: new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            CloseOnEscapeKey = true,
+            BackdropClick = false
+        });
+        var res = await dialogRes.Result;
+        selectedBook = (BookGetDTO?)res?.Data ?? new();
+    }
+
+    private async Task SelectStudent(MouseEventArgs args)
+    {
+        var dialogRes = await DialogService.ShowAsync<DepositStudent>("Öğrenci Seç", new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            CloseOnEscapeKey = true,
+            BackdropClick = false
+        });
+        var res = await dialogRes.Result;
+        selectedStudent = (StudentGetDto?)res?.Data ?? new();
+    }
+    private void Vazgec(MouseEventArgs args)
+    {
+        Nav.NavigateTo("deposit/list");
+    }
+    private async Task Kaydet(MouseEventArgs args)
+    {
+        DepositAddDto depositAddDto = new()
+        {
+            BookId = selectedBook.Id,
+            IssueDate = depositDate ?? DateTime.Now,
+            Note = depositNote,
+            StudentId = selectedStudent.Id
+        };
+        var res = await _service.DepositGivenAsync(depositAddDto);
+        if (res.Success)
+        {
+            Snackbar.Add(res.Message, Severity.Success);
+            Nav.NavigateTo("deposit/list");
+        }
+        else
+        {
+            Snackbar.Add(res.Message, Severity.Error);
+        }
+    }
+    private void DepositDateChanged(DateTime? args)
+    {
+        if (args.HasValue)
+        {
+            depositDate = args.Value;
+            returnDate = args.Value.AddDays(14);
+        }
+    }
+}

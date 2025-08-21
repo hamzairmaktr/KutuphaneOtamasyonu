@@ -20,6 +20,7 @@ namespace IKitaplik.Business.Abstract
 
         IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter);
         IDataResult<List<BookGetDTO>> GetAll();
+        IDataResult<List<BookGetDTO>> GetAllActive();
         IDataResult<List<BookGetDTO>> GetAllByName(string name);
         IDataResult<Book> GetById(int id);
         IDataResult<Book> GetByBarcode(string barcode);
