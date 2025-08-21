@@ -47,6 +47,16 @@
                     Öğrenci Listele
                 </MudNavLink>
             </MudNavGroup>
+            <MudNavGroup Title="Emanetler" Icon="@Icons.Material.Filled.ViewList">
+                <MudNavLink Href="/deposit/add">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                    Emanet Ver
+                </MudNavLink>
+                <MudNavLink Href="/deposit/list">
+                    <MudIcon Icon="@Icons.Material.Filled.List" />
+                    Emanetler
+                </MudNavLink>
+            </MudNavGroup>
         </Authorized>
         <NotAuthorized>
             <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Giriş Yap</MudNavLink>

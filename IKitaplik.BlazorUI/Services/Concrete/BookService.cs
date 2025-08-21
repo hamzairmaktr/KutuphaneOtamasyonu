@@ -2,6 +2,7 @@
 using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
+using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using System.Net.Http.Headers;
@@ -53,6 +54,22 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
+        public async Task<Response<List<BookGetDTO>>> GetAllActiveBooksAsync()
+        {
+            string token = await _jwtAuthenticationStateProvider.GetToken();
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var res = await _httpClient.GetAsync("book/getallisactive");
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(content, _jsonOptions)!;
+            }
+            else
+            {
+                return await Task.FromException<Response<List<BookGetDTO>>>(new Exception("Login Olunamadı"));
+            }
+        }
+
         public async Task<Response<List<BookGetDTO>>> GetAllBooksAsync()
         {
             string token = await _jwtAuthenticationStateProvider.GetToken();
@@ -69,20 +86,19 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-
-        public async Task<Response<BookGetDTO>> GetBookDetailsAsync(int id)
+        public async Task<Response<Book>> GetBookByIdAsync(int id)
         {
             string token = await _jwtAuthenticationStateProvider.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = await _httpClient.GetAsync($"api/books/getById/{id}");
+                var response = await _httpClient.GetAsync($"book/getById?id={id}");
                 response.EnsureSuccessStatusCode();
-                return await response.Content.ReadFromJsonAsync<Response<BookGetDTO>>(_jsonOptions)!;
+                return await response.Content.ReadFromJsonAsync<Response<Book>>(_jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<BookGetDTO>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<Book>>(new Exception("Login Olunamadı"));
             }
         }
 

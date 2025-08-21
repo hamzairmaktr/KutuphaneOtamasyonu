@@ -28,6 +28,14 @@ namespace IKitaplik.Api.Controllers
                 return Ok(res);
             return BadRequest(res);
         }
+        [HttpGet("getallisactive")]
+        public ActionResult GetAllActive()
+        {
+            var res = _bookService.GetAllActive();
+            if (res.Success)
+                return Ok(res);
+            return BadRequest(res);
+        }
         [HttpPost("add")]
         public ActionResult Add([FromBody] BookAddDto bookAddDto)
         {

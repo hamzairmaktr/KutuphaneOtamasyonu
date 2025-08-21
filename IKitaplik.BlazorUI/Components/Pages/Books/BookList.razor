@@ -28,7 +28,6 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.CategoryName)">Kategori</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.ShelfNo)">Raf No</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Piece)">Adet</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Situation)">Durum</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.PageSize)">Sayfa Sayısı</MudTableSortLabel></MudTh>
             <MudTh>İşlemler</MudTh>
         </HeaderContent>
@@ -40,7 +39,6 @@ else
             <MudTd DataLabel="Kategori">@context.CategoryName</MudTd>
             <MudTd DataLabel="Raf No">@context.ShelfNo</MudTd>
             <MudTd DataLabel="Adet">@context.Piece</MudTd>
-            <MudTd DataLabel="Durum">@context.Situation</MudTd>
             <MudTd DataLabel="Sayfa Sayısı">@context.PageSize</MudTd>
             <MudTd>
                 <MudButtonGroup>

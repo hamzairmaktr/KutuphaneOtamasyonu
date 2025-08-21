@@ -1,0 +1,45 @@
+﻿@inject IStudentService _service
+<MudDialog>
+    <DialogContent>
+        <MudDataGrid T="StudentGetDto"
+                     Items="list"
+                     Bordered="true"
+                     Hover="true"
+                     Filterable="true"
+                     FilterCaseSensitivity="DataGridFilterCaseSensitivity.Ignore"
+                     FilterMode="DataGridFilterMode.ColumnFilterRow"
+                     SortMode="SortMode.Single">
+            <Columns>
+                <PropertyColumn Title="Öğrenci Numarası" Property="x => x.StudentNumber"></PropertyColumn>
+                <PropertyColumn Title="Öğrenci Adı" Property="x => x.Name"></PropertyColumn>
+                <TemplateColumn Title="İşlemler">
+                    <CellTemplate>
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="(() => Select(context.Item))">Seç</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </DialogContent>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    IMudDialogInstance Dialog { get; set; }
+
+    private List<StudentGetDto> list = new List<StudentGetDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await _service.GetAllActiveAsync();
+        if (res.Success)
+        {
+            list = res.Data;
+        }
+    }
+
+    private void Select(StudentGetDto studentGetDto)
+    {
+        Dialog.Close(DialogResult.Ok(studentGetDto));
+    }
+}

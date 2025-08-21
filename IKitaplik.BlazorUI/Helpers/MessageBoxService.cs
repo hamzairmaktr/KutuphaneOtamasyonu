@@ -15,12 +15,12 @@ namespace IKitaplik.BlazorUI.Helpers
         public async Task<bool> ShowConfirmDialog(string title, string message, string confirmText = "Sil", string cancelText = "Vazgeç")
         {
             var parameters = new DialogParameters
-        {
-            { "Title", title },
-            { "Content", message },
-            { "ConfirmButtonText", confirmText },
-            { "CancelButtonText", cancelText }
-        };
+            {
+                { "Title", title },
+                { "Content", message },
+                { "ConfirmButtonText", confirmText },
+                { "CancelButtonText", cancelText }
+            };
 
             var options = new DialogOptions { CloseOnEscapeKey = true };
             var dialog = await _dialogService.ShowAsync<MessageBoxComponent>("", parameters, options);
