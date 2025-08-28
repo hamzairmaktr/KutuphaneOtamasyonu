@@ -34,6 +34,7 @@ namespace IKitaplik.Business.Concrete
             {
                 var deposit = _mapper.Map<Deposit>(depositAddDto);
                 deposit.CreatedDate = DateTime.Now;
+                deposit.DeliveryDate.AddDays(14);
                 var book = ValidateBook(deposit.BookId);
                 var student = ValidateStudent(deposit.StudentId);
 

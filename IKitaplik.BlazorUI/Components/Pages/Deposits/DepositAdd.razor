@@ -52,7 +52,6 @@
                                   @bind-Value="@depositNote"
                                   Label="Emanet Notu"
                                   Variant="Variant.Outlined"
-                                  ReadOnly="true"
                                   Lines="3"
                                   MaxLength="500"
                                   Counter="500"
@@ -294,7 +293,7 @@
 
     private async Task SelectBook(MouseEventArgs args)
     {
-        var dialogRes = await DialogService.ShowAsync<DepositBook>("Kitap Seç", options: new DialogOptions
+        var dialogRes = await DialogService.ShowAsync<_DepositBook>("Kitap Seç", options: new DialogOptions
         {
             CloseButton = true,
             MaxWidth = MaxWidth.Medium,
@@ -307,7 +306,7 @@
 
     private async Task SelectStudent(MouseEventArgs args)
     {
-        var dialogRes = await DialogService.ShowAsync<DepositStudent>("Öğrenci Seç", new DialogOptions
+        var dialogRes = await DialogService.ShowAsync<_DepositStudent>("Öğrenci Seç", new DialogOptions
         {
             CloseButton = true,
             MaxWidth = MaxWidth.Medium,

@@ -1,0 +1,154 @@
+﻿@page "/deposit/operations/{Id:int}"
+@inject IDepositService _depositService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Class="my-3" Severity="Severity.Error">@_errorMessage</MudAlert>
+}
+else
+{
+    <div class="my-5">
+        <div class="w-100 row d-flex justify-items-center" style="margin:0;">
+            <div class="col-12 col-md-6 col-lg-4 my-1">
+                <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Info" Disabled="@(SelectDeposit.IsDelivered)" OnClick="EkstraSureVer">Ekstra Süre Ver</MudButton>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 my-1">
+                <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Success" Disabled="@(SelectDeposit.IsDelivered)">Teslim Al</MudButton>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 my-1">
+                <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Error" OnClick="@((e) => Nav.NavigateTo("/deposit/list"))">Vazgeç</MudButton>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 col-md-6">
+                <MudTextField T="int"
+                              ReadOnly="true"
+                              @bind-Value="SelectDeposit.Id"
+                              Label="Id"
+                              Variant="Variant.Outlined">
+                </MudTextField>
+            </div>
+            <div class="col-12 col-md-6">
+                <MudTextField T="DateTime"
+                              @bind-Value="SelectDeposit.IssueDate"
+                              Label="Veriliş Tarihi"
+                              Variant="Variant.Outlined"
+                              ReadOnly="true">
+                </MudTextField>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <MudTextField T="DateTime"
+                              @bind-Value="SelectDeposit.DeliveryDate"
+                              Label="Veriliş Tarihi"
+                              Variant="Variant.Outlined"
+                              ReadOnly="true">
+                </MudTextField>
+            </div>
+            <div class="col-12 col-md-6">
+                <MudTextField T="string"
+                              @bind-Value="SelectDeposit.BookName"
+                              Label="Kitap"
+                              Variant="Variant.Outlined"
+                              ReadOnly="true">
+                </MudTextField>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <MudTextField T="string"
+                              @bind-Value="SelectDeposit.StudentName"
+                              Variant="Variant.Outlined"
+                              ReadOnly="true"
+                              Label="Öğrenci">
+                </MudTextField>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="row d-flex align-items-center h-100">
+                    <div class="col-6 col-lg-4">
+                        <MudCheckBox @bind-Value="SelectDeposit.IsDelivered"
+                                     ReadOnly="true"
+                                     Label="Verildimi">
+                        </MudCheckBox>
+                    </div>
+                    <div class="col-6 col-lg-4">
+                        <MudCheckBox @bind-Value="SelectDeposit.IsItDamaged"
+                                     ReadOnly="true"
+                                     Label="Hasarlımı">
+                        </MudCheckBox>
+                    </div>
+                    <div class="col-6 col-lg-4">
+                        <MudCheckBox @bind-Value="SelectDeposit.AmILate"
+                                     ReadOnly="true"
+                                     Label="Geciktimi">
+                        </MudCheckBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <MudTextField T="string"
+                              Lines="5"
+                              Variant="Variant.Outlined"
+                              ReadOnly="true"
+                              @bind-Value="SelectDeposit.Note"
+                              Label="Not">
+                </MudTextField>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    string _errorMessage = "";
+    public DepositGetDTO SelectDeposit { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await DepositGet();
+    }
+
+    private async Task DepositGet()
+    {
+        var res = await _depositService.GetByIdAsync(Id);
+        if (res.Success)
+        {
+            SelectDeposit = res.Data;
+        }
+        else
+        {
+            _errorMessage = res.Message;
+        }
+    }
+
+    private async Task EkstraSureVer(MouseEventArgs e)
+    {
+        var dialogRes = await DialogService.ShowAsync<_DepositExtentDueDate>("Ekstra Süre Ver", new DialogOptions
+        {
+            CloseButton = true,
+             FullWidth = true,
+            CloseOnEscapeKey = true,
+            BackdropClick = false
+        });
+        var dRes = await dialogRes.Result;
+        var dto = (DepositExtentDueDateDto?)dRes?.Data ?? new();
+        dto.DepositId = Id;
+        var res = await _depositService.ExtendDueDateAsync(dto);
+        if (res.Success)
+        {
+            Snackbar.Add("Emanete ekstra süre verildi", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(res.Message, Severity.Error);
+        }
+        await DepositGet();
+    }
+}

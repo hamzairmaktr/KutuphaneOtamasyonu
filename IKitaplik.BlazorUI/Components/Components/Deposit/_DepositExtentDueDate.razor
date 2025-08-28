@@ -1,0 +1,45 @@
+﻿@inject ISnackbar Snackbar
+<MudDialog>
+    <DialogContent>
+        <MudCheckBox Class="w-100" Label="Tarihe Göre" @bind-Value="dto.AsDate"></MudCheckBox>
+        @if (dto.AsDate)
+        {
+            <MudDatePicker @bind-Date="dto.Date"
+                           Label="Uzatılma Tarihi"
+                           Variant="Variant.Outlined"></MudDatePicker>
+        }
+        else
+        {
+            <MudNumericField @bind-Value="dto.AdditionalDays"
+                             Label="Ekstra Verilecek Gün"
+                             Variant="Variant.Outlined"></MudNumericField>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel">Vazgeç</MudButton>
+        <MudButton Color="Color.Info" OnClick="Select">Seç</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    IMudDialogInstance Dialog { get; set; }
+
+    public DepositExtentDueDateDto dto { get; set; } = new();
+
+
+    private void Select()
+    {
+        if (dto.Date == null && dto.AdditionalDays == null)
+        {
+            Snackbar.Add("Tarih veya gün giriniz", Severity.Error);
+            return;
+        }
+        Dialog.Close(DialogResult.Ok(dto));
+    }
+    private void Cancel()
+    {
+        Dialog.Cancel();
+    }
+}

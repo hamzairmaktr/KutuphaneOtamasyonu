@@ -37,6 +37,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              IssueDate = d.IssueDate,
                              Note = d.Note,
                              StudentName = s.Name,
+                             IsDelivered = d.IsDelivered
                          };
             return filter == null 
                 ? result.ToList()
@@ -61,6 +62,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              IssueDate = d.IssueDate,
                              Note = d.Note,
                              StudentName = s.Name,
+                             IsDelivered = d.IsDelivered
                          };
             return result.Where(filter).FirstOrDefault();
         }
