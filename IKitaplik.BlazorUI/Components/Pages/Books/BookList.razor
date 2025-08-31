@@ -6,6 +6,8 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject MessageBoxService MessageBoxService
+@attribute [StreamRendering]
+@attribute [Authorize(Roles = "Admin")]
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {

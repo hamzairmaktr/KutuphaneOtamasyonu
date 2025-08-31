@@ -9,10 +9,23 @@ using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMudServices();
-builder.Services.AddAuthorizationCore();
-builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<CookieService>();
+builder.Services.AddScoped<AccessTokenService>();
+builder.Services.AddScoped<RefreshTokenService>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication()
+    .AddScheme<CustomOption, JwtAuthenticationHandler>(
+    "JWTAuth", options =>
+    {
+
+    });
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthenticationStateProvider>());
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddScoped<MessageBoxService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IBookService, BookService>();
@@ -28,8 +41,6 @@ builder.Services.AddScoped<IMovementService, MovementService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddBlazoredLocalStorage();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,6 +54,8 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

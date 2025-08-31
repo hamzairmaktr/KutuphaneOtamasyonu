@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject JwtAuthenticationStateProvider AuthProvider
+@inject IAuthService AuthService
 <MudThemeProvider />
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -67,7 +67,6 @@
     }
     async Task logout()
     {
-        await AuthProvider.NotifyUserLogout();
-        NavigationManager.NavigateTo("/", forceLoad: true);
+        await AuthService.LogOut();
     }
 }

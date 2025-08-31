@@ -10,18 +10,18 @@ namespace IKitaplik.BlazorUI.Services.Concrete
     public class DonationService : IDonationService
     {
         private readonly HttpClient _httpClient;
-        private readonly JwtAuthenticationStateProvider _jwtAuthenticationStateProvider;
+        private readonly IAuthService _authService;
         private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-        public DonationService(HttpClient httpClient, JwtAuthenticationStateProvider jwtAuthenticationStateProvider)
+        public DonationService(HttpClient httpClient, IAuthService authService)
         {
             _httpClient = httpClient;
-            _jwtAuthenticationStateProvider = jwtAuthenticationStateProvider;
+            _authService = authService;
             _httpClient.BaseAddress = new Uri(Settings.apiUrl);
         }
         private async Task SetAuthorizationHeader()
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

@@ -13,18 +13,18 @@ namespace IKitaplik.BlazorUI.Services.Concrete
     public class WriterService : IWriterService
     {
         private readonly HttpClient _httpClient;
-        private readonly JwtAuthenticationStateProvider _jwtAuthenticationStateProvider;
+        private readonly IAuthService _authService;
         private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-        public WriterService(HttpClient httpClient, JwtAuthenticationStateProvider jwt)
+        public WriterService(HttpClient httpClient, IAuthService authService)
         {
             _httpClient = httpClient;
-            _jwtAuthenticationStateProvider = jwt;
+            _authService = authService;
             _httpClient.BaseAddress = new Uri(Settings.apiUrl);
         }
 
         public async Task<Response> AddAsync(WriterAddDto writerAddDto)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -40,7 +40,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response> DeleteAsync(int id)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -56,7 +56,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response<List<WriterGetDto>>> GetAllAsync()
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken();
+            string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -74,7 +74,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
         {
             try
             {
-                string token = await _jwtAuthenticationStateProvider.GetToken();
+                string token = await _authService.GetToken();
                 if (!string.IsNullOrEmpty(token))
                 {
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -95,7 +95,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response> UpdateAsync(WriterUpdateDto writerUpdateDto)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

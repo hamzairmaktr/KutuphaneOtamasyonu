@@ -13,18 +13,18 @@ namespace IKitaplik.BlazorUI.Services.Concrete
     public class BookService : IBookService
     {
         private readonly HttpClient _httpClient;
-        private readonly JwtAuthenticationStateProvider _jwtAuthenticationStateProvider;
+        private readonly IAuthService _authService;
         private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-        public BookService(HttpClient httpClient, JwtAuthenticationStateProvider jwtAuthenticationStateProvider)
+        public BookService(HttpClient httpClient, IAuthService authService)
         {
             _httpClient = httpClient;
-            _jwtAuthenticationStateProvider = jwtAuthenticationStateProvider;
+            _authService = authService;
             _httpClient.BaseAddress = new Uri(Settings.apiUrl);
         }
 
         public async Task<Response> AddBookAsync(BookAddDto dto)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -40,7 +40,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response> BookAddPieceAsync(BookAddPieceDto dto)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -56,7 +56,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response> DeleteBookAsync(int id)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -72,7 +72,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response<List<BookGetDTO>>> GetAllActiveBooksAsync()
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken();
+            string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -88,7 +88,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response<List<BookGetDTO>>> GetAllBooksAsync()
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken();
+            string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -104,7 +104,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response<Book>> GetBookByIdAsync(int id)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken();
+            string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -120,7 +120,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
         public async Task<Response> UpdateBookAsync(BookUpdateDto dto)
         {
-            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

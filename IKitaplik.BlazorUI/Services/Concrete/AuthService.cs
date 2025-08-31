@@ -1,11 +1,13 @@
 ﻿using Blazored.LocalStorage;
 using IKitaplik.BlazorUI.Cosntant;
+using IKitaplik.BlazorUI.Helpers;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 
 namespace IKitaplik.BlazorUI.Services.Concrete
@@ -14,15 +16,30 @@ namespace IKitaplik.BlazorUI.Services.Concrete
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-        NavigationManager _navigationManager;
-        ILocalStorageService _localStorage;
-        public AuthService(HttpClient httpClient, NavigationManager navigationManager, ILocalStorageService localStorageService)
+        private readonly NavigationManager _navigationManager;
+        private readonly AccessTokenService accessTokenService;
+        private readonly RefreshTokenService refreshTokenService;
+        public AuthService(HttpClient httpClient, NavigationManager navigationManager, AccessTokenService accessTokenService, RefreshTokenService refreshTokenService)
         {
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri(Settings.apiUrl);
             _navigationManager = navigationManager;
-            this._localStorage = localStorageService;
+            this.accessTokenService = accessTokenService;
+            this.refreshTokenService = refreshTokenService;
         }
+
+        public async Task<string> GetToken()
+        {
+            string accessToken = await accessTokenService.GetToken();
+            if (string.IsNullOrWhiteSpace(accessToken)) return string.Empty;
+            var claims = new JwtSecurityTokenHandler().ReadJwtToken(accessToken).Claims;
+            var expValue = claims.First(p => p.Type == "exp").Value;
+            var expDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expValue)).UtcDateTime;
+            if (DateTime.Now < expDate) return accessToken;
+            var res = await RefresToken();
+            return res.Data?.AccessToken ?? string.Empty;
+        }
+
         public async Task<Response<LoginResponse>> Login(UserLoginDto userLoginDto)
         {
             var res = await _httpClient.PostAsJsonAsync("auth/login", userLoginDto);
@@ -31,28 +48,36 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             var response = JsonSerializer.Deserialize<Response<LoginResponse>>(content, _jsonOptions)!;
             if (response.Success)
             {
-                await _localStorage.SetItemAsync("authToken", response.Data.AccessToken);
-                await _localStorage.SetItemAsync("refreshToken", response.Data.RefreshToken);
-                _navigationManager.NavigateTo("/",true);
+                await accessTokenService.SetToken(response.Data.AccessToken);
+                await refreshTokenService.SetToken(response.Data.RefreshToken);
+                _navigationManager.NavigateTo("/", true);
             }
             return response;
         }
-        public async Task<Response<LoginResponse>> RefresToken(RefreshTokenDto userRegisterDto)
+
+        public async Task LogOut()
         {
-            string refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
+            await accessTokenService.RemoveToken();
+            await refreshTokenService.RemoveToken();
+            _navigationManager.NavigateTo("/login", true);
+        }
+
+        public async Task<Response<LoginResponse>> RefresToken()
+        {
+            string refreshToken = await refreshTokenService.GetToken();
             var res = await _httpClient.PostAsJsonAsync("auth/refresh-token", new RefreshTokenDto { RefreshToken = refreshToken });
             var content = await res.Content.ReadAsStringAsync();
 
             var response = JsonSerializer.Deserialize<Response<LoginResponse>>(content, _jsonOptions)!;
             if (response.Success)
             {
-                await _localStorage.SetItemAsync("authToken", response.Data.AccessToken);
-                await _localStorage.SetItemAsync("refreshToken", response.Data.RefreshToken);
+                await accessTokenService.SetToken(response.Data.AccessToken);
+                await refreshTokenService.SetToken(response.Data.RefreshToken);
             }
             else
             {
-                await _localStorage.RemoveItemAsync("authToken");
-                await _localStorage.RemoveItemAsync("refreshToken");
+                await accessTokenService.RemoveToken();
+                await refreshTokenService.RemoveToken();
             }
             return response;
         }
@@ -66,10 +91,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             if (response.Success)
             {
                 _navigationManager.NavigateTo("/login");
-            }
-            else
-            {
-
             }
             return response;
         }

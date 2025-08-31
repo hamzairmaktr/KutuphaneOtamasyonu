@@ -8,6 +8,8 @@ namespace IKitaplik.BlazorUI.Services.Abstract
     {
         Task<Response<LoginResponse>> Login(UserLoginDto userLoginDto);
         Task<Response> Register(UserRegisterDto userRegisterDto);
-        Task<Response<LoginResponse>> RefresToken(RefreshTokenDto userRegisterDto);
+        Task<Response<LoginResponse>> RefresToken();
+        Task<string> GetToken();
+        Task LogOut();
     }
 }
