@@ -1,12 +1,9 @@
-﻿using Blazored.LocalStorage;
-using IKitaplik.BlazorUI.Cosntant;
+﻿using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Helpers;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
-using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 

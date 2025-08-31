@@ -1,6 +1,7 @@
 ﻿@page "/movement/list/{Type:int}&{Id:int}"
 @using IKitaplik.Entities.Enums
 @inject IMovementService _service
+@attribute [Authorize]
 
 
 @if (!string.IsNullOrEmpty(errorMessage))

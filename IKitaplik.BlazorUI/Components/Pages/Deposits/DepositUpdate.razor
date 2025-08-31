@@ -4,6 +4,7 @@
 @inject MessageBoxService _messageBoxService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@attribute [Authorize]
 
 
 @if (!string.IsNullOrEmpty(_errorMessage))

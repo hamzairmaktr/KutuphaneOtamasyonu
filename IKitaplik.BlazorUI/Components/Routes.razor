@@ -1,12 +1,15 @@
 ﻿<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+            <AuthorizeRouteView RouteData="@routeData"
+                                DefaultLayout="@typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <IKitaplik.BlazorUI.Components.Pages.Auth.AccessDenied></IKitaplik.BlazorUI.Components.Pages.Auth.AccessDenied>
+                </NotAuthorized>
+            </AuthorizeRouteView>
         </Found>
         <NotFound>
-            <LayoutView Layout="@typeof(Layout.MainLayout)">
-                <p>Sayfa bulunamadı.</p>
-            </LayoutView>
+            <p>Sayfa bulunamadı.</p>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>

@@ -4,8 +4,7 @@
 @inject IWriterService _writerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
-@attribute [StreamRendering]
-@attribute [Authorize(Roles = "User,Admin")]
+@attribute [Authorize]
 
 <h3 class="mt-2">Kitap Ekle</h3>
 @if (!string.IsNullOrEmpty(errorMessage))
