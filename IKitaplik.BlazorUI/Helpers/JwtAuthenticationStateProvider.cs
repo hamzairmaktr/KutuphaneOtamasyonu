@@ -1,8 +1,9 @@
 ﻿using Blazored.LocalStorage;
 using IKitaplik.BlazorUI.Services.Abstract;
+using IKitaplik.Entities.DTOs.UserDTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
-using IKitaplik.Entities.DTOs.UserDTOs;
 
 public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 {
@@ -18,32 +19,23 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         _authService = authService;
     }
 
-    public async Task InitializeAsync()
-    {
-        try
-        {
-            var result = await localStorageService.GetItemAsStringAsync("authToken");
-            _jwtToken = result;
-            _isInitialized = true;
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        }
-        catch (InvalidOperationException)
-        {
-        }
-    }
-
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
+
         if (!_isInitialized)
         {
-            // Eğer henüz Init edilmediyse, anonim kullanıcı döner.
-            return await Task.FromResult(new AuthenticationState(_anonymous));
+            try
+            {
+            _jwtToken = await localStorageService.GetItemAsStringAsync("authToken");
+            _isInitialized = true;
+
+            }
+            catch { }
         }
 
         if (string.IsNullOrWhiteSpace(_jwtToken))
-        {
-            return await Task.FromResult(new AuthenticationState(_anonymous));
-        }
+            return new AuthenticationState(_anonymous);
+
         var claims = ParseClaimsFromJwt(_jwtToken);
         if (IsTokenExpired(claims))
         {
@@ -51,18 +43,19 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
             var res = await _authService.RefresToken(new RefreshTokenDto { RefreshToken = refreshToken });
             if (res.Success)
             {
-                NotifyUserAuthentication(res.Data.AccessToken);
+                await NotifyUserAuthentication(res.Data.AccessToken);
                 return await GetAuthenticationStateAsync();
             }
             else
             {
                 _jwtToken = null;
-                return await Task.FromResult(new AuthenticationState(_anonymous));
+                return new AuthenticationState(_anonymous);
             }
         }
-        var identity = new ClaimsIdentity(claims, "jwt");
-        var user = new ClaimsPrincipal(identity);
-        return await Task.FromResult(new AuthenticationState(user));
+
+        var identity2 = new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme);
+        var user2 = new ClaimsPrincipal(identity2);
+        return new AuthenticationState(user2);
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
@@ -103,14 +96,14 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     }
 
     // Token güncelleme ve bildirme metodu
-    public void NotifyUserAuthentication(string token)
+    public async Task NotifyUserAuthentication(string token)
     {
         _jwtToken = token;
         _isInitialized = true;
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
-    public async void NotifyUserLogout()
+    public async Task NotifyUserLogout()
     {
         _jwtToken = null;
         _isInitialized = true;
@@ -131,7 +124,7 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
                 var res = await _authService.RefresToken(new RefreshTokenDto { RefreshToken = refreshToken });
                 if (res.Success)
                 {
-                    NotifyUserAuthentication(res.Data.AccessToken);
+                    await NotifyUserAuthentication(res.Data.AccessToken);
                 }
                 else
                 {

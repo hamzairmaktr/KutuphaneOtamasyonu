@@ -38,6 +38,22 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
+        public async Task<Response> BookAddPieceAsync(BookAddPieceDto dto)
+        {
+            string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var res = await _httpClient.PostAsJsonAsync("book/bookAddPiece", dto);
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
+            }
+            else
+            {
+                return await Task.FromException<Response>(new Exception("Login Olunamadı"));
+            }
+        }
+
         public async Task<Response> DeleteBookAsync(int id)
         {
             string token = await _jwtAuthenticationStateProvider.GetToken() ?? "";

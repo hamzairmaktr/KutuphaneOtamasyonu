@@ -11,8 +11,8 @@ namespace IKitaplik.Entities.DTOs.DonationDTOs
     public class DonationAddDto : IDto
     {
         public int StudentId { get; set; }
+        public int BookId { get; set; }
         public DateTime Date { get; set; }
         public bool? IsItDamaged { get; set; }
-        public BookAddDto BookAddDto { get; set; }
     }
 }

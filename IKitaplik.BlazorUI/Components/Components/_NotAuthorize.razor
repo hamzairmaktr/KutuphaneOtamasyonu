@@ -1,0 +1,11 @@
+﻿@inject NavigationManager Nav
+<h1>Bu sayfaya erişmek için giriş yapınız</h1>
+<MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="Login">Giriş Yap</MudButton>
+
+@code
+{
+    private void Login(MouseEventArgs e)
+    {
+        Nav.NavigateTo("/login");
+    }
+}

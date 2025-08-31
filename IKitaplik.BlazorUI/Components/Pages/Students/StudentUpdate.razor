@@ -3,6 +3,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
 
+
 <h3 class="mt-2">Öğrenci Güncelle</h3>
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -61,7 +62,7 @@
     {
         errorMessage = string.Empty;
 
-        var res = await _service.UpdateAsync(new StudentUpdateDto { Id = Id, Point = Student.Point, Class = studentClass, EMail = studentEmail, Name = studentName, StudentNumber = studentNumber, TelephoneNumber = studentTel });
+        var res = await _service.UpdateAsync(new StudentUpdateDto { Id = Id, Point = Student.Point, Class = studentClass, EMail = studentEmail, Name = studentName, StudentNumber = studentNumber, TelephoneNumber = studentTel, NumberofBooksRead = Student.NumberofBooksRead, Situation = Student.Situation });
         if (!res.Success)
         {
             errorMessage = res.Message;

@@ -22,7 +22,7 @@ namespace IKitaplik.BlazorUI.Helpers
                 { "CancelButtonText", cancelText }
             };
 
-            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var options = new DialogOptions { CloseOnEscapeKey = true,FullWidth = true,MaxWidth = MaxWidth.Small,BackdropClick = false};
             var dialog = await _dialogService.ShowAsync<MessageBoxComponent>("", parameters, options);
             var result = await dialog.Result;
 

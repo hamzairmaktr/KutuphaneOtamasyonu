@@ -102,7 +102,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<Student> students = _unitOfWork.Students.GetAll(p => !p.Situation).ToList();
+                List<Student> students = _unitOfWork.Students.GetAll(p => p.Situation).ToList();
                 var listDto = _mapper.Map<List<StudentGetDto>>(students);
                 return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }

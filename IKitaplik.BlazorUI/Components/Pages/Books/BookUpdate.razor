@@ -5,6 +5,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
 
+
 <h3 class="mt-2">Kitap Ekle</h3>
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -15,7 +16,7 @@
 <MudTextField T="string" @bind-Value="name" Variant="Variant.Outlined" Label="Kitap Adı"></MudTextField>
 <MudTextField T="string" @bind-Value="shelfNo" Variant="Variant.Outlined" Label="Raf No"></MudTextField>
 <MudTextField T="int" @bind-Value="pageSize" Variant="Variant.Outlined" Label="Sayfa Sayısı"></MudTextField>
-<MudTextField T="int" @bind-Value="piece" Variant="Variant.Outlined" Label="Adet"></MudTextField>
+<MudTextField T="int" ReadOnly="true" @bind-Value="piece" Variant="Variant.Outlined" Label="Adet"></MudTextField>
 <MudSelect T="CategoryGetDto" @bind-Value="Category" Label="Kategori" ToStringFunc="@(val => val?.Name ?? "")" Variant="Variant.Outlined" Class="mb-2">
     @foreach (var category in Categories)
     {

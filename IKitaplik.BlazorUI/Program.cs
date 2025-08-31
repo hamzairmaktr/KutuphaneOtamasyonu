@@ -9,8 +9,8 @@ using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMudServices();
-
 builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthenticationStateProvider>());
 builder.Services.AddScoped<MessageBoxService>();

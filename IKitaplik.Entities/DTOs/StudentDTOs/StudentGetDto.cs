@@ -8,6 +8,8 @@ public class StudentGetDto: IDto
     public string Class { get; set; }
     public string TelephoneNumber { get; set; }
     public string EMail { get; set; }
+    public bool Situation { get; set; }
+    public int NumberofBooksRead { get; set; }
     public int Point { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }

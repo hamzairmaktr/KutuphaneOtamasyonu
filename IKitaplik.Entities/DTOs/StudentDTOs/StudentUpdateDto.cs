@@ -7,6 +7,8 @@ public class StudentUpdateDto: IDto
     public string Name { get; set; }
     public string Class { get; set; }
     public int Point { get; set; }
+    public bool Situation { get; set; }
+    public int NumberofBooksRead { get; set; }
     public string TelephoneNumber { get; set; }
     public string EMail { get; set; }
 } 

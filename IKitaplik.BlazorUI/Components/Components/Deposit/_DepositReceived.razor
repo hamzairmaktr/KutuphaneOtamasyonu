@@ -1,0 +1,70 @@
+﻿@inject ISnackbar Snackbar
+<MudDialog>
+    <DialogContent>
+        <MudDatePicker Label="Teslim Tarihi"
+                       DateChanged="@(val=> DelivertDateChanged(val))"
+                       Date="@(dto.DeliveryDate)"
+                       Variant="Variant.Outlined"></MudDatePicker>
+        <MudCheckBox Label="Geç Verildi"
+                     @bind-Value="dto.AmILate"></MudCheckBox>
+        <MudCheckBox Label="Hasarlı Verildi"
+                     @bind-Value="dto.IsItDamaged"></MudCheckBox>
+        <MudTextField T="string"
+                      Label="Not"
+                      @bind-Value="dto.Note"
+                      Variant="Variant.Outlined"
+                      Lines="5"></MudTextField>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel">Vazgeç</MudButton>
+        <MudButton Color="Color.Success" OnClick="Select">Emaneti Al</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    IMudDialogInstance Dialog { get; set; }
+
+    [Parameter]
+    public DepositGetDTO SelectDeposit { get; set; } = new();
+
+    public DepositUpdateDto dto { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        dto.Note = SelectDeposit.Note;
+        dto.DeliveryDate = DateTime.Now;
+        GecmiKontrolEt();
+    }
+    private void DelivertDateChanged(DateTime? val)
+    {
+        dto.DeliveryDate = val ?? new DateTime();
+        GecmiKontrolEt();
+    }
+    private void GecmiKontrolEt()
+    {
+        if (SelectDeposit.DeliveryDate < dto.DeliveryDate.Date)
+        {
+            dto.AmILate = true;
+        }
+        else
+        {
+            dto.AmILate = false;
+        }
+    }
+    private void Select()
+    {
+        if (dto.DeliveryDate == new DateTime())
+        {
+            Snackbar.Add("Tarih giriniz", Severity.Error);
+            return;
+        }
+        dto.Id = SelectDeposit.Id;
+        Dialog.Close(DialogResult.Ok(dto));
+    }
+    private void Cancel()
+    {
+        Dialog.Cancel();
+    }
+}

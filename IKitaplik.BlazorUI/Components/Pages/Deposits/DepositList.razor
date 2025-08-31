@@ -6,6 +6,7 @@
 @inject IDialogService DialogService
 @inject MessageBoxService MessageBoxService
 
+
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
@@ -14,8 +15,10 @@
 }
 else
 {
-    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<DepositGetDTO, bool>(FilterFunc)"
-              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+    <MudCheckBox T="bool" Label="Hepsini Getir" Value="HepsiniGetir" ValueChanged="val => Getir(val)" Class="mt-2"></MudCheckBox>
+
+    <MudTable Class="mt-3" Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<DepositGetDTO, bool>(FilterFunc)"
+              SortLabel="Sort By" CommitEditTooltip="Commit Edit" Loading="Loading">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Emanetler</MudText>
             <MudSpacer />
@@ -38,9 +41,9 @@ else
             <MudTd DataLabel="Öğrenci">@context.StudentName</MudTd>
             <MudTd DataLabel="Verilme Tarihi">@context.IssueDate</MudTd>
             <MudTd DataLabel="Alış Tarihi">@context.DeliveryDate</MudTd>
-            <MudTd DataLabel="Teslim Edildi">@context.IsDelivered</MudTd>
-            <MudTd DataLabel="Hasarlı Teslim">@context.IsItDamaged</MudTd>
-            <MudTd DataLabel="Geç Teslim">@context.AmILate</MudTd>
+            <MudTd DataLabel="Teslim Edildi">@(context.IsDelivered ? "Evet" : "Hayır")</MudTd>
+            <MudTd DataLabel="Hasarlı Teslim">@(context.IsItDamaged ? "Evet" : "Hayır")</MudTd>
+            <MudTd DataLabel="Geç Teslim">@(context.AmILate ? "Evet" : "Hayır")</MudTd>
             <MudTd>
                 <MudButtonGroup>
                     <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => DepositUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
@@ -57,25 +60,34 @@ else
 @code {
     private string searchString = "", errorMessage = "";
     private IEnumerable<DepositGetDTO> Elements = new List<DepositGetDTO>();
+    public bool HepsiniGetir { get; set; }
+    public bool Loading { get; set; } = true;
 
-
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            var res = await _service.GetAllAsync();
-            if (!res.Success)
-            {
-                errorMessage = res.Message;
-            }
-            else
-            {
-                Elements = res.Data;
-            }
+            await Getir(false);
+            Loading = false;
+            StateHasChanged();
         }
-        catch (Exception ex)
+    }
+
+
+    private async Task Getir(bool hepsiniGetir)
+    {
+        HepsiniGetir = hepsiniGetir;
+        var res = await _service.GetAllAsync();
+        if (!res.Success)
         {
-            //errorMessage = ex.Message;
+            errorMessage = res.Message;
+        }
+        else
+        {
+            if (hepsiniGetir)
+                Elements = res.Data;
+            else
+                Elements = res.Data.Where(p => !p.IsDelivered);
         }
     }
 

@@ -1,8 +1,10 @@
 ﻿@page "/deposit/operations/{Id:int}"
 @inject IDepositService _depositService
 @inject NavigationManager Nav
+@inject MessageBoxService _messageBoxService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -16,7 +18,7 @@ else
                 <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Info" Disabled="@(SelectDeposit.IsDelivered)" OnClick="EkstraSureVer">Ekstra Süre Ver</MudButton>
             </div>
             <div class="col-12 col-md-6 col-lg-4 my-1">
-                <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Success" Disabled="@(SelectDeposit.IsDelivered)">Teslim Al</MudButton>
+                <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Success" Disabled="@(SelectDeposit.IsDelivered)" OnClick="EmanetiAl">Teslim Al</MudButton>
             </div>
             <div class="col-12 col-md-6 col-lg-4 my-1">
                 <MudButton Class="p-2 w-100" Variant="Variant.Filled" Color="Color.Error" OnClick="@((e) => Nav.NavigateTo("/deposit/list"))">Vazgeç</MudButton>
@@ -44,7 +46,7 @@ else
             <div class="col-12 col-md-6">
                 <MudTextField T="DateTime"
                               @bind-Value="SelectDeposit.DeliveryDate"
-                              Label="Veriliş Tarihi"
+                              Label="Teslim Tarihi"
                               Variant="Variant.Outlined"
                               ReadOnly="true">
                 </MudTextField>
@@ -110,6 +112,14 @@ else
     public int Id { get; set; }
     string _errorMessage = "";
     public DepositGetDTO SelectDeposit { get; set; } = new();
+    DialogOptions dialogOptions = new DialogOptions
+    {
+        CloseButton = true,
+        FullWidth = true,
+        CloseOnEscapeKey = true,
+        BackdropClick = false
+    };
+
     protected override async Task OnInitializedAsync()
     {
         await DepositGet();
@@ -130,25 +140,56 @@ else
 
     private async Task EkstraSureVer(MouseEventArgs e)
     {
-        var dialogRes = await DialogService.ShowAsync<_DepositExtentDueDate>("Ekstra Süre Ver", new DialogOptions
-        {
-            CloseButton = true,
-             FullWidth = true,
-            CloseOnEscapeKey = true,
-            BackdropClick = false
-        });
+        var dialogRes = await DialogService.ShowAsync<_DepositExtentDueDate>("Ekstra Süre Ver", dialogOptions);
         var dRes = await dialogRes.Result;
-        var dto = (DepositExtentDueDateDto?)dRes?.Data ?? new();
-        dto.DepositId = Id;
-        var res = await _depositService.ExtendDueDateAsync(dto);
-        if (res.Success)
+        var dto = (DepositExtentDueDateDto?)dRes?.Data ?? null;
+        if (dto == null)
         {
-            Snackbar.Add("Emanete ekstra süre verildi", Severity.Success);
+            return;
         }
-        else
+        bool onay = await _messageBoxService.ShowConfirmDialog("Ekstra Süre Verilecek", "Emanete ekstra süre tanınacak eminmisiniz ?", "Ekstra Süre Ver");
+        if (onay)
         {
-            Snackbar.Add(res.Message, Severity.Error);
+            dto.DepositId = Id;
+            var res = await _depositService.ExtendDueDateAsync(dto);
+            if (res.Success)
+            {
+                Snackbar.Add("Emanete ekstra süre verildi", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add(res.Message, Severity.Error);
+            }
+            await DepositGet();
         }
-        await DepositGet();
+    }
+
+    private async Task EmanetiAl(MouseEventArgs e)
+    {
+        DialogParameters parameters = new DialogParameters
+        {
+            {"SelectDeposit", SelectDeposit }
+        };
+        var dialogRes = await DialogService.ShowAsync<_DepositReceived>("Emaneti Al", parameters, dialogOptions);
+        var dRes = await dialogRes.Result;
+        var dto = (DepositUpdateDto?)dRes?.Data ?? null;
+        if (dto == null)
+        {
+            return;
+        }
+        bool onay = await _messageBoxService.ShowConfirmDialog("Emanet Alınıyor", "Emanet teslim alınacak eminmisiniz ?", "Teslim Al");
+        if (onay)
+        {
+            var res = await _depositService.DepositReceivedAsync(dto);
+            if (res.Success)
+            {
+                Snackbar.Add("Emanet teslim alındı", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add(res.Message, Severity.Error);
+            }
+            await DepositGet();
+        }
     }
 }

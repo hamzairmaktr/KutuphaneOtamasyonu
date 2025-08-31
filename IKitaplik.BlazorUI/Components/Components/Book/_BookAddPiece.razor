@@ -1,0 +1,66 @@
+﻿@inject IStudentService _studentService
+<MudDialog>
+    <DialogContent>
+        <p class="text-danger">Eğer kitap bağış değilse alanları boş bırakabilirsiniz</p>
+        <MudAutocomplete SearchFunc="SearchStudent"
+                         Label="Bağışçı"
+                         Variant=" Variant.Outlined"
+                         @bind-Value="SelectedStudend"
+                         Clearable="true"
+                         ToStringFunc="@(x => x?.Name ?? "")">
+        </MudAutocomplete>
+        <MudDatePicker Date="DonationAddDto.Date"
+                       DateChanged="@(val => DonationAddDto.Date = val ?? DateTime.Now)"
+                       Variant="Variant.Outlined"
+                       Label="Bağış Tarihi">
+        </MudDatePicker>
+        <MudCheckBox @bind-Value="DonationAddDto.IsItDamaged" Label="Hasarlımı"></MudCheckBox>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel">Vazgeç</MudButton>
+        <MudButton Color="Color.Info" OnClick="Select">Ekle</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter]
+    IMudDialogInstance Dialog { get; set; }
+    public StudentGetDto? SelectedStudend { get; set; }
+
+    public DonationAddDto DonationAddDto { get; set; } = new();
+    public List<StudentGetDto> List { get; set; }
+    private void Select()
+    {
+        DonationAddDto.StudentId = SelectedStudend?.Id ?? 0;
+        Dialog.Close(DialogResult.Ok(DonationAddDto));
+    }
+    private void Cancel()
+    {
+        Dialog.Cancel();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var res = await _studentService.GetAllAsync();
+            if (res.Success)
+            {
+                List = res.Data;
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        DonationAddDto.Date = DateTime.Now;
+        DonationAddDto.IsItDamaged = false;
+    }
+
+    private async Task<IEnumerable<StudentGetDto>> SearchStudent(string val, CancellationToken e)
+    {
+        if (!string.IsNullOrEmpty(val))
+            return List.Where(p => p.Name.Contains(val)).AsEnumerable();
+        else
+            return List.AsEnumerable();
+    }
+}

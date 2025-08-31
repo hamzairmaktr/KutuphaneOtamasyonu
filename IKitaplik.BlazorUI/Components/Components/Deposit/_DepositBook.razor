@@ -12,6 +12,8 @@
             <Columns>
                 <PropertyColumn Title="Barkod" Property="x => x.Barcode"></PropertyColumn>
                 <PropertyColumn Title="Kitap Adı" Property="x => x.Name"></PropertyColumn>
+                <PropertyColumn Title="Raf" Property="x => x.ShelfNo"></PropertyColumn>
+                <PropertyColumn Title="Kaç Adet Var" Property="x => x.Piece"></PropertyColumn>
                 <TemplateColumn Title="İşlemler">
                     <CellTemplate>
                         <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="(() => Select(context.Item))">Seç</MudButton>

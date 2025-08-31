@@ -12,6 +12,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response<Book>> GetBookByIdAsync(int id);
         Task<Response> AddBookAsync(BookAddDto dto);
         Task<Response> UpdateBookAsync(BookUpdateDto dto);
+        Task<Response> BookAddPieceAsync(BookAddPieceDto dto);
         Task<Response> DeleteBookAsync(int id);
     }
 }

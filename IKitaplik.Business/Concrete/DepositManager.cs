@@ -34,16 +34,18 @@ namespace IKitaplik.Business.Concrete
             {
                 var deposit = _mapper.Map<Deposit>(depositAddDto);
                 deposit.CreatedDate = DateTime.Now;
-                deposit.DeliveryDate.AddDays(14);
+                deposit.DeliveryDate = depositAddDto.IssueDate.AddDays(14);
                 var book = ValidateBook(deposit.BookId);
                 var student = ValidateStudent(deposit.StudentId);
 
                 if (book.Data.Piece <= 0) return new ErrorResult("Kitabın mevcut sayısı yetersiz.");
-                if (student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
+                if (!student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
 
                 _bookService.BookAddedPiece(new BookAddPieceDto { Id = deposit.BookId, BeAdded = -1 }, true);
 
-                UpdateStudentStatus(student, true);
+                student.Data.Situation = false;
+                var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
+                _studentService.Update(studentDto, true);
 
                 _unitOfWork.Deposits.Add(deposit);
 
@@ -56,20 +58,23 @@ namespace IKitaplik.Business.Concrete
         {
             return HandleWithTransactionHelper.Handling(() =>
             {
-                var deposit = _mapper.Map<Deposit>(depositUpdateDto);
-                var existingDeposit = _unitOfWork.Deposits.Get(d => d.Id == deposit.Id);
+                var existingDeposit = _unitOfWork.Deposits.Get(d => d.Id == depositUpdateDto.Id);
                 if (existingDeposit == null) return new ErrorResult("Emanet kaydı bulunamadı.");
 
                 var book = ValidateBook(existingDeposit.BookId);
                 var student = ValidateStudent(existingDeposit.StudentId);
 
                 _bookService.BookAddedPiece(new BookAddPieceDto { Id = existingDeposit.BookId, BeAdded = 1 },true);
-                UpdateStudentOnReturn(student, deposit);
-
+                UpdateStudentOnReturn(student, depositUpdateDto);
+                existingDeposit.DeliveryDate = depositUpdateDto.DeliveryDate;
+                existingDeposit.IsItDamaged = depositUpdateDto.IsItDamaged;
+                existingDeposit.AmILate = depositUpdateDto.AmILate;
+                existingDeposit.UpdatedDate = DateTime.Now;
+                existingDeposit.Note = depositUpdateDto.Note;
                 existingDeposit.IsDelivered = true;
                 _unitOfWork.Deposits.Update(existingDeposit);
 
-                AddMovement("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(deposit)} teslim etti", book.Data.Id, student.Data.Id, deposit.Id);
+                AddMovement("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(depositUpdateDto)} teslim etti", book.Data.Id, student.Data.Id, depositUpdateDto.Id);
 
                 return new SuccessResult("Kitap başarıyla iade alındı.");
             }, _unitOfWork);
@@ -157,15 +162,9 @@ namespace IKitaplik.Business.Concrete
                 Note = $"{DateTime.Now:g} - {note}"
             });
         }
-        private void UpdateStudentStatus(IDataResult<Student> student, bool isBorrowing)
+        private void UpdateStudentOnReturn(IDataResult<Student> student, DepositUpdateDto deposit)
         {
-            student.Data.Situation = isBorrowing;
-            var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
-            _studentService.Update(studentDto, true);
-        }
-        private void UpdateStudentOnReturn(IDataResult<Student> student, Deposit deposit)
-        {
-            student.Data.Situation = false;
+            student.Data.Situation = true;
             student.Data.NumberofBooksRead += 1;
 
             if (deposit.IsItDamaged) student.Data.Point -= 10;
@@ -186,7 +185,7 @@ namespace IKitaplik.Business.Concrete
             if (!student.Success) throw new Exception(student.Message);
             return student;
         }
-        private string GetDepositStatus(Deposit deposit)
+        private string GetDepositStatus(DepositUpdateDto deposit)
         {
             if (deposit.IsItDamaged && deposit.AmILate) return "hasarlı ve geç";
             if (deposit.IsItDamaged) return "hasarlı";

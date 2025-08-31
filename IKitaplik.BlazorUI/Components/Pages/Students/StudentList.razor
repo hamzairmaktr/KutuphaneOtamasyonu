@@ -5,6 +5,7 @@
 @inject MessageBoxService MessageBoxService
 @inject NavigationManager Nav
 
+
 <MudItem Class="mt-2 mb-2 text-end">
     <MudButton Href="student/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
         Yeni Öğrenci Ekle
@@ -31,6 +32,8 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Class)">Sınıfı</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Name)">İsmi</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.EMail)">EMail</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Situation)">Kitap Okuyormu</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.NumberofBooksRead)">Okuduğu Kitap Sayısı</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.TelephoneNumber)">Telefon Numarası</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Point)">Puan</MudTableSortLabel></MudTh>
             <MudTh>İşlemler</MudTh>
@@ -41,6 +44,8 @@ else
             <MudTd DataLabel="Sınıf">@context.Class</MudTd>
             <MudTd DataLabel="İsim">@context.Name</MudTd>
             <MudTd DataLabel="Email">@context.EMail</MudTd>
+            <MudTd DataLabel="Kitap Okuyormu">@(context.Situation ? "Hayır" : "Evet")</MudTd>
+            <MudTd DataLabel="Okuduğu Kitap Sayısı">@context.NumberofBooksRead</MudTd>
             <MudTd DataLabel="Telefon Numarası">@context.TelephoneNumber</MudTd>
             <MudTd DataLabel="Puan">@context.Point</MudTd>
             <MudTd>

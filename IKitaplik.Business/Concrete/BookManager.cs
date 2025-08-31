@@ -205,8 +205,7 @@ namespace IKitaplik.Business.Concrete
             var bookBarcodeSearch = GetByBarcode(book.Barcode);
             if (bookBarcodeSearch.Success)
             {
-                var res = BookAddedPiece(new BookAddPieceDto() { Id = bookBarcodeSearch.Data.Id, BeAdded = 1 });
-                return new SuccessDataResult<Book>(res.Message);
+                return new ErrorDataResult<Book>("Aynı barkoda ait bir kitap var");
             }
 
             var validationResult = _validator.Validate(book);

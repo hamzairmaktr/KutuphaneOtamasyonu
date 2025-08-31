@@ -22,7 +22,7 @@ namespace IKitaplik.Api.Controllers
         [HttpPost("add")]
         public IActionResult Add([FromBody]DonationAddDto donationAddDto)
         {
-            var res = _donationService.Add(donationAddDto.BookAddDto, donationAddDto);
+            var res = _donationService.Add(donationAddDto);
             if(!res.Success)
                 return BadRequest(res);
             return Ok(res);

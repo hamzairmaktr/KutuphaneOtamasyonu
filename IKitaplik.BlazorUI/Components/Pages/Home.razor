@@ -2,6 +2,13 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<AuthorizeView>
+    <Authorized>
+        <h1>Hello, @context.User.FindFirst("FullName")?.Value</h1>
+        <p>Welcome to your new app.</p>
+    </Authorized>
+    <NotAuthorized>
+        <h1>Giriş yapmanız gerekiyor.</h1>
+        <p>Lütfen önce login olun.</p>
+    </NotAuthorized>
+</AuthorizeView>

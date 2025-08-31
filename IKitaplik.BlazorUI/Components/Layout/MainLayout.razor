@@ -20,6 +20,9 @@
                     <NotAuthorized>
                         <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Giriş Yapınız</MudChip>
                     </NotAuthorized>
+                    <Authorizing>
+                        Yükleniyor...
+                    </Authorizing>
                 </AuthorizeView>
             </ActivatorContent>
             <ChildContent>
@@ -62,18 +65,9 @@
     {
         NavigationManager.NavigateTo("/login");
     }
-    void logout()
+    async Task logout()
     {
-        AuthProvider.NotifyUserLogout();
+        await AuthProvider.NotifyUserLogout();
         NavigationManager.NavigateTo("/", forceLoad: true);
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await AuthProvider.InitializeAsync();
-            StateHasChanged();
-        }
     }
 }

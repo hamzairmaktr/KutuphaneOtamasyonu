@@ -10,12 +10,10 @@
 {
     <MudAlert Class="my-3" Severity="Severity.Error">@errorMessage</MudAlert>
 }
-
 <MudTextField T="string" @bind-Value="barcode" Variant="Variant.Outlined" Label="Barkod"></MudTextField>
 <MudTextField T="string" @bind-Value="name" Variant="Variant.Outlined" Label="Kitap Adı"></MudTextField>
 <MudTextField T="string" @bind-Value="shelfNo" Variant="Variant.Outlined" Label="Raf No"></MudTextField>
 <MudTextField T="int" @bind-Value="pageSize" Variant="Variant.Outlined" Label="Sayfa Sayısı"></MudTextField>
-<MudTextField T="int" @bind-Value="piece" Variant="Variant.Outlined" Label="Adet"></MudTextField>
 <MudSelect T="CategoryGetDto" @bind-Value="Category" Label="Kategori" Variant="Variant.Outlined" Class="mb-2">
     @foreach (var category in Categories)
     {
@@ -39,7 +37,6 @@
     private string name = "";
     private string shelfNo = "";
     private int pageSize = 0;
-    private int piece = 0;
     private CategoryGetDto Category = null;
     private WriterGetDto Writer = null;
 
@@ -83,7 +80,7 @@
             Name = name,
             ShelfNo = shelfNo,
             PageSize = pageSize,
-            Piece = piece,
+            Piece = 1,
             CategoryId = Category?.Id ?? 0,
             WriterId = Writer?.Id ?? 0
         });

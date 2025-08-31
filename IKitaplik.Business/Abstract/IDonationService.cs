@@ -12,7 +12,7 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IDonationService
     {
-        IResult Add(BookAddDto bookAddDto, DonationAddDto donation);
+        IResult Add(DonationAddDto donation);
 
         IDataResult<List<DonationGetDTO>> GetAllDTO();
         IDataResult<DonationGetDTO> GetByIdDTO(int id);
