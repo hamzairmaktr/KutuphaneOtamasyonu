@@ -4,6 +4,8 @@
 @inject IWriterService _writerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
+@inject IDonationService _donationService
+@inject IStudentService _studentService
 @attribute [Authorize]
 
 <h3 class="mt-2">Kitap Ekle</h3>
@@ -27,6 +29,23 @@
         <MudSelectItem Value="@writer">@writer.WriterName</MudSelectItem>
     }
 </MudSelect>
+<MudCheckBox Label="Bağış Olarak Ekle" @bind-Value="isDonation"></MudCheckBox>
+@if (isDonation)
+{
+
+    <MudAutocomplete Label="Bağışçı Seç"
+                     Variant="Variant.Outlined"
+                     T="StudentGetDto"
+                     ToStringFunc="@(x => x?.Name ?? string.Empty)"
+                     @bind-Value="SelectedStudent"
+                     SearchFunc="SelectStudent"
+                     Clearable="true"></MudAutocomplete>
+    <MudDatePicker Label="Bağış Tarihi"
+                   Variant="Variant.Outlined"
+                   Date="@donationAddDto.Date"
+                   DateChanged="@(val => donationAddDto.Date = val ?? DateTime.Now)"></MudDatePicker>
+    <MudCheckBox Label="Hasarlımı ?" @bind-Value="donationAddDto.IsItDamaged"></MudCheckBox>
+}
 
 <MudButton OnClick="Kaydet" Class="mt-2" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.Add" Color="Color.Info">Yeni Kayıt Ekle</MudButton>
 <MudButton OnClick="Vazgec" Class="mt-2 ms-1" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.TwoTone.Cancel" Color="Color.Error">Vazgeç</MudButton>
@@ -38,12 +57,18 @@
     private string name = "";
     private string shelfNo = "";
     private int pageSize = 0;
+    private bool isDonation = false;
     private CategoryGetDto Category = null;
     private WriterGetDto Writer = null;
-
+    private StudentGetDto SelectedStudent = null;
+    private DonationAddDto donationAddDto = new()
+    {
+        Date = DateTime.Now,
+        IsItDamaged = false
+    };
     private List<CategoryGetDto> Categories = new List<CategoryGetDto>();
     private List<WriterGetDto> Writers = new List<WriterGetDto>();
-
+    private IEnumerable<StudentGetDto> Students = new List<StudentGetDto>();
     protected override async Task OnInitializedAsync()
     {
         var categories = await _categoryService.GetAllAsync();
@@ -63,6 +88,12 @@
         else
         {
             errorMessage = writers.Message;
+        }
+
+        var students = await _studentService.GetAllAsync();
+        if (students.Success)
+        {
+            Students = students.Data;
         }
     }
 
@@ -90,8 +121,28 @@
             errorMessage = res.Message;
             return;
         }
+        else
+        {
+            Snackbar.Add(res.Message, Severity.Success);
+        }
+        var addedBook = await _service.GetBookByBarcodeAsync(barcode);
+        if (SelectedStudent is not null && addedBook.Success && isDonation)
+        {
+            donationAddDto.BookId = addedBook.Data.Id;
+            donationAddDto.StudentId = SelectedStudent.Id;
+            var resDonation = await _donationService.AddAsync(donationAddDto);
+            if (resDonation.Success)
+            {
+                Snackbar.Add(resDonation.Message, Severity.Success);
+            }
+        }
 
         Snackbar.Add(res.Message, Severity.Success);
         Nav.NavigateTo("book/list");
+    }
+    private async Task<IEnumerable<StudentGetDto>> SelectStudent(string val, CancellationToken e)
+    {
+        if (string.IsNullOrWhiteSpace(val)) return Students.AsEnumerable();
+        return Students.Where(p => p.Name.Contains(val)).AsEnumerable();
     }
 }

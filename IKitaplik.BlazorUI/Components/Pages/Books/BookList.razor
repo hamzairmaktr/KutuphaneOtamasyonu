@@ -14,9 +14,15 @@
         <MudText>@errorMessage</MudText>
     </MudAlert>
 }
+else if (isLoading)
+{
+     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
+        <img src="/images/Loading.gif" alt="Loading" />
+    </div>
+}
 else
 {
-    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<BookGetDTO, bool>(FilterFunc)"
+    <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<BookGetDTO, bool>(FilterFunc)"
               SortLabel="Sort By" CommitEditTooltip="Commit Edit">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Kitaplar</MudText>
@@ -48,6 +54,7 @@ else
                     <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => BookUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
                     <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => BookAddPiece(context.Id))" Color="Color.Info" Icon="@Icons.Material.Filled.Add"></MudIconButton>
                     <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => BookDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => GoMovements(context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.ViewList"></MudIconButton>
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -59,41 +66,46 @@ else
 
 @code {
     private string searchString = "", errorMessage = "";
-    private IEnumerable<BookGetDTO> Elements = new List<BookGetDTO>();
+    private IEnumerable<BookGetDTO> Items = new List<BookGetDTO>();
+    public bool isLoading { get; set; } = true;
 
-
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            var res = await _service.GetAllBooksAsync();
-            if (!res.Success)
+            try
             {
-                errorMessage = res.Message;
+                var res = await _service.GetAllBooksAsync();
+                if (!res.Success)
+                {
+                    errorMessage = res.Message;
+                }
+                else
+                {
+                    Items = res.Data;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Elements = res.Data;
+                //errorMessage = ex.Message;
             }
-        }
-        catch (Exception ex)
-        {
-            //errorMessage = ex.Message;
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
-    private bool FilterFunc(BookGetDTO element)
+    private bool FilterFunc(BookGetDTO item)
     {
         searchString = searchString?.Trim().ToLower() ?? "";
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.Name.ToLower().Contains(searchString))
+        if (item.Name.ToLower().Contains(searchString))
             return true;
-        if (element.WriterName.ToLower().Contains(searchString))
+        if (item.WriterName.ToLower().Contains(searchString))
             return true;
-        if ($"{element.CategoryName.ToLower()} {element.Barcode.ToString()} {element.Id}".Contains(searchString))
+        if ($"{item.CategoryName.ToLower()} {item.Barcode.ToString()} {item.Id}".Contains(searchString))
             return true;
-        if ($"{element.Situation.ToString().ToLower()} {element.ShelfNo.ToLower()}".Contains(searchString))
+        if ($"{item.Situation.ToString().ToLower()} {item.ShelfNo.ToLower()}".Contains(searchString))
             return true;
         return false;
     }
@@ -110,7 +122,7 @@ else
                 var res1 = await _service.GetAllBooksAsync();
                 if (res1.Success)
                 {
-                    Elements = res1.Data.ToList();
+                    Items = res1.Data.ToList();
                     StateHasChanged();
                 }
                 else
@@ -124,6 +136,11 @@ else
     private void BookUpdate(int id)
     {
         Nav.NavigateTo("book/update/" + id);
+    }
+
+    private void GoMovements(int id)
+    {
+        Nav.NavigateTo("/movements/2&" + id);
     }
     private async Task BookAddPiece(int id)
     {

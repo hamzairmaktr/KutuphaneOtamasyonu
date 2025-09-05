@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using IKitaplik.BlazorUI.Components;
+﻿using IKitaplik.BlazorUI.Components;
 using IKitaplik.BlazorUI.Helpers;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.BlazorUI.Services.Concrete;

@@ -1,57 +1,73 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
-<MudThemeProvider />
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+@attribute [StreamRendering]
 
-<MudLayout>
-    <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudSpacer></MudSpacer>
-        <MudMenu>
+@if (isLoading)
+{
+     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
+        <img src="/images/Loading.gif" alt="Loading"/>
+    </div>
+}
+else
+{
+    <MudThemeProvider />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
 
-            <ActivatorContent>
-                <AuthorizeView>
-                    <Authorized>
-                        <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">@context.User.FindFirst("FullName")?.Value</MudChip>
-                    </Authorized>
-                    <NotAuthorized>
-                        <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Giriş Yapınız</MudChip>
-                    </NotAuthorized>
-                    <Authorizing>
-                        Yükleniyor...
-                    </Authorizing>
-                </AuthorizeView>
-            </ActivatorContent>
-            <ChildContent>
-                <AuthorizeView>
-                    <Authorized>
-                        <MudMenuItem Label="Çıkış Yap" OnClick="logout" />
-                    </Authorized>
-                    <NotAuthorized>
-                        <MudMenuItem Label="Giriş Yap" OnClick="login" />
-                        <MudMenuItem Label="Kayıt Ol" OnClick="register" />
-                    </NotAuthorized>
-                </AuthorizeView>
-            </ChildContent>
+    <MudLayout>
+        <MudAppBar>
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudSpacer></MudSpacer>
+            <MudMenu>
+                <ActivatorContent>
+                    <AuthorizeView>
+                        <Authorized>
+                            <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">@context.User.FindFirst("FullName")?.Value</MudChip>
+                        </Authorized>
+                        <NotAuthorized>
+                            <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Giriş Yapınız</MudChip>
+                        </NotAuthorized>
+                        <Authorizing>
+                            Yükleniyor...
+                        </Authorizing>
+                    </AuthorizeView>
+                </ActivatorContent>
+                <ChildContent>
+                    <AuthorizeView>
+                        <Authorized>
+                            <MudMenuItem Label="Çıkış Yap" OnClick="logout" />
+                        </Authorized>
+                        <NotAuthorized>
+                            <MudMenuItem Label="Giriş Yap" OnClick="login" />
+                            <MudMenuItem Label="Kayıt Ol" OnClick="register" />
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </ChildContent>
 
-        </MudMenu>
-    </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" Class="mt-3">
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-            @Body
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+            </MudMenu>
+        </MudAppBar>
+        <MudDrawer @bind-Open="@_drawerOpen" Class="mt-3">
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+}
 
 @code {
     bool _drawerOpen = true;
-
+    public bool isLoading { get; set; } = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await Task.Delay(2000);
+        isLoading = false;
+        StateHasChanged();
+    }
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;

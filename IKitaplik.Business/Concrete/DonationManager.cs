@@ -15,7 +15,7 @@ namespace IKitaplik.Business.Concrete
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IMovementService _movementService;
-        public DonationManager(IBookService bookService, IStudentService studentService, IUnitOfWork unitOfWork, IMovementService movementService,IMapper mapper)
+        public DonationManager(IBookService bookService, IStudentService studentService, IUnitOfWork unitOfWork, IMovementService movementService, IMapper mapper)
         {
             _movementService = movementService;
             _unitOfWork = unitOfWork;
@@ -27,6 +27,11 @@ namespace IKitaplik.Business.Concrete
         {
             return HandleWithTransactionHelper.Handling(() =>
             {
+                var res = _unitOfWork.Donations.Get(p => p.BookId == donationAddDto.BookId);
+                if (res is not null)
+                {
+                    return new ErrorResult("Bu Kitap zaten bağış olarak eklenmiş");
+                }
                 var donation = _mapper.Map<Donation>(donationAddDto);
                 donation.CreatedDate = DateTime.Now;
 
@@ -44,7 +49,7 @@ namespace IKitaplik.Business.Concrete
                         student.Data.Point += 20;
                     }
                     var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
-                    _studentService.Update(studentDto,true);
+                    _studentService.Update(studentDto, true);
                 }
                 else
                 {

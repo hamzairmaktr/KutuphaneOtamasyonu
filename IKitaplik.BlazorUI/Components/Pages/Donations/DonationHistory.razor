@@ -1,0 +1,83 @@
+﻿@page "/donations"
+@attribute [Authorize]
+@inject IDonationService _service
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
+}
+else if(isLoading)
+{
+    <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
+        <img src="/images/Loading.gif" alt="Loading" />
+    </div>
+}
+else
+{
+    <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<DonationGetDTO, bool>(FilterFunc)"
+              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Bağışlar</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.Date)">Tarih</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.BookBarcode)">Kitap Barkodu</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.BookName)">Kitap İsmi</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.StudentName)">Öğrenci İsmi</MudTableSortLabel></MudTh>
+            <MudTh>Hasarlımı</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="Tarih">@context.Date</MudTd>
+            <MudTd DataLabel="Kitap Barkodu">@context.BookBarcode</MudTd>
+            <MudTd DataLabel="Kitap İsmi">@context.BookName</MudTd>
+            <MudTd DataLabel="Öğrenci İsmi">@context.StudentName</MudTd>
+            <MudTd DataLabel="Hasarlımı">@(context.IsItDamaged == true ? "Evet" : "Hayır")</MudTd>           
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+@code {
+    private List<DonationGetDTO> Items = new List<DonationGetDTO>();
+    string errorMessage = "";
+    string searchString = "";
+    public bool isLoading { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var res = await _service.GetAllAsync();
+            if (!res.Success)
+            {
+                errorMessage = res.Message;
+            }
+            else
+            {
+                Items = res.Data;
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool FilterFunc(DonationGetDTO item)
+    {
+        searchString = searchString?.Trim().ToLower() ?? "";
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (item.BookName.ToLower().Contains(searchString))
+            return true;
+        if (item.StudentName.ToLower().Contains(searchString))
+            return true;
+        if (item.BookBarcode.ToLower().Contains(searchString))
+            return true;
+        return false;
+    }
+}

@@ -14,11 +14,17 @@
         <MudText>@errorMessage</MudText>
     </MudAlert>
 }
+else if (Loading)
+{
+     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
+        <img src="/images/Loading.gif" alt="Loading" />
+    </div>
+}
 else
 {
     <MudCheckBox T="bool" Label="Hepsini Getir" Value="HepsiniGetir" ValueChanged="val => Getir(val)" Class="mt-2"></MudCheckBox>
 
-    <MudTable Class="mt-3" Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<DepositGetDTO, bool>(FilterFunc)"
+    <MudTable Class="mt-3" Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<DepositGetDTO, bool>(FilterFunc)"
               SortLabel="Sort By" CommitEditTooltip="Commit Edit" Loading="Loading">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Emanetler</MudText>
@@ -49,6 +55,7 @@ else
                 <MudButtonGroup>
                     <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => DepositUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
                     <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => DepositDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => GoMovements(context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.ViewList"></MudIconButton>
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -60,7 +67,7 @@ else
 
 @code {
     private string searchString = "", errorMessage = "";
-    private IEnumerable<DepositGetDTO> Elements = new List<DepositGetDTO>();
+    private IEnumerable<DepositGetDTO> Items = new List<DepositGetDTO>();
     public bool HepsiniGetir { get; set; }
     public bool Loading { get; set; } = true;
 
@@ -86,24 +93,29 @@ else
         else
         {
             if (hepsiniGetir)
-                Elements = res.Data;
+                Items = res.Data;
             else
-                Elements = res.Data.Where(p => !p.IsDelivered);
+                Items = res.Data.Where(p => !p.IsDelivered);
         }
     }
 
-    private bool FilterFunc(DepositGetDTO element)
+    private bool FilterFunc(DepositGetDTO item)
     {
         searchString = searchString?.Trim().ToLower() ?? "";
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.BookName.ToLower().Contains(searchString))
+        if (item.BookName.ToLower().Contains(searchString))
             return true;
-        if (element.StudentName.ToLower().Contains(searchString))
+        if (item.StudentName.ToLower().Contains(searchString))
             return true;
-        if (element.Note.ToLower().Contains(searchString))
+        if (item.Note.ToLower().Contains(searchString))
             return true;
         return false;
+    }
+
+    private void GoMovements(int id)
+    {
+        Nav.NavigateTo("/movements/1&" + id);
     }
 
     private async Task DepositDelete(int id)
@@ -118,7 +130,7 @@ else
                 var res1 = await _service.GetAllAsync();
                 if (res1.Success)
                 {
-                    Elements = res1.Data.ToList();
+                    Items = res1.Data.ToList();
                     StateHasChanged();
                 }
                 else

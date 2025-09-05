@@ -10,6 +10,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response<List<BookGetDTO>>> GetAllBooksAsync();
         Task<Response<List<BookGetDTO>>> GetAllActiveBooksAsync();
         Task<Response<Book>> GetBookByIdAsync(int id);
+        Task<Response<Book>> GetBookByBarcodeAsync(string barcode);
         Task<Response> AddBookAsync(BookAddDto dto);
         Task<Response> UpdateBookAsync(BookUpdateDto dto);
         Task<Response> BookAddPieceAsync(BookAddPieceDto dto);

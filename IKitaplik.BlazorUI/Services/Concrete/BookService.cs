@@ -101,6 +101,22 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 return await Task.FromException<Response<List<BookGetDTO>>>(new Exception("Login Olunamadı"));
             }
         }
+        //getByBarcode
+        public async Task<Response<Book>> GetBookByBarcodeAsync(string barcode)
+        {
+            string token = await _authService.GetToken();
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var res = await _httpClient.GetAsync("book/getByBarcode?barcode?" + barcode);
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response<Book>>(content, _jsonOptions)!;
+            }
+            else
+            {
+                return await Task.FromException<Response<Book>>(new Exception("Login Olunamadı"));
+            }
+        }
 
         public async Task<Response<Book>> GetBookByIdAsync(int id)
         {

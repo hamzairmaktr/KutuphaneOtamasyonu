@@ -1,4 +1,4 @@
-﻿@page "/movement/list/{Type:int}&{Id:int}"
+﻿@page "/movements/{Type:int}&{Id:int}"
 @using IKitaplik.Entities.Enums
 @inject IMovementService _service
 @attribute [Authorize]
@@ -10,12 +10,18 @@
         <MudText>@errorMessage</MudText>
     </MudAlert>
 }
+else if (isLoading)
+{
+    <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
+        <img src="/images/Loading.gif" alt="Loading" />
+    </div>
+}
 else
 {
-    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<MovementGetDTO, bool>(FilterFunc)"
+    <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<MovementGetDTO, bool>(FilterFunc)"
               SortLabel="Sort By" CommitEditTooltip="Commit Edit">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Kategoriler</MudText>
+            <MudText Typo="Typo.h6">Hareketler</MudText>
             <MudSpacer />
             <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
@@ -26,7 +32,6 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.Note)">Mesaj</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.BookName)">Kitap İsmi</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<MovementGetDTO, object>(x => x.StudentName)">Öğrenci İsmi</MudTableSortLabel></MudTh>
-            <MudTh>İşlemler</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Nr">@context.Id</MudTd>
@@ -35,11 +40,6 @@ else
             <MudTd DataLabel="Barkod">@context.Note</MudTd>
             <MudTd DataLabel="Barkod">@context.BookName</MudTd>
             <MudTd DataLabel="Barkod">@context.StudentName</MudTd>
-            <MudTd>
-                <MudButtonGroup>
-                    <MudIconButton Color="Color.Info" Icon="@Icons.Material.Filled.RemoveRedEye"></MudIconButton>
-                </MudButtonGroup>
-            </MudTd>
         </RowTemplate>
         <PagerContent>
             <MudTablePager />
@@ -53,67 +53,74 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private string errorMessage = "", searchString = "";
-    private List<MovementGetDTO> Elements = new List<MovementGetDTO>();
+    public bool isLoading { get; set; } = true;
 
-    protected override async Task OnInitializedAsync()
+    private string errorMessage = "", searchString = "";
+    private List<MovementGetDTO> Items = new List<MovementGetDTO>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ((int)MovementType.Deposit == Type)
+        if (firstRender)
         {
-            var res = await _service.GetAllByDepositIdAsync(Id);
-            if (!res.Success)
+            if ((int)MovementType.Deposit == Type)
             {
-                errorMessage = res.Message;
-                return;
+                var res = await _service.GetAllByDepositIdAsync(Id);
+                if (!res.Success)
+                {
+                    errorMessage = res.Message;
+                    return;
+                }
+                Items = res.Data;
             }
-            Elements = res.Data;
-        }
-        else if((int)MovementType.Book == Type)
-        {
-            var res = await _service.GetAllByBookIdAsync(Id);
-            if (!res.Success)
+            else if ((int)MovementType.Book == Type)
             {
-                errorMessage = res.Message;
-                return;
+                var res = await _service.GetAllByBookIdAsync(Id);
+                if (!res.Success)
+                {
+                    errorMessage = res.Message;
+                    return;
+                }
+                Items = res.Data;
             }
-            Elements = res.Data;
-        }
-        else if ((int)MovementType.Student == Type)
-        {
-            var res = await _service.GetAllByStudentIdAsync(Id);
-            if (!res.Success)
+            else if ((int)MovementType.Student == Type)
             {
-                errorMessage = res.Message;
-                return;
+                var res = await _service.GetAllByStudentIdAsync(Id);
+                if (!res.Success)
+                {
+                    errorMessage = res.Message;
+                    return;
+                }
+                Items = res.Data;
             }
-            Elements = res.Data;
-        }
-        else if ((int)MovementType.Donation == Type)
-        {
-            var res = await _service.GetAllByDonationIdAsync(Id);
-            if (!res.Success)
+            else if ((int)MovementType.Donation == Type)
             {
-                errorMessage = res.Message;
-                return;
+                var res = await _service.GetAllByDonationIdAsync(Id);
+                if (!res.Success)
+                {
+                    errorMessage = res.Message;
+                    return;
+                }
+                Items = res.Data;
             }
-            Elements = res.Data;
-        }
-        else
-        {
-            errorMessage = "Geçersiz tip";
+            else
+            {
+                errorMessage = "Geçersiz tip";
+            }
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
-    private bool FilterFunc(MovementGetDTO element)
+    private bool FilterFunc(MovementGetDTO item)
     {
         searchString = searchString?.Trim().ToLower() ?? "";
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.BookName.ToLower().Contains(searchString))
+        if (item.BookName.ToLower().Contains(searchString))
             return true;
-        if (element.StudentName.ToLower().Contains(searchString))
+        if (item.StudentName.ToLower().Contains(searchString))
             return true;
-        if (element.Title.ToLower().Contains(searchString))
+        if (item.Title.ToLower().Contains(searchString))
             return true;
         return false;
     }

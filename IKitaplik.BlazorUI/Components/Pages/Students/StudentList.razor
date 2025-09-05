@@ -6,87 +6,107 @@
 @inject NavigationManager Nav
 @attribute [Authorize]
 
-
-<MudItem Class="mt-2 mb-2 text-end">
-    <MudButton Href="student/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
-        Yeni Öğrenci Ekle
-    </MudButton>
-</MudItem>
-@if (!string.IsNullOrEmpty(errorMessage))
+@if (isLoading)
 {
-    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
-        <MudText>@errorMessage</MudText>
-    </MudAlert>
+     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
+        <img src="/images/Loading.gif" alt="Loading" />
+    </div>
 }
 else
 {
-    <MudTable Items="@Elements" Hover="true" ReadOnly="true" Filter="new Func<StudentGetDto, bool>(FilterFunc)"
-              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">Öğrenciler</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-        </ToolBarContent>
-        <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.StudentNumber)">Öğrenci Numarası</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Class)">Sınıfı</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Name)">İsmi</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.EMail)">EMail</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Situation)">Kitap Okuyormu</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.NumberofBooksRead)">Okuduğu Kitap Sayısı</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.TelephoneNumber)">Telefon Numarası</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Point)">Puan</MudTableSortLabel></MudTh>
-            <MudTh>İşlemler</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Nr">@context.Id</MudTd>
-            <MudTd DataLabel="Öğrenci Numarası">@context.StudentNumber</MudTd>
-            <MudTd DataLabel="Sınıf">@context.Class</MudTd>
-            <MudTd DataLabel="İsim">@context.Name</MudTd>
-            <MudTd DataLabel="Email">@context.EMail</MudTd>
-            <MudTd DataLabel="Kitap Okuyormu">@(context.Situation ? "Hayır" : "Evet")</MudTd>
-            <MudTd DataLabel="Okuduğu Kitap Sayısı">@context.NumberofBooksRead</MudTd>
-            <MudTd DataLabel="Telefon Numarası">@context.TelephoneNumber</MudTd>
-            <MudTd DataLabel="Puan">@context.Point</MudTd>
-            <MudTd>
-                <MudButtonGroup>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => StudentUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => StudentDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
-                </MudButtonGroup>
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
+
+    <MudItem Class="mt-2 mb-2 text-end">
+        <MudButton Href="student/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
+            Yeni Öğrenci Ekle
+        </MudButton>
+    </MudItem>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+            <MudText>@errorMessage</MudText>
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<StudentGetDto, bool>(FilterFunc)"
+                  SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Öğrenciler</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.StudentNumber)">Öğrenci Numarası</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Class)">Sınıfı</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Name)">İsmi</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.EMail)">EMail</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Situation)">Kitap Okuyormu</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.NumberofBooksRead)">Okuduğu Kitap Sayısı</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.TelephoneNumber)">Telefon Numarası</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<StudentGetDto, object>(x => x.Point)">Puan</MudTableSortLabel></MudTh>
+                <MudTh>İşlemler</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nr">@context.Id</MudTd>
+                <MudTd DataLabel="Öğrenci Numarası">@context.StudentNumber</MudTd>
+                <MudTd DataLabel="Sınıf">@context.Class</MudTd>
+                <MudTd DataLabel="İsim">@context.Name</MudTd>
+                <MudTd DataLabel="Email">@context.EMail</MudTd>
+                <MudTd DataLabel="Kitap Okuyormu">@(context.Situation ? "Hayır" : "Evet")</MudTd>
+                <MudTd DataLabel="Okuduğu Kitap Sayısı">@context.NumberofBooksRead</MudTd>
+                <MudTd DataLabel="Telefon Numarası">@context.TelephoneNumber</MudTd>
+                <MudTd DataLabel="Puan">@context.Point</MudTd>
+                <MudTd>
+                    <MudButtonGroup>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => StudentUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => StudentDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => GoMovements(context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.ViewList"></MudIconButton>
+                    </MudButtonGroup>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    }
+
 }
 
 @code {
     private string errorMessage = string.Empty;
     private string searchString = string.Empty;
-    IEnumerable<StudentGetDto> Elements = new List<StudentGetDto>();
-    protected override async Task OnInitializedAsync()
+    IEnumerable<StudentGetDto> Items = new List<StudentGetDto>();
+    public bool isLoading { get; set; } = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var res = await _studentService.GetAllAsync();
-        if (res.Success)
+        if (firstRender)
         {
-            Elements = res.Data.ToList();
+            var res = await _studentService.GetAllAsync();
+            if (res.Success)
+            {
+                Items = res.Data.ToList();
+            }
+            else
+            {
+                errorMessage = res.Message;
+            }
+            isLoading = false;
             StateHasChanged();
         }
-        else
-        {
-            errorMessage = res.Message;
-        }
     }
-    private bool FilterFunc(StudentGetDto element)
+    private void GoMovements(int id)
+    {
+        Nav.NavigateTo("/movements/3&" + id);
+    }
+    private bool FilterFunc(StudentGetDto item)
     {
         searchString = searchString?.Trim().ToLower() ?? "";
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.Name.ToLower().Contains(searchString))
+        if (item.Name.ToLower().Contains(searchString))
             return true;
-        if (element.StudentNumber.ToString().Contains(searchString))
+        if (item.StudentNumber.ToString().Contains(searchString))
             return true;
         return false;
     }
@@ -102,7 +122,7 @@ else
                 var res1 = await _studentService.GetAllAsync();
                 if (res1.Success)
                 {
-                    Elements = res1.Data.ToList();
+                    Items = res1.Data.ToList();
                     StateHasChanged();
                 }
                 else

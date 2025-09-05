@@ -1,8 +1,4 @@
-﻿using Blazored.LocalStorage;
-using IKitaplik.BlazorUI.Helpers;
-using IKitaplik.BlazorUI.Services.Abstract;
-using IKitaplik.Entities.DTOs.UserDTOs;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using IKitaplik.BlazorUI.Services.Abstract;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
