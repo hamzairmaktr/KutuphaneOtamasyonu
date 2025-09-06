@@ -4,6 +4,7 @@ using IKitaplik.Entities.DTOs.DepositDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -20,54 +21,54 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("depositGiven")]
-        public IActionResult DepositGiven(DepositAddDto depositAddDto)
+        public async Task<IActionResult> DepositGiven(DepositAddDto depositAddDto)
         {
-            var res = _depositService.DepositGiven(depositAddDto);
+            var res = await _depositService.DepositGivenAsync(depositAddDto);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpPost("depositReceived")]
-        public IActionResult DepositReceived(DepositUpdateDto depositUpdateDto)
+        public async Task<IActionResult> DepositReceived(DepositUpdateDto depositUpdateDto)
         {
-            var res = _depositService.DepositReceived(depositUpdateDto);
+            var res = await _depositService.DepositReceivedAsync(depositUpdateDto);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpPost("delete")]
-        public IActionResult Delete(DeleteDto deleteDto)
+        public async Task<IActionResult> Delete(DeleteDto deleteDto)
         {
-            var res = _depositService.Delete(deleteDto.Id);
+            var res = await _depositService.DeleteAsync(deleteDto.Id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpPost("extendDuDate")]
-        public IActionResult ExtendDueDate(DepositExtentDueDateDto depositExtentDueDateDto)
+        public async Task<IActionResult> ExtendDueDate(DepositExtentDueDateDto depositExtentDueDateDto)
         {
-            var res = _depositService.ExtendDueDate(depositExtentDueDateDto);
+            var res = await _depositService.ExtendDueDateAsync(depositExtentDueDateDto);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAll")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var res = _depositService.GetAllDTO();
+            var res = await _depositService.GetAllDTOAsync();
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getById")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var res = _depositService.GetByIdDTO(id);
+            var res = await _depositService.GetByIdDTOAsync(id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);

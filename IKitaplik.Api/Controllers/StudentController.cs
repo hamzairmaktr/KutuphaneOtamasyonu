@@ -3,6 +3,7 @@ using IKitaplik.Entities.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -17,9 +18,9 @@ namespace IKitaplik.Api.Controllers
             _studentService = studentService;
         }
         [HttpGet("getall")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var result = _studentService.GetAll();
+            var result = await _studentService.GetAllAsync();
             if (result.Success)
             {
                 return Ok(result);
@@ -27,18 +28,18 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
         [HttpGet("getallisactive")]
-        public ActionResult GetAllActive()
+        public async Task<ActionResult> GetAllActive()
         {
-            var res = _studentService.GetAllActive();
+            var res = await _studentService.GetAllActiveAsync();
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
 
         [HttpGet("getallbyname")]
-        public IActionResult GetAllByName(string name)
+        public async Task<IActionResult> GetAllByName(string name)
         {
-            var result = _studentService.GetAllByName(name);
+            var result = await _studentService.GetAllByNameAsync(name);
             if (result.Success)
             {
                 return Ok(result);
@@ -47,9 +48,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getbyid")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var result = _studentService.GetById(id);
+            var result = await _studentService.GetByIdAsync(id);
             if (result.Success)
             {
                 return Ok(result);
@@ -58,9 +59,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult Add(StudentAddDto studentAddDto)
+        public async Task<IActionResult> Add(StudentAddDto studentAddDto)
         {
-            var result = _studentService.Add(studentAddDto);
+            var result = await _studentService.AddAsync(studentAddDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -69,9 +70,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("update")]
-        public IActionResult Update(StudentUpdateDto studentUpdateDto)
+        public async Task<IActionResult> Update(StudentUpdateDto studentUpdateDto)
         {
-            var result = _studentService.Update(studentUpdateDto);
+            var result = await _studentService.UpdateAsync(studentUpdateDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -80,9 +81,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("delete")]
-        public IActionResult Delete(DeleteDto deleteDto)
+        public async Task<IActionResult> Delete(DeleteDto deleteDto)
         {
-            var result = _studentService.Delete(deleteDto.Id);
+            var result = await _studentService.DeleteAsync(deleteDto.Id);
             if (result.Success)
             {
                 return Ok(result);

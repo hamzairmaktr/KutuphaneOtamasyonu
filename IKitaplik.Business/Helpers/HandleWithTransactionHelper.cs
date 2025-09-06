@@ -3,13 +3,13 @@ using IKitaplik.DataAccess.UnitOfWork;
 
 public static class HandleWithTransactionHelper
 {
-    public static IResult Handling(Func<IResult> operation, IUnitOfWork _unitOfWork)
+    public static async Task<IResult> Handling(Func<Task<IResult>> operation, IUnitOfWork _unitOfWork)
     {
 
         try
         {
             _unitOfWork.BeginTransaction();
-            var result = operation();
+            var result = await operation();
             if (!result.Success)
             {
                 _unitOfWork.Rollback();
@@ -26,13 +26,13 @@ public static class HandleWithTransactionHelper
 
     }
 
-    public static IDataResult<T> Handling<T>(Func<IDataResult<T>> operation, IUnitOfWork _unitOfWork) where T : new()
+    public static async Task<IDataResult<T>> Handling<T>(Func<Task<IDataResult<T>>> operation, IUnitOfWork _unitOfWork) where T : new()
     {
 
         try
         {
             _unitOfWork.BeginTransaction();
-            var result = operation();
+            var result = await operation();
             if (!result.Success)
             {
                 _unitOfWork.Rollback();

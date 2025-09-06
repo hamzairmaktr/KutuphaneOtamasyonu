@@ -12,7 +12,7 @@ namespace IKitaplik.DataAccess.Abstract
 {
     public interface IBookRepository:IEntityRepository<Book>
     {
-        List<BookGetDTO> GetAllBookDTOs();
-        List<BookGetDTO> GetAllBookFilteredDTOs(Expression<Func<BookGetDTO, bool>> filter);
+        List<BookGetDTO> GetAllBookDTOs(Expression<Func<BookGetDTO, bool>>? filter = null);
+        Task<List<BookGetDTO>> GetAllBookDTOsAsync(Expression<Func<BookGetDTO,bool>>? filter = null);
     }
 }

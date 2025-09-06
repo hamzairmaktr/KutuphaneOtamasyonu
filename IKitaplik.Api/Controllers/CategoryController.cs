@@ -5,6 +5,7 @@ using IKitaplik.Entities.DTOs.CategoryDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -20,9 +21,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getall")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var result = _categoryService.GetAll();
+            var result = await _categoryService.GetAllAsync();
             if (result.Success)
             {
                 return Ok(result);
@@ -31,9 +32,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getbyid")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var result = _categoryService.GetById(id);
+            var result = await _categoryService.GetByIdAsync(id);
             if (result.Success)
             {
                 return Ok(result);
@@ -42,9 +43,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult Add(CategoryAddDto categoryAddDto)
+        public async Task<IActionResult> Add(CategoryAddDto categoryAddDto)
         {
-            var result = _categoryService.Add(categoryAddDto);
+            var result = await _categoryService.AddAsync(categoryAddDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -52,9 +53,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
         [HttpPost("update")]
-        public IActionResult Update(CategoryUpdateDto categoryUpdateDto)
+        public async Task<IActionResult> Update(CategoryUpdateDto categoryUpdateDto)
         {
-            var result = _categoryService.Update(categoryUpdateDto);
+            var result = await _categoryService.UpdateAsync(categoryUpdateDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -62,9 +63,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
         [HttpPost("delete")]
-        public IActionResult Delete([FromBody]DeleteDto deleteDto)
+        public async Task<IActionResult> Delete([FromBody]DeleteDto deleteDto)
         {
-            var result = _categoryService.Delete(deleteDto.Id);
+            var result = await _categoryService.DeleteAsync(deleteDto.Id);
             if (result.Success)
             {
                 return Ok(result);

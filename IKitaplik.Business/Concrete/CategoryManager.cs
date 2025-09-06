@@ -5,6 +5,7 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using AutoMapper;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -20,9 +21,9 @@ namespace IKitaplik.Business.Concrete
             _mapper = mapper;
         }
 
-        public IResult Add(CategoryAddDto categoryAddDto)
+        public async Task<IResult> AddAsync(CategoryAddDto categoryAddDto)
         {
-            return HandleWithTransactionHelper.Handling(() => {
+            return await HandleWithTransactionHelper.Handling(async () => {
                 var category = _mapper.Map<Category>(categoryAddDto);
                 var validator = _validator.Validate(category);
                 if (!validator.IsValid)
@@ -30,32 +31,32 @@ namespace IKitaplik.Business.Concrete
                     return new ErrorResult(validator.Errors.First().ErrorMessage);
                 }
                 category.CreatedDate = DateTime.Now;
-                _unitOfWork.Categorys.Add(category);
+                await _unitOfWork.Categorys.AddAsync(category);
                 return new SuccessResult("Kategori başarı ile eklendi");
             }, _unitOfWork);
            
 
         }
 
-        public IResult Delete(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var category = GetById(id);
+                var category = await GetByIdAsync(id);
                 if (!category.Success)
                 {
                     return new ErrorResult(category.Message);
                 }
-                _unitOfWork.Categorys.Delete(category.Data);
+                await _unitOfWork.Categorys.DeleteAsync(category.Data);
                 return new SuccessResult("Kategori silindi");
             }, _unitOfWork);
         }
 
-        public IDataResult<List<CategoryGetDto>> GetAll()
+        public async Task<IDataResult<List<CategoryGetDto>>> GetAllAsync()
         {
             try
             {
-                var list = _unitOfWork.Categorys.GetAll();
+                var list = await _unitOfWork.Categorys.GetAllAsync();
                 var dtoList = _mapper.Map<List<CategoryGetDto>>(list);
                 return new SuccessDataResult<List<CategoryGetDto>>(dtoList, "Kategoriler çekildi");
             }
@@ -65,11 +66,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<Category> GetById(int id)
+        public async Task<IDataResult<Category>> GetByIdAsync(int id)
         {
             try
             {
-                var result = _unitOfWork.Categorys.Get(p => p.Id == id);
+                var result = await _unitOfWork.Categorys.GetAsync(p => p.Id == id);
                 if (result != null)
                 {
                     return new SuccessDataResult<Category>(result, "Kategori başarı ile çekildi");
@@ -85,12 +86,12 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(CategoryUpdateDto categoryUpdateDto)
+        public async Task<IResult> UpdateAsync(CategoryUpdateDto categoryUpdateDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             { 
                 // Önce mevcut kategoriyi veritabanından alalım
-                var existingCategory = GetById(categoryUpdateDto.Id);
+                var existingCategory = await GetByIdAsync(categoryUpdateDto.Id);
                 if (!existingCategory.Success)
                 {
                     return new ErrorResult(existingCategory.Message);
@@ -113,7 +114,7 @@ namespace IKitaplik.Business.Concrete
                         .First());
                 }
 
-                _unitOfWork.Categorys.Update(category);
+                await _unitOfWork.Categorys.UpdateAsync(category);
                 return new SuccessResult("Kategori güncellendi");
             }, _unitOfWork);
                 

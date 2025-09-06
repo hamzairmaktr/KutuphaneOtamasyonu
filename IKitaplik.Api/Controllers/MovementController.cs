@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -16,71 +17,71 @@ namespace IKitaplik.Api.Controllers
             _movementService = movementService;
         }
         [HttpGet("getAll")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var res = _movementService.GetAll();
+            var res = await _movementService.GetAllAsync();
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
         [HttpGet("getAllBookId")]
-        public IActionResult GetAllBookId(int id)
+        public async Task<IActionResult> GetAllBookId(int id)
         {
-            var res = _movementService.GetAllFilteredBookId(id);
+            var res = await _movementService.GetAllFilteredBookIdAsync(id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllBookName")]
-        public IActionResult GetAllBookName(string bookName)
+        public async Task<IActionResult> GetAllBookName(string bookName)
         {
-            var res = _movementService.GetAllFilteredBookName(bookName);
+            var res = await _movementService.GetAllFilteredBookNameAsync(bookName);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllDepositId")]
-        public IActionResult GetAllDepositId(int id)
+        public async Task<IActionResult> GetAllDepositId(int id)
         {
-            var res = _movementService.GetAllFilteredDepositId(id);
+            var res = await _movementService.GetAllFilteredDepositIdAsync(id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllStudentId")]
-        public IActionResult GetAllStudentId(int id)
+        public async Task<IActionResult> GetAllStudentId(int id)
         {
-            var res = _movementService.GetAllFilteredStudentId(id);
+            var res = await _movementService.GetAllFilteredStudentIdAsync(id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllStudentName")]
-        public IActionResult GetAllStudentName(string studentName)
+        public async Task<IActionResult> GetAllStudentName(string studentName)
         {
-            var res = _movementService.GetAllFilteredStudentName(studentName);
+            var res = await _movementService.GetAllFilteredStudentNameAsync(studentName);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllDonationId")]
-        public IActionResult GetAllDonationId(int id)
+        public async Task<IActionResult> GetAllDonationId(int id)
         {
-            var res = _movementService.GetAllFilteredDonationId(id);
+            var res = await _movementService.GetAllFilteredDonationIdAsync(id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getById")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var res = _movementService.GetByIdDto(id);
+            var res = await _movementService.GetByIdDtoAsync(id);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);

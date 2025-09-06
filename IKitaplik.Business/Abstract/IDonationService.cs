@@ -12,9 +12,9 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IDonationService
     {
-        IResult Add(DonationAddDto donation);
+        Task<IResult> AddAsync(DonationAddDto donation);
 
-        IDataResult<List<DonationGetDTO>> GetAllDTO();
-        IDataResult<DonationGetDTO> GetByIdDTO(int id);
+        Task<IDataResult<List<DonationGetDTO>>> GetAllDTOAsync();
+        Task<IDataResult<DonationGetDTO>> GetByIdDTOAsync(int id);
     }
 }

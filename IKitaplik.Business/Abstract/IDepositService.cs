@@ -11,13 +11,13 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IDepositService
     {
-        IResult DepositGiven(DepositAddDto depositAddDto);
-        IResult DepositReceived(DepositUpdateDto depositUpdateDto);
-        IResult Delete(int id);
-        IResult ExtendDueDate(DepositExtentDueDateDto depositExtentDueDateDto);
+        Task<IResult> DepositGivenAsync(DepositAddDto depositAddDto);
+        Task<IResult> DepositReceivedAsync(DepositUpdateDto depositUpdateDto);
+        Task<IResult> DeleteAsync(int id);
+        Task<IResult> ExtendDueDateAsync(DepositExtentDueDateDto depositExtentDueDateDto);
 
-        IDataResult<List<DepositGetDTO>> GetAllDTO();
-        IDataResult<DepositGetDTO> GetByIdDTO(int id);
-        IDataResult<Deposit> GetById(int id);
+        Task<IDataResult<List<DepositGetDTO>>> GetAllDTOAsync();
+        Task<IDataResult<DepositGetDTO>> GetByIdDTOAsync(int id);
+        Task<IDataResult<Deposit>> GetByIdAsync(int id);
     }
 }

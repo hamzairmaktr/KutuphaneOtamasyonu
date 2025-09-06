@@ -14,5 +14,8 @@ namespace IKitaplik.DataAccess.Abstract
     {
         List<DonationGetDTO> GetAllDTO(Expression<Func<DonationGetDTO,bool>> filter = null);
         DonationGetDTO GetDTO(Expression<Func<DonationGetDTO,bool>> filter);
+
+        Task<List<DonationGetDTO>> GetAllDTOAsync(Expression<Func<DonationGetDTO, bool>> filter = null);
+        Task<DonationGetDTO> GetDTOAsync(Expression<Func<DonationGetDTO, bool>> filter);
     }
 }

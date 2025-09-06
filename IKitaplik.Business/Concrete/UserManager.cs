@@ -26,26 +26,26 @@ namespace IKitaplik.Business.Concrete
             _userValidator = userValidator;
         }
 
-        public IDataResult<User> GetByRefreshToken(string refreshToken)
+        public async Task<IDataResult<User>> GetByRefreshTokenAsync(string refreshToken)
         {
-            var user = _unitOfWork.Users.Get(p => p.RefreshToken == refreshToken && p.RefreshTokenExpiryTime > DateTime.Now);
+            var user = await _unitOfWork.Users.GetAsync(p => p.RefreshToken == refreshToken && p.RefreshTokenExpiryTime > DateTime.Now);
             if (user == null)
                 return new ErrorDataResult<User>("Refresh tokenın süresi doldu login olunuz");
             return new SuccessDataResult<User>(user);
         }
 
-        public IDataResult<User> Login(UserLoginDto userLoginDto)
+        public async Task<IDataResult<User>> LoginAsync(UserLoginDto userLoginDto)
         {
-            var user = _unitOfWork.Users.Get(u => u.Username == userLoginDto.Username);
+            var user = await _unitOfWork.Users.GetAsync(u => u.Username == userLoginDto.Username);
 
             if (user == null || !PasswordHasher.Verify(userLoginDto.Password, user.PasswordHash))
                 return new ErrorDataResult<User>("Hatalı giriş bilgileri");
             return new SuccessDataResult<User>(user, "Giriş başarılı");
         }
 
-        public IResult Register(UserRegisterDto userRegisterDto)
+        public async Task<IResult> RegisterAsync(UserRegisterDto userRegisterDto)
         {
-            var exists = _unitOfWork.Users.Get(u => u.Username == userRegisterDto.Username);
+            var exists = await _unitOfWork.Users.GetAsync(u => u.Username == userRegisterDto.Username);
             if (exists != null) return new ErrorResult("Username already exists");
 
             var user = new User
@@ -61,16 +61,16 @@ namespace IKitaplik.Business.Concrete
             return new SuccessResult("Kullanıcı eklendi");
         }
 
-        public IResult SetRefreshToken(string refreshToken, DateTime refreshTokenExpiryTime, int id)
+        public async Task<IResult> SetRefreshTokenAsync(string refreshToken, DateTime refreshTokenExpiryTime, int id)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var user = _unitOfWork.Users.Get(p => p.Id == id);
+                var user = await _unitOfWork.Users.GetAsync(p => p.Id == id);
                 if (user == null)
                     return new ErrorResult("Refresh token verilecek kullanıcı bulunamadı");
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = refreshTokenExpiryTime;
-                _unitOfWork.Users.Update(user);
+                await _unitOfWork.Users.UpdateAsync(user);
                 return new SuccessResult("Refresh işlemi başarılı");
             }, _unitOfWork);
         }

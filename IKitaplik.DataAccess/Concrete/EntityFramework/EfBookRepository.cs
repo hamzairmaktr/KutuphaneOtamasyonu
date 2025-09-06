@@ -2,6 +2,7 @@
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             this._context = context;
         }
 
-        public List<BookGetDTO> GetAllBookDTOs()
+        public List<BookGetDTO> GetAllBookDTOs(Expression<Func<BookGetDTO, bool>> filter = null)
         {
             var result = from b in _context.Books
                          join c in _context.Categories
@@ -41,10 +42,12 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              CreatedDate = b.CreatedDate,
                              UpdatedDate = b.UpdatedDate
                          };
+            if (filter != null)
+                result = result.Where(filter);
             return result.ToList();
         }
 
-        public List<BookGetDTO> GetAllBookFilteredDTOs(Expression<Func<BookGetDTO, bool>> filter)
+        public async Task<List<BookGetDTO>> GetAllBookDTOsAsync(Expression<Func<BookGetDTO, bool>> filter = null)
         {
             var result = from b in _context.Books
                          join c in _context.Categories
@@ -66,7 +69,9 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              CreatedDate = b.CreatedDate,
                              UpdatedDate = b.UpdatedDate
                          };
-            return result.Where(filter).ToList();
+            if (filter != null)
+                result = result.Where(filter);
+            return await result.ToListAsync();
         }
     }
 }

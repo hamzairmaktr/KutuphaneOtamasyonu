@@ -2,6 +2,7 @@
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.DonationDTOs;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,28 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             return filter == null ? list.ToList() : list.Where(filter).ToList();
         }
 
+        public async Task<List<DonationGetDTO>> GetAllDTOAsync(Expression<Func<DonationGetDTO, bool>> filter = null)
+        {
+            var list = from d in _context.Donations
+                       join s in _context.Students
+                       on d.StudentId equals s.Id
+                       join b in _context.Books
+                       on d.BookId equals b.Id
+                       where d.IsDeleted == false
+                       select new DonationGetDTO
+                       {
+                           BookBarcode = b.Barcode,
+                           BookName = b.Name,
+                           Date = d.Date,
+                           Id = d.Id,
+                           IsItDamaged = d.IsItDamaged,
+                           StudentName = s.Name,
+                       };
+            return filter == null 
+                ? await list.ToListAsync() 
+                : await list.Where(filter).ToListAsync();
+        }
+
         public DonationGetDTO GetDTO(Expression<Func<DonationGetDTO, bool>> filter)
         {
             var list = from d in _context.Donations
@@ -57,6 +80,26 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                            StudentName = s.Name,
                        };
             return list.Where(filter).FirstOrDefault();
+        }
+
+        public async Task<DonationGetDTO> GetDTOAsync(Expression<Func<DonationGetDTO, bool>> filter)
+        {
+            var list = from d in _context.Donations
+                       join s in _context.Students
+                       on d.StudentId equals s.Id
+                       join b in _context.Books
+                       on d.BookId equals b.Id
+                       where d.IsDeleted == false
+                       select new DonationGetDTO
+                       {
+                           BookBarcode = b.Barcode,
+                           BookName = b.Name,
+                           Date = d.Date,
+                           Id = d.Id,
+                           IsItDamaged = d.IsItDamaged,
+                           StudentName = s.Name,
+                       };
+            return await list.Where(filter).FirstOrDefaultAsync();
         }
     }
 }

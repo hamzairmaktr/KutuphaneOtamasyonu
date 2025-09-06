@@ -5,6 +5,7 @@ using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using AutoMapper;
 using IKitaplik.Entities.DTOs.DepositDTOs;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -28,44 +29,44 @@ namespace IKitaplik.Business.Concrete
             _mapper = mapper;
         }
 
-        public IResult DepositGiven(DepositAddDto depositAddDto)
+        public async Task<IResult> DepositGivenAsync(DepositAddDto depositAddDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
                 var deposit = _mapper.Map<Deposit>(depositAddDto);
                 deposit.CreatedDate = DateTime.Now;
                 deposit.DeliveryDate = depositAddDto.IssueDate.AddDays(14);
-                var book = ValidateBook(deposit.BookId);
-                var student = ValidateStudent(deposit.StudentId);
+                var book = await ValidateBookAsync(deposit.BookId);
+                var student = await ValidateStudentAsync(deposit.StudentId);
 
                 if (book.Data.Piece <= 0) return new ErrorResult("Kitabın mevcut sayısı yetersiz.");
                 if (!student.Data.Situation) return new ErrorResult("Bu öğrencide zaten bir kitap emanet verilmiş.");
 
-                _bookService.BookAddedPiece(new BookAddPieceDto { Id = deposit.BookId, BeAdded = -1 }, true);
+                await _bookService.BookAddedPieceAsync(new BookAddPieceDto { Id = deposit.BookId, BeAdded = -1 }, true);
 
                 student.Data.Situation = false;
                 var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
-                _studentService.Update(studentDto, true);
+                await _studentService.UpdateAsync(studentDto, true);
 
                 _unitOfWork.Deposits.Add(deposit);
 
-                AddMovement("Emanet Verildi", $"{student.Data.Name} adlı öğrenciye {book.Data.Name} adlı kitap emanet verildi", deposit.BookId, deposit.StudentId, deposit.Id);
+                await AddMovementAsync("Emanet Verildi", $"{student.Data.Name} adlı öğrenciye {book.Data.Name} adlı kitap emanet verildi", deposit.BookId, deposit.StudentId, deposit.Id);
 
                 return new SuccessResult("Kitap başarıyla emanet verildi.");
             }, _unitOfWork);
         }
-        public IResult DepositReceived(DepositUpdateDto depositUpdateDto)
+        public async Task<IResult> DepositReceivedAsync(DepositUpdateDto depositUpdateDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
                 var existingDeposit = _unitOfWork.Deposits.Get(d => d.Id == depositUpdateDto.Id);
                 if (existingDeposit == null) return new ErrorResult("Emanet kaydı bulunamadı.");
 
-                var book = ValidateBook(existingDeposit.BookId);
-                var student = ValidateStudent(existingDeposit.StudentId);
+                var book = await ValidateBookAsync(existingDeposit.BookId);
+                var student = await ValidateStudentAsync(existingDeposit.StudentId);
 
-                _bookService.BookAddedPiece(new BookAddPieceDto { Id = existingDeposit.BookId, BeAdded = 1 },true);
-                UpdateStudentOnReturn(student, depositUpdateDto);
+                await _bookService.BookAddedPieceAsync(new BookAddPieceDto { Id = existingDeposit.BookId, BeAdded = 1 }, true);
+                await UpdateStudentOnReturnAsync(student, depositUpdateDto);
                 existingDeposit.DeliveryDate = depositUpdateDto.DeliveryDate;
                 existingDeposit.IsItDamaged = depositUpdateDto.IsItDamaged;
                 existingDeposit.AmILate = depositUpdateDto.AmILate;
@@ -74,42 +75,43 @@ namespace IKitaplik.Business.Concrete
                 existingDeposit.IsDelivered = true;
                 _unitOfWork.Deposits.Update(existingDeposit);
 
-                AddMovement("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(depositUpdateDto)} teslim etti", book.Data.Id, student.Data.Id, depositUpdateDto.Id);
+                await AddMovementAsync("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(depositUpdateDto)} teslim etti", book.Data.Id, student.Data.Id, depositUpdateDto.Id);
 
                 return new SuccessResult("Kitap başarıyla iade alındı.");
             }, _unitOfWork);
         }
-        public IResult Delete(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var deposit = GetById(id);
-                if(!deposit.Success)
+                var deposit = await GetByIdAsync(id);
+                if (!deposit.Success)
                     return new ErrorResult(deposit.Message);
                 _unitOfWork.Deposits.Delete(deposit.Data);
-                AddMovement("Emanet Kaydı Silindi", "Emanet kaydı silindi.", deposit.Data.BookId, deposit.Data.StudentId, deposit.Data.Id);
+                await AddMovementAsync("Emanet Kaydı Silindi", "Emanet kaydı silindi.", deposit.Data.BookId, deposit.Data.StudentId, deposit.Data.Id);
                 return new SuccessResult("Emanet kaydı başarıyla silindi.");
             }, _unitOfWork);
         }
-        public IResult ExtendDueDate(DepositExtentDueDateDto depositExtentDueDateDto)
+        public async Task<IResult> ExtendDueDateAsync(DepositExtentDueDateDto depositExtentDueDateDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var deposit = GetById(depositExtentDueDateDto.DepositId).Data;
+                var depositR = await GetByIdAsync(depositExtentDueDateDto.DepositId);
+                var deposit = depositR.Data;
                 if (depositExtentDueDateDto.AsDate)
                     deposit.DeliveryDate = depositExtentDueDateDto.Date.GetValueOrDefault();
                 else
                     deposit.DeliveryDate = deposit.DeliveryDate.AddDays(depositExtentDueDateDto.AdditionalDays.GetValueOrDefault());
 
-                _unitOfWork.Deposits.Update(deposit);
+                await _unitOfWork.Deposits.UpdateAsync(deposit);
                 return new SuccessResult("Emanete ek süre verildi.");
             }, _unitOfWork);
         }
-        public IDataResult<List<DepositGetDTO>> GetAllDTO()
+        public async Task<IDataResult<List<DepositGetDTO>>> GetAllDTOAsync()
         {
             try
             {
-                var deposits = _unitOfWork.Deposits.GetAllDepositDTOs();
+                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync();
                 return new SuccessDataResult<List<DepositGetDTO>>(deposits, "Emanet kayıtları başarıyla çekildi.");
             }
             catch (Exception ex)
@@ -117,11 +119,11 @@ namespace IKitaplik.Business.Concrete
                 return new ErrorDataResult<List<DepositGetDTO>>("Emanet kayıtları çekilirken hata oluştu: " + ex.Message);
             }
         }
-        public IDataResult<DepositGetDTO> GetByIdDTO(int id)
+        public async Task<IDataResult<DepositGetDTO>> GetByIdDTOAsync(int id)
         {
             try
             {
-                var deposit = _unitOfWork.Deposits.GetDepositFilteredDTOs(p => p.Id == id);
+                var deposit = await _unitOfWork.Deposits.GetDepositFilteredDTOsAsync(p => p.Id == id);
                 if (deposit != null)
                 {
                     return new SuccessDataResult<DepositGetDTO>(deposit, "Emanet kaydı başarıyla çekildi.");
@@ -133,11 +135,11 @@ namespace IKitaplik.Business.Concrete
                 return new ErrorDataResult<DepositGetDTO>("Emanet kaydı çekilirken hata oluştu: " + ex.Message);
             }
         }
-        public IDataResult<Deposit> GetById(int id)
+        public async Task<IDataResult<Deposit>> GetByIdAsync(int id)
         {
             try
             {
-                var deposit = _unitOfWork.Deposits.Get(d => d.Id == id);
+                var deposit = await _unitOfWork.Deposits.GetAsync(d => d.Id == id);
                 if (deposit != null)
                 {
                     return new SuccessDataResult<Deposit>(deposit, "Emanet kaydı başarıyla çekildi.");
@@ -150,9 +152,9 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        private void AddMovement(string title, string note, int bookId, int studentId, int depositId)
+        private async Task AddMovementAsync(string title, string note, int bookId, int studentId, int depositId)
         {
-            _movementService.Add(new Movement
+            await _movementService.AddAsync(new Movement
             {
                 BookId = bookId,
                 StudentId = studentId,
@@ -162,7 +164,7 @@ namespace IKitaplik.Business.Concrete
                 Note = $"{DateTime.Now:g} - {note}"
             });
         }
-        private void UpdateStudentOnReturn(IDataResult<Student> student, DepositUpdateDto deposit)
+        private async Task UpdateStudentOnReturnAsync(IDataResult<Student> student, DepositUpdateDto deposit)
         {
             student.Data.Situation = true;
             student.Data.NumberofBooksRead += 1;
@@ -171,17 +173,17 @@ namespace IKitaplik.Business.Concrete
             if (deposit.AmILate) student.Data.Point -= 5;
             student.Data.Point += 10;
             var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
-            _studentService.Update(studentDto,true);
+            await _studentService.UpdateAsync(studentDto, true);
         }
-        private IDataResult<Book> ValidateBook(int bookId)
+        private async Task<IDataResult<Book>> ValidateBookAsync(int bookId)
         {
-            var book = _bookService.GetById(bookId);
+            var book = await _bookService.GetByIdAsync(bookId);
             if (!book.Success) throw new Exception(book.Message);
             return book;
         }
-        private IDataResult<Student> ValidateStudent(int studentId)
+        private async Task<IDataResult<Student>> ValidateStudentAsync(int studentId)
         {
-            var student = _studentService.GetById(studentId);
+            var student = await _studentService.GetByIdAsync(studentId);
             if (!student.Success) throw new Exception(student.Message);
             return student;
         }

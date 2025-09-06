@@ -2,6 +2,7 @@
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.DepositDTOs;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,9 +40,34 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              StudentName = s.Name,
                              IsDelivered = d.IsDelivered
                          };
-            return filter == null 
+            return filter == null
                 ? result.ToList()
                 : result.Where(filter).ToList();
+        }
+
+        public async Task<List<DepositGetDTO>> GetAllDepositDTOsAsync(Expression<Func<DepositGetDTO, bool>> filter = null)
+        {
+            var result = from d in _context.Deposits
+                         join b in _context.Books
+                         on d.BookId equals b.Id
+                         join s in _context.Students
+                         on d.StudentId equals s.Id
+                         where d.IsDeleted == false
+                         select new DepositGetDTO
+                         {
+                             AmILate = d.AmILate,
+                             BookName = b.Name,
+                             DeliveryDate = d.DeliveryDate,
+                             Id = d.Id,
+                             IsItDamaged = d.IsItDamaged,
+                             IssueDate = d.IssueDate,
+                             Note = d.Note,
+                             StudentName = s.Name,
+                             IsDelivered = d.IsDelivered
+                         };
+            return filter == null
+                ? await result.ToListAsync()
+                : await result.Where(filter).ToListAsync();
         }
 
         public DepositGetDTO GetDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter)
@@ -65,6 +91,29 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              IsDelivered = d.IsDelivered
                          };
             return result.Where(filter).FirstOrDefault();
+        }
+
+        public async Task<DepositGetDTO> GetDepositFilteredDTOsAsync(Expression<Func<DepositGetDTO, bool>> filter)
+        {
+            var result = from d in _context.Deposits
+                         join b in _context.Books
+                         on d.BookId equals b.Id
+                         join s in _context.Students
+                         on d.StudentId equals s.Id
+                         where d.IsDeleted == false
+                         select new DepositGetDTO
+                         {
+                             AmILate = d.AmILate,
+                             BookName = b.Name,
+                             DeliveryDate = d.DeliveryDate,
+                             Id = d.Id,
+                             IsItDamaged = d.IsItDamaged,
+                             IssueDate = d.IssueDate,
+                             Note = d.Note,
+                             StudentName = s.Name,
+                             IsDelivered = d.IsDelivered
+                         };
+            return await result.Where(filter).FirstOrDefaultAsync();
         }
     }
 }

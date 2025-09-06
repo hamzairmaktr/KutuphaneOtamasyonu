@@ -72,5 +72,52 @@ namespace Core.DataAccess.EntityFramework
             _context.SaveChanges();
             updatedEntity.State = EntityState.Detached;
         }
+
+        public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter)
+        {
+            return filter == null
+               ? await _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).ToListAsync()
+               : await _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).Where(filter).ToListAsync();
+        }
+
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> filter)
+        {
+            return await _context.Set<TEntity>().AsNoTracking().Where(p => EF.Property<bool>(p, "IsDeleted") == false).FirstOrDefaultAsync(filter);
+        }
+
+        public async Task AddAsync(TEntity entity)
+        {
+            var addedEntity = _context.Entry(entity);
+            addedEntity.State = EntityState.Added;
+            await _context.SaveChangesAsync();
+            addedEntity.State = EntityState.Detached;
+        }
+
+        public async Task UpdateAsync(TEntity entity)
+        {
+            var updatedEntity = _context.Entry(entity);
+            updatedEntity.State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            updatedEntity.State = EntityState.Detached;
+        }
+
+        public async Task DeleteAsync(TEntity entity)
+        {
+            if (entity is BaseEntities softDeletable)
+            {
+                var updatedEntity = _context.Entry(entity);
+                updatedEntity.State = EntityState.Modified;
+                softDeletable.IsDeleted = true;
+                await _context.SaveChangesAsync();
+                updatedEntity.State = EntityState.Detached;
+            }
+            else
+            {
+                var deletedEntity = _context.Entry(entity);
+                deletedEntity.State = EntityState.Deleted;
+                await _context.SaveChangesAsync();
+                deletedEntity.State = EntityState.Detached;
+            }
+        }
     }
 }

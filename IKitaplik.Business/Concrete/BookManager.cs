@@ -6,6 +6,7 @@ using IKitaplik.DataAccess.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using AutoMapper;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -24,64 +25,64 @@ namespace IKitaplik.Business.Concrete
             _mapper = mapper;
         }
 
-        public IDataResult<Book> Add(BookAddDto bookAddDto, bool isDonation = false)
+        public async Task<IDataResult<Book>> AddAsync(BookAddDto bookAddDto, bool isDonation = false)
         {
             if (isDonation)
             {
-                return AddLocal(bookAddDto);
+                return await AddLocalAsync(bookAddDto);
             }
             else
             {
-                return HandleWithTransactionHelper.Handling<Book>(() =>
+                return await HandleWithTransactionHelper.Handling<Book>(async () =>
                 {
-                    return AddLocal(bookAddDto);
+                    return await AddLocalAsync(bookAddDto);
                 }, _unitOfWork);
             }
         }
 
-        public IResult Delete(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var res = GetById(id);
+                var res = await GetByIdAsync(id);
                 if (!res.Success)
                 {
                     return new ErrorResult(res.Message);
                 }
-                _unitOfWork.Books.Delete(res.Data);
+                await _unitOfWork.Books.DeleteAsync(res.Data);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile silindi");
 
             }, _unitOfWork);
         }
 
-        public IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false)
+        public async Task<IResult> BookAddedPieceAsync(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false)
         {
             if (isDonationOrDeposit)
             {
-                return BookAddedPieceLocal(bookAddPieceDto);
+                return await BookAddedPieceLocalAsync(bookAddPieceDto);
             }
             else
             {
-                return HandleWithTransactionHelper.Handling(() =>
+                return await HandleWithTransactionHelper.Handling(async () =>
                 {
-                    return BookAddedPieceLocal(bookAddPieceDto);
+                    return await BookAddedPieceLocalAsync(bookAddPieceDto);
                 }, _unitOfWork);
 
             }
         }
 
-        public IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter)
+        public async Task<IDataResult<List<BookGetDTO>>> GetAllFilteredAsync(BookFilterDto filter)
         {
             List<BookGetDTO> books = new List<BookGetDTO>();
             if (!string.IsNullOrEmpty(filter.barcode))
-                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.Barcode.Equals(filter.barcode));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.Barcode.Equals(filter.barcode));
             else if (!string.IsNullOrEmpty(filter.category) && !string.IsNullOrEmpty(filter.title))
-                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.CategoryName.Equals(filter.category) && dto.Name.Contains(filter.title));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.CategoryName.Equals(filter.category) && dto.Name.Contains(filter.title));
             else if (!string.IsNullOrEmpty(filter.title))
-                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.Name.Contains(filter.title));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.Name.Contains(filter.title));
             else if (!string.IsNullOrEmpty(filter.category))
-                books = _unitOfWork.Books.GetAllBookFilteredDTOs(dto => dto.CategoryName.Equals(filter.category));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.CategoryName.Equals(filter.category));
             else
                 return new ErrorDataResult<List<BookGetDTO>>("Hatalı filtreleme yaptınız");
 
@@ -93,11 +94,11 @@ namespace IKitaplik.Business.Concrete
             return new ErrorDataResult<List<BookGetDTO>>("Kayıt bulunamadı");
         }
 
-        public IDataResult<List<BookGetDTO>> GetAll()
+        public async Task<IDataResult<List<BookGetDTO>>> GetAllAsync()
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookDTOs().ToList();
+                List<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync();
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -106,11 +107,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<Book> GetById(int id)
+        public async Task<IDataResult<Book>> GetByIdAsync(int id)
         {
             try
             {
-                Book book = _unitOfWork.Books.Get(p => p.Id == id);
+                Book book = await _unitOfWork.Books.GetAsync(p => p.Id == id);
                 if (book != null)
                 {
                     return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");
@@ -124,12 +125,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<BookGetDTO>> GetAllByName(string name)
+        public async Task<IDataResult<List<BookGetDTO>>> GetAllByNameAsync(string name)
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Name.Contains(name))
-                    .ToList();
+                List<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(p => p.Name.Contains(name));
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
@@ -138,11 +138,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(BookUpdateDto bookUpdateDto)
+        public async Task<IResult> UpdateAsync(BookUpdateDto bookUpdateDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var bookExisting = GetById(bookUpdateDto.Id);
+                var bookExisting = await GetByIdAsync(bookUpdateDto.Id);
                 if (!bookExisting.Success)
                 {
                     return new ErrorResult(bookExisting.Message);
@@ -158,9 +158,9 @@ namespace IKitaplik.Business.Concrete
                         .First());
                 }
 
-                _unitOfWork.Books.Update(book);
+                await _unitOfWork.Books.UpdateAsync(book);
 
-                var result = _movementService.Add(new Movement
+                var result = await _movementService.AddAsync(new Movement
                 {
                     BookId = book.Id,
                     MovementDate = DateTime.Now,
@@ -178,11 +178,11 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public IDataResult<Book> GetByBarcode(string barcode)
+        public async Task<IDataResult<Book>> GetByBarcodeAsync(string barcode)
         {
             try
             {
-                Book book = _unitOfWork.Books.Get(p => p.Barcode == barcode);
+                Book book = await _unitOfWork.Books.GetAsync(p => p.Barcode == barcode);
                 if (book != null)
                 {
                     return new SuccessDataResult<Book>(book, "Kitap başarı ile çekildi");
@@ -196,13 +196,13 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        private IDataResult<Book> AddLocal(BookAddDto bookAddDto)
+        private async Task<IDataResult<Book>> AddLocalAsync(BookAddDto bookAddDto)
         {
             var book = _mapper.Map<Book>(bookAddDto);
             book.CreatedDate = DateTime.Now;
             book.Situation = true;
 
-            var bookBarcodeSearch = GetByBarcode(book.Barcode);
+            var bookBarcodeSearch = await GetByBarcodeAsync(book.Barcode);
             if (bookBarcodeSearch.Success)
             {
                 return new ErrorDataResult<Book>("Aynı barkoda ait bir kitap var");
@@ -215,9 +215,9 @@ namespace IKitaplik.Business.Concrete
                     .First());
             }
 
-            _unitOfWork.Books.Add(book);
+            await _unitOfWork.Books.AddAsync(book);
 
-            var result = _movementService.Add(new Movement
+            var result = await _movementService.AddAsync(new Movement
             {
                 BookId = book.Id,
                 MovementDate = DateTime.Now,
@@ -231,13 +231,13 @@ namespace IKitaplik.Business.Concrete
             }
             return new SuccessDataResult<Book>(book, message: "Kitap başarı ile oluşturuldu");
         }
-        private IResult BookAddedPieceLocal(BookAddPieceDto bookAddPieceDto)
+        private async Task<IResult> BookAddedPieceLocalAsync(BookAddPieceDto bookAddPieceDto)
         {
-            var res = GetById(bookAddPieceDto.Id);
+            var res = await GetByIdAsync(bookAddPieceDto.Id);
             if (res.Success)
             {
                 res.Data.Piece += bookAddPieceDto.BeAdded;
-                _unitOfWork.Books.Update(res.Data);
+                await _unitOfWork.Books.UpdateAsync(res.Data);
                 if (bookAddPieceDto.BeAdded >= 0)
                 {
                     return new SuccessResult($"İlgili kitapın adedi {bookAddPieceDto.BeAdded} arttı");
@@ -253,11 +253,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<BookGetDTO>> GetAllActive()
+        public async Task<IDataResult<List<BookGetDTO>>> GetAllActiveAsync()
         {
             try
             {
-                List<BookGetDTO> books = _unitOfWork.Books.GetAllBookFilteredDTOs(p => p.Piece > 0).ToList();
+                List<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(p => p.Piece > 0);
                 return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)

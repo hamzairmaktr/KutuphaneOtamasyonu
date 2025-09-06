@@ -4,6 +4,7 @@ using IKitaplik.Entities.DTOs.DonationDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -20,27 +21,27 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult Add([FromBody]DonationAddDto donationAddDto)
+        public async Task<IActionResult> Add([FromBody]DonationAddDto donationAddDto)
         {
-            var res = _donationService.Add(donationAddDto);
+            var res = await _donationService.AddAsync(donationAddDto);
             if(!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAll")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var res = _donationService.GetAllDTO();
+            var res = await _donationService.GetAllDTOAsync();
             if(!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getById")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var res = _donationService.GetByIdDTO(id);
+            var res = await _donationService.GetByIdDTOAsync(id);
             if(!res.Success)
                 return BadRequest(res);
             return Ok(res);

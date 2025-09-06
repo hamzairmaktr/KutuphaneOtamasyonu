@@ -11,16 +11,16 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IMovementService
     {
-        IResult Add(Movement movement);
+        Task<IResult> AddAsync(Movement movement);
 
-        IDataResult<List<MovementGetDTO>> GetAll();
-        IDataResult<List<MovementGetDTO>> GetAllFilteredStudentName(string fullName);
-        IDataResult<List<MovementGetDTO>> GetAllFilteredStudentId(int id);
-        IDataResult<List<MovementGetDTO>> GetAllFilteredBookId(int id);
-        IDataResult<List<MovementGetDTO>> GetAllFilteredBookName(string name);
-        IDataResult<List<MovementGetDTO>> GetAllFilteredDepositId(int id);
-        IDataResult<List<MovementGetDTO>> GetAllFilteredDonationId(int id);
-        IDataResult<MovementGetDTO> GetByIdDto(int id);
-        IDataResult<Movement> GetById(int id);
+        Task<IDataResult<List<MovementGetDTO>>> GetAllAsync();
+        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredStudentNameAsync(string fullName);
+        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredStudentIdAsync(int id);
+        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredBookIdAsync(int id);
+        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredBookNameAsync(string name);
+        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredDepositIdAsync(int id);
+        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredDonationIdAsync(int id);
+        Task<IDataResult<MovementGetDTO>> GetByIdDtoAsync(int id);
+        Task<IDataResult<Movement>> GetByIdAsync(int id);
     }
 }

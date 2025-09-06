@@ -11,12 +11,12 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IWriterService
     {
-        IResult Add(WriterAddDto writerAddDto);
-        IResult Delete(int id);
-        IResult Update(WriterUpdateDto writerUpdateDto);
+        Task<IResult> AddAsync(WriterAddDto writerAddDto);
+        Task<IResult> DeleteAsync(int id);
+        Task<IResult> UpdateAsync(WriterUpdateDto writerUpdateDto);
 
-        IDataResult<List<WriterGetDto>> GetAllFilteredNameContains(string name);
-        IDataResult<List<WriterGetDto>> GetAll();
-        IDataResult<Writer> GetById(int id);
+        Task<IDataResult<List<WriterGetDto>>> GetAllFilteredNameContainsAsync(string name);
+        Task<IDataResult<List<WriterGetDto>>> GetAllAsync();
+        Task<IDataResult<Writer>> GetByIdAsync(int id);
     }
 }

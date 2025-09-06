@@ -13,16 +13,16 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IBookService
     {
-        IDataResult<Book> Add(BookAddDto bookAddDto, bool isDonation = false);
-        IResult Update(BookUpdateDto bookUpdateDto);
-        IResult Delete(int id);
-        IResult BookAddedPiece(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false);
+        Task<IDataResult<Book>> AddAsync(BookAddDto bookAddDto, bool isDonation = false);
+        Task<IResult> UpdateAsync(BookUpdateDto bookUpdateDto);
+        Task<IResult> DeleteAsync(int id);
+        Task<IResult> BookAddedPieceAsync(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false);
 
-        IDataResult<List<BookGetDTO>> GetAllFiltered(BookFilterDto filter);
-        IDataResult<List<BookGetDTO>> GetAll();
-        IDataResult<List<BookGetDTO>> GetAllActive();
-        IDataResult<List<BookGetDTO>> GetAllByName(string name);
-        IDataResult<Book> GetById(int id);
-        IDataResult<Book> GetByBarcode(string barcode);
+        Task<IDataResult<List<BookGetDTO>>> GetAllFilteredAsync(BookFilterDto filter);
+        Task<IDataResult<List<BookGetDTO>>> GetAllAsync();
+        Task<IDataResult<List<BookGetDTO>>> GetAllActiveAsync();
+        Task<IDataResult<List<BookGetDTO>>> GetAllByNameAsync(string name);
+        Task<IDataResult<Book>> GetByIdAsync(int id);
+        Task<IDataResult<Book>> GetByBarcodeAsync(string barcode);
     }
 }

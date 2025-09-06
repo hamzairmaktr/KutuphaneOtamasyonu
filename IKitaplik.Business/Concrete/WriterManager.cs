@@ -5,6 +5,7 @@ using IKitaplik.Business.Abstract;
 using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.WriterDTOs;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -19,9 +20,9 @@ namespace IKitaplik.Business.Concrete
             _unitOfWork = unitOfWork;
             _validator = validator;
         }
-        public IResult Add(WriterAddDto writerAddDto)
+        public async Task<IResult> AddAsync(WriterAddDto writerAddDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
                 var writer = _mapper.Map<Writer>(writerAddDto);
                 var validator = _validator.Validate(writer);
@@ -30,28 +31,28 @@ namespace IKitaplik.Business.Concrete
                     return new ErrorResult(validator.Errors.Select(p => p.ErrorMessage).ToList().ToString());
                 }
                 writer.CreatedDate = DateTime.Now;
-                _unitOfWork.Writer.Add(writer);
+                await _unitOfWork.Writer.AddAsync(writer);
                 return new SuccessResult("Yazar eklendi");
             }, _unitOfWork);
         }
 
-        public IResult Delete(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var writer = GetById(id);
+                var writer = await GetByIdAsync(id);
                 if (!writer.Success)
                     return new ErrorResult(writer.Message);
-                _unitOfWork.Writer.Delete(writer.Data);
+                await _unitOfWork.Writer.DeleteAsync(writer.Data);
                 return new SuccessResult("Yazar silindi");
             }, _unitOfWork);
         }
 
-        public IDataResult<Writer> GetById(int id)
+        public async Task<IDataResult<Writer>> GetByIdAsync(int id)
         {
             try
             {
-                var res = _unitOfWork.Writer.Get(p => p.Id == id);
+                var res = await _unitOfWork.Writer.GetAsync(p => p.Id == id);
                 if (res == null)
                     return new ErrorDataResult<Writer>("İlgili yazar bulunamadı");
                 return new SuccessDataResult<Writer>(res, "İlgili yazar çekildi");
@@ -62,11 +63,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<WriterGetDto>> GetAll()
+        public async Task<IDataResult<List<WriterGetDto>>> GetAllAsync()
         {
             try
             {
-                var res = _unitOfWork.Writer.GetAll();
+                var res = await _unitOfWork.Writer.GetAllAsync();
                 if (res.Count <= 0)
                     return new ErrorDataResult<List<WriterGetDto>>("Veri bulunamadı");
                 var dto = _mapper.Map<List<WriterGetDto>>(res);
@@ -78,11 +79,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<WriterGetDto>> GetAllFilteredNameContains(string name)
+        public async Task<IDataResult<List<WriterGetDto>>> GetAllFilteredNameContainsAsync(string name)
         {
             try
             {
-                var res = _unitOfWork.Writer.GetAll(p => p.WriterName.ToLower().Contains(name.ToLower()));
+                var res = await _unitOfWork.Writer.GetAllAsync(p => p.WriterName.ToLower().Contains(name.ToLower()));
                 var dto = _mapper.Map<List<WriterGetDto>>(res);
                 return new SuccessDataResult<List<WriterGetDto>>(dto, "Veriler çekildi");
             }
@@ -92,11 +93,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(WriterUpdateDto writerUpdateDto)
+        public async Task<IResult> UpdateAsync(WriterUpdateDto writerUpdateDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var existingWriter = GetById(writerUpdateDto.Id);
+                var existingWriter = await GetByIdAsync(writerUpdateDto.Id);
                 if (!existingWriter.Success)
                 {
                     return new ErrorResult(existingWriter.Message);
@@ -110,7 +111,7 @@ namespace IKitaplik.Business.Concrete
                 }
                 writer.CreatedDate = existingWriter.Data.CreatedDate;
                 writer.UpdatedDate = DateTime.Now;
-                _unitOfWork.Writer.Update(writer);
+                await _unitOfWork.Writer.UpdateAsync(writer);
                 return new SuccessResult("Yazar Güncellendi");
             }, _unitOfWork);
         }

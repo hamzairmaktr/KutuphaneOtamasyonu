@@ -4,6 +4,7 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -19,15 +20,15 @@ namespace IKitaplik.Api.Controllers
             _jwtService = jwtService;
         }
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginDto userLoginDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
-            var res = _userService.Login(userLoginDto);
+            var res = await _userService.LoginAsync(userLoginDto);
             if (!res.Success)
                 return BadRequest(res);
 
             var accessToken = _jwtService.GenerateToken(res.Data);
             var refreshToken = _jwtService.CreateRefreshToken();
-            var setRefreshTokenResponse = _userService.SetRefreshToken(refreshToken, DateTime.Now.AddDays(7), res.Data.Id);
+            var setRefreshTokenResponse = await _userService.SetRefreshTokenAsync(refreshToken, DateTime.Now.AddDays(7), res.Data.Id);
             if (!setRefreshTokenResponse.Success)
                 return BadRequest(setRefreshTokenResponse);
 
@@ -35,17 +36,17 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(UserRegisterDto userRegisterDto)
+        public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
         {
-            var res = _userService.Register(userRegisterDto);
+            var res = await _userService.RegisterAsync(userRegisterDto);
             if (!res.Success) return BadRequest(res);
             return Ok(res);
         }
 
         [HttpPost("refresh-token")]
-        public IActionResult RefeshToken(RefreshTokenDto refreshTokenDto)
+        public async Task<IActionResult> RefeshToken(RefreshTokenDto refreshTokenDto)
         {
-            var res = _userService.GetByRefreshToken(refreshTokenDto.RefreshToken);
+            var res = await _userService.GetByRefreshTokenAsync(refreshTokenDto.RefreshToken);
             if (!res.Success)
                 return BadRequest(res);
             string accessToken = _jwtService.GenerateToken(res.Data);

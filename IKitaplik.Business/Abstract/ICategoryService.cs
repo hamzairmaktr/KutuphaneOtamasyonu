@@ -11,11 +11,11 @@ namespace IKitaplik.Business.Abstract
 {
     public interface ICategoryService
     {
-        IResult Add(CategoryAddDto categoryAddDto);
-        IResult Update(CategoryUpdateDto categoryUpdateDto);
-        IResult Delete(int id);
+        Task<IResult> AddAsync(CategoryAddDto categoryAddDto);
+        Task<IResult> UpdateAsync(CategoryUpdateDto categoryUpdateDto);
+        Task<IResult> DeleteAsync(int id);
 
-        IDataResult<List<CategoryGetDto>> GetAll();
-        IDataResult<Category> GetById(int id);
+        Task<IDataResult<List<CategoryGetDto>>> GetAllAsync();
+        Task<IDataResult<Category>> GetByIdAsync(int id);
     }
 }

@@ -4,6 +4,7 @@ using IKitaplik.Business.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 using AutoMapper;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -25,9 +26,9 @@ namespace IKitaplik.Business.Concrete
             _mapper = mapper;
         }
 
-        public IResult Add(StudentAddDto studentAddDto)
+        public async Task<IResult> AddAsync(StudentAddDto studentAddDto)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
                 var student = _mapper.Map<Student>(studentAddDto);
                 var isValid = _validator.Validate(student);
@@ -39,9 +40,9 @@ namespace IKitaplik.Business.Concrete
                 student.Point = 100;
                 student.NumberofBooksRead = 0;
                 student.Situation = true;
-                _unitOfWork.Students.Add(student);
+                await _unitOfWork.Students.AddAsync(student);
 
-                var movementResponse = _movementService.Add(new Movement
+                var movementResponse = await _movementService.AddAsync(new Movement
                 {
                     StudentId = student.Id,
                     Title = "Öğrenci Eklendi",
@@ -57,16 +58,16 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public IResult Delete(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var student = GetById(id);
+                var student = await GetByIdAsync(id);
                 if (!student.Success)
                     return new ErrorResult(student.Message);
-                _unitOfWork.Students.Delete(student.Data);
+                await _unitOfWork.Students.DeleteAsync(student.Data);
 
-                var movementResponse = _movementService.Add(new Movement
+                var movementResponse = await _movementService.AddAsync(new Movement
                 {
                     StudentId = student.Data.Id,
                     Title = "Öğrenci Silindi",
@@ -84,11 +85,11 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public IDataResult<List<StudentGetDto>> GetAll()
+        public async Task<IDataResult<List<StudentGetDto>>> GetAllAsync()
         {
             try
             {
-                List<Student> students = _unitOfWork.Students.GetAll().ToList();
+                List<Student> students = await _unitOfWork.Students.GetAllAsync();
                 var listDto = _mapper.Map<List<StudentGetDto>>(students);
                 return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
@@ -98,11 +99,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<StudentGetDto>> GetAllActive()
+        public async Task<IDataResult<List<StudentGetDto>>> GetAllActiveAsync()
         {
             try
             {
-                List<Student> students = _unitOfWork.Students.GetAll(p => p.Situation).ToList();
+                List<Student> students = await _unitOfWork.Students.GetAllAsync(p => p.Situation);
                 var listDto = _mapper.Map<List<StudentGetDto>>(students);
                 return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
@@ -112,11 +113,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<List<StudentGetDto>> GetAllByName(string name)
+        public async Task<IDataResult<List<StudentGetDto>>> GetAllByNameAsync(string name)
         {
             try
             {
-                List<Student> students = _unitOfWork.Students.GetAll(p => p.Name.ToUpper().Contains(name.ToUpper())).ToList();
+                List<Student> students = await _unitOfWork.Students.GetAllAsync(p => p.Name.ToUpper().Contains(name.ToUpper()));
                 var listDto = _mapper.Map<List<StudentGetDto>>(students);
                 return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
@@ -126,11 +127,11 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IDataResult<Student> GetById(int id)
+        public async Task<IDataResult<Student>> GetByIdAsync(int id)
         {
             try
             {
-                Student student = _unitOfWork.Students.Get(p => p.Id == id);
+                Student student = await _unitOfWork.Students.GetAsync(p => p.Id == id);
                 if (student != null)
                 {
                     return new SuccessDataResult<Student>(student, "Öğrenci başarı ile çekildi");
@@ -143,21 +144,21 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public IResult Update(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false)
+        public async Task<IResult> UpdateAsync(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false)
         {
             if (isDonationOrDeposit)
             {
-                return UpdateLocal(studentUpdateDto);
+                return await UpdateLocalAsync(studentUpdateDto);
             }
-            return HandleWithTransactionHelper.Handling(() =>
+            return await HandleWithTransactionHelper.Handling(async () =>
             {
-                return UpdateLocal(studentUpdateDto);
+                return await UpdateLocalAsync(studentUpdateDto);
             }, _unitOfWork);
         }
 
-        private IResult UpdateLocal(StudentUpdateDto studentUpdateDto)
+        private async Task<IResult> UpdateLocalAsync(StudentUpdateDto studentUpdateDto)
         {
-            var studentExisting = GetById(studentUpdateDto.Id);
+            var studentExisting = await GetByIdAsync(studentUpdateDto.Id);
             if (!studentExisting.Success)
             {
                 return new ErrorResult(studentExisting.Message);
@@ -171,9 +172,9 @@ namespace IKitaplik.Business.Concrete
             }
             student.CreatedDate = createdDate;
             student.UpdatedDate = DateTime.Now;
-            _unitOfWork.Students.Update(student);
+            await _unitOfWork.Students.UpdateAsync(student);
 
-            var movementResponse = _movementService.Add(new Movement
+            var movementResponse = await _movementService.AddAsync(new Movement
             {
                 StudentId = student.Id,
                 MovementDate = DateTime.Now,

@@ -11,13 +11,13 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IStudentService
     {
-        IResult Add(StudentAddDto studentAddDto);
-        IResult Update(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false);
-        IResult Delete(int id);
+        Task<IResult> AddAsync(StudentAddDto studentAddDto);
+        Task<IResult> UpdateAsync(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false);
+        Task<IResult> DeleteAsync(int id);
 
-        IDataResult<List<StudentGetDto>> GetAll();
-        IDataResult<List<StudentGetDto>> GetAllActive();
-        IDataResult<List<StudentGetDto>> GetAllByName(string name);
-        IDataResult<Student> GetById(int id);
+        Task<IDataResult<List<StudentGetDto>>> GetAllAsync();
+        Task<IDataResult<List<StudentGetDto>>> GetAllActiveAsync();
+        Task<IDataResult<List<StudentGetDto>>> GetAllByNameAsync(string name);
+        Task<IDataResult<Student>> GetByIdAsync(int id);
     }
 }

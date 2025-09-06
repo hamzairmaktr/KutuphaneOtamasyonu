@@ -14,5 +14,7 @@ namespace IKitaplik.DataAccess.Abstract
     {
         List<MovementGetDTO> GetAllDTO(Expression<Func<MovementGetDTO, bool>> filter = null);
         MovementGetDTO GetDTO(Expression<Func<MovementGetDTO, bool>> filter);
+        Task<List<MovementGetDTO>> GetAllDTOAsync(Expression<Func<MovementGetDTO, bool>> filter = null);
+        Task<MovementGetDTO> GetDTOAsync(Expression<Func<MovementGetDTO, bool>> filter);
     }
 }

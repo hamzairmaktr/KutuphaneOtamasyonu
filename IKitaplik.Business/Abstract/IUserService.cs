@@ -11,9 +11,9 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IUserService
     {
-        IResult Register(UserRegisterDto userRegisterDto);
-        IDataResult<User> Login(UserLoginDto userLoginDto);
-        IDataResult<User> GetByRefreshToken(string refreshToken);
-        IResult SetRefreshToken(string refreshToken, DateTime refreshTokenExpiryTime,int id);
+        Task<IResult> RegisterAsync(UserRegisterDto userRegisterDto);
+        Task<IDataResult<User>> LoginAsync(UserLoginDto userLoginDto);
+        Task<IDataResult<User>> GetByRefreshTokenAsync(string refreshToken);
+        Task<IResult> SetRefreshTokenAsync(string refreshToken, DateTime refreshTokenExpiryTime,int id);
     }
 }

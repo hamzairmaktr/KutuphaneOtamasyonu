@@ -6,6 +6,7 @@ using IKitaplik.Entities.DTOs.BookDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IKitaplik.Api.Controllers
 {
@@ -21,91 +22,91 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getall")]
-        public ActionResult GetAll()
+        public async Task<ActionResult> GetAll()
         {
-            var res = _bookService.GetAll();
+            var res = await _bookService.GetAllAsync();
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpGet("getallisactive")]
-        public ActionResult GetAllActive()
+        public async Task<ActionResult> GetAllActive()
         {
-            var res = _bookService.GetAllActive();
+            var res = await _bookService.GetAllActiveAsync();
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpPost("add")]
-        public ActionResult Add([FromBody] BookAddDto bookAddDto)
+        public async Task<ActionResult> Add([FromBody] BookAddDto bookAddDto)
         {
-            var res = _bookService.Add(bookAddDto);
+            var res = await _bookService.AddAsync(bookAddDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpPost("bookAddPiece")]
-        public ActionResult BookAddPiece([FromBody] BookAddPieceDto bookAddPieceDto)
+        public async Task<ActionResult> BookAddPiece([FromBody] BookAddPieceDto bookAddPieceDto)
         {
-            var res = _bookService.BookAddedPiece(bookAddPieceDto);
+            var res = await _bookService.BookAddedPieceAsync(bookAddPieceDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpPost("update")]
-        public ActionResult Update([FromBody] BookUpdateDto bookUpdateDto)
+        public async Task<ActionResult> Update([FromBody] BookUpdateDto bookUpdateDto)
         {
-            var res = _bookService.Update(bookUpdateDto);
+            var res = await _bookService.UpdateAsync(bookUpdateDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpPost("delete")]
-        public ActionResult Delete([FromBody] DeleteDto deleteDto)
+        public async Task<ActionResult> Delete([FromBody] DeleteDto deleteDto)
         {
-            var res = _bookService.Delete(deleteDto.Id);
+            var res = await _bookService.DeleteAsync(deleteDto.Id);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpGet("getallfilter")]
-        public IActionResult GetAllFilter([FromQuery] BookFilterDto bookFilterDto)
+        public async Task<IActionResult> GetAllFilter([FromQuery] BookFilterDto bookFilterDto)
         {
-            var res = _bookService.GetAllFiltered(bookFilterDto);
+            var res = await _bookService.GetAllFilteredAsync(bookFilterDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpGet("getAllByName")]
-        public IActionResult GetAllByName([FromQuery] string name)
+        public async Task<IActionResult> GetAllByName([FromQuery] string name)
         {
-            var res = _bookService.GetAllByName(name);
+            var res = await _bookService.GetAllByNameAsync(name);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpGet("getById")]
-        public ActionResult GetById([FromQuery] int id)
+        public async Task<ActionResult> GetById([FromQuery] int id)
         {
-            var res = _bookService.GetById(id);
+            var res = await _bookService.GetByIdAsync(id);
             if(res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
 
         [HttpGet("getByBarcode")]
-        public ActionResult GetByBarcode([FromQuery] string barcode)
+        public async Task<ActionResult> GetByBarcode([FromQuery] string barcode)
         {
-            var res = _bookService.GetByBarcode(barcode);
+            var res = await _bookService.GetByBarcodeAsync(barcode);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
 
         [HttpPost("bookAddedPiece")]
-        public IActionResult BookAddedPiece(BookAddPieceDto bookAddPieceDto)
+        public async Task<IActionResult> BookAddedPiece(BookAddPieceDto bookAddPieceDto)
         {
-            var res = _bookService.BookAddedPiece(bookAddPieceDto);
+            var res = await _bookService.BookAddedPieceAsync(bookAddPieceDto);
             if(res.Success)
                 return Ok(res);
             return BadRequest(res);
