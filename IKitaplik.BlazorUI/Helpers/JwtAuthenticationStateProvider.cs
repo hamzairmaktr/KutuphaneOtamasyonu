@@ -19,6 +19,16 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
             if (string.IsNullOrWhiteSpace(token))
                 return await MarkAsUnauthorize();
             var readJwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var expClaim = readJwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
+            if (expClaim != null && long.TryParse(expClaim, out var expUnix))
+            {
+                var expDate = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+                if (expDate < DateTime.UtcNow)
+                {
+                    await _authService.RefresToken();
+                    return await GetAuthenticationStateAsync();
+                }
+            }
             var identity = new ClaimsIdentity(readJwt.Claims, "JWT");
             var principal = new ClaimsPrincipal(identity);
             return await Task.FromResult(new AuthenticationState(principal));
