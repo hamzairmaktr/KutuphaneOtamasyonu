@@ -28,6 +28,7 @@ builder.Services.AddScoped<IDonationRepository, EfDonationRepository>();
 builder.Services.AddScoped<IMovementRepository, EfMovomentRepository>();
 builder.Services.AddScoped<IWriterRepository, EfWriterRepository>();
 builder.Services.AddScoped<IUserRepository, EfUserRepository>();
+builder.Services.AddScoped<IImageRepository, EfImageRepository>();
 
 builder.Services.AddScoped<IBookService, BookManager>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
@@ -37,6 +38,7 @@ builder.Services.AddScoped<IDonationService, DonationManager>();
 builder.Services.AddScoped<IMovementService, MovementManager>();
 builder.Services.AddScoped<IWriterService, WriterManager>();
 builder.Services.AddScoped<IUserService, UserManager>();
+builder.Services.AddScoped<IImageService, ImageManager>();
 builder.Services.AddScoped<JwtService>();
 
 
@@ -121,6 +123,9 @@ if (app.Environment.IsDevelopment())
     });
     app.MapOpenApi();
 }
+
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 app.UseRateLimiter();

@@ -119,5 +119,17 @@ namespace Core.DataAccess.EntityFramework
                 deletedEntity.State = EntityState.Detached;
             }
         }
+
+        public void DeleteRange(List<TEntity> entities)
+        {
+            foreach (var entity in entities)
+                Delete(entity);
+        }
+
+        public async Task DeleteRangeAsync(List<TEntity> entities)
+        {
+            foreach (var entity in entities)
+                await DeleteAsync(entity);
+        }
     }
 }

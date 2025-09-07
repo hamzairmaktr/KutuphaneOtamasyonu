@@ -35,6 +35,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IDepositService, DepositService>();
 builder.Services.AddScoped<IDonationService, DonationService>();
 builder.Services.AddScoped<IMovementService, MovementService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

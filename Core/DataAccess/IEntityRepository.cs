@@ -19,5 +19,7 @@ namespace Core.DataAccess
         Task UpdateAsync(T entity);
         void Delete(T entity);
         Task DeleteAsync(T entity);
+        void DeleteRange(List<T> entities);
+        Task DeleteRangeAsync(List<T> entities);
     }
 }

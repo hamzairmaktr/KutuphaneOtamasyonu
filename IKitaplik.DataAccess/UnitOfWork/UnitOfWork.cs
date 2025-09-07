@@ -16,6 +16,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
         public IStudentRepository Students { get; private set; }
         public IWriterRepository Writer { get; private set; }
         public IUserRepository Users { get; private set; }
+        public IImageRepository Images { get; private set; }
         public UnitOfWork(Context context)
         {
             _context = context;
@@ -27,6 +28,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
             Students = new EfStudentRepository(_context);
             Writer = new EfWriterRepository(_context);
             Users = new EfUserRepository(_context);
+            Images = new EfImageRepository(_context);
         }
 
         public void BeginTransaction()

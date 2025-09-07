@@ -55,5 +55,6 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         public DbSet<Movement> Movements { get; set; }
         public DbSet<Writer> Writers { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Image> Images { get; set; }
     }
 }
