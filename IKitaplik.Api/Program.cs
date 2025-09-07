@@ -7,9 +7,11 @@ using IKitaplik.DataAccess.Abstract;
 using IKitaplik.DataAccess.Concrete.EntityFramework;
 using IKitaplik.DataAccess.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +60,27 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+          RateLimitPartition.GetTokenBucketLimiter(
+              partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Host.ToString(),
+              factory: partition => new TokenBucketRateLimiterOptions
+              {
+                  AutoReplenishment = true,
+                  TokenLimit = 50,
+                  TokensPerPeriod = 20,
+                  ReplenishmentPeriod = TimeSpan.FromSeconds(60),
+              })
+          );
+    options.RejectionStatusCode = 429;
+    options.OnRejected = (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.Headers["Retry-After"] = "60";
+        return ValueTask.CompletedTask;
+    };
+});
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -100,7 +123,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseRateLimiter();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
