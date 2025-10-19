@@ -4,6 +4,7 @@
 @inject IWriterService _writerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
+@inject IDialogService DialogService
 @attribute [Authorize]
 
 
@@ -30,8 +31,8 @@
         <MudSelectItem Value="@writer">@writer.WriterName</MudSelectItem>
     }
 </MudSelect>
-
-<MudButton OnClick="Kaydet" Class="mt-2" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.Save" Color="Color.Info">Kaydet</MudButton>
+<MudButton OnClick="ResimEkle" Class="mt-2" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.FileUpload" Color="Color.Tertiary">Resim Ekle</MudButton>
+<MudButton OnClick="Kaydet" Class="mt-2 ms-1" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.Filled.Save" Color="Color.Info">Kaydet</MudButton>
 <MudButton OnClick="Vazgec" Class="mt-2 ms-1" Variant="Variant.Filled" ButtonType="ButtonType.Button" EndIcon="@Icons.Material.TwoTone.Cancel" Color="Color.Error">Vazgeç</MudButton>
 
 
@@ -105,7 +106,6 @@
         }
     }
 
-
     private void Vazgec(MouseEventArgs args)
     {
         Nav.NavigateTo("book/list");
@@ -133,5 +133,22 @@
 
         Snackbar.Add(res.Message, Severity.Success);
         Nav.NavigateTo("book/list");
+    }
+    private async Task ResimEkle(MouseEventArgs args)
+    {
+        DialogParameters parameters = new DialogParameters
+        {
+            {"Type", ImageType.Book},
+            {"RelationshipId",Id}
+        };
+        DialogOptions dialogOptions = new DialogOptions
+        {
+            BackdropClick = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Large,
+            FullWidth = true,
+            CloseOnEscapeKey = true,
+        };
+        var res = await DialogService.ShowAsync<_ImageUploadComponent>($"{name} Adlı Kitap İçin Resim Ekleme", parameters, dialogOptions);
     }
 }

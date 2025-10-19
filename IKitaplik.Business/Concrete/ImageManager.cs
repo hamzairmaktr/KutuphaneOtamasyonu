@@ -69,6 +69,32 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
+        public async Task<IResult> DeleteRangeAsync(int[] ids)
+        {
+            try
+            {
+                List<Image> images = new List<Image>();
+                foreach (int id in ids)
+                {
+                    var entityRes = await GetByIdAsync(id);
+                    if (!entityRes.Success)
+                    {
+                        return new ErrorResult(entityRes.Message);
+                    }
+                    images.Add(entityRes.Data);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", entityRes.Data.FilePath.TrimStart('/'));
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+                }
+                await _unitOfWork.Images.DeleteRangeAsync(images);
+                return new SuccessResult($"{ids.Length} adet resim silindi");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult("Resimler silinirken hata oluştu : " + ex.Message);
+            }
+        }
+
         public async Task<IDataResult<List<Image>>> GetAllAsync(ImageType? type = null, int? relationshipId = 0)
         {
             try
@@ -115,43 +141,48 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public async Task<IDataResult<Image>> UploadAsync(ImageUploadDto imageUploadDto)
+        public async Task<IDataResult<List<Image>>> UploadAsync(ImageUploadDto imageUploadDto)
         {
             try
             {
-                if (imageUploadDto.File is null || imageUploadDto.File.Length == 0)
-                    return new ErrorDataResult<Image>("Dosya boş");
-
-                var allowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
-                if (!allowedTypes.Contains(imageUploadDto.File.ContentType))
-                    return new ErrorDataResult<Image>("Desteklenmeyen dosya formatı.");
-
-                if (!Directory.Exists(_uploadPath))
-                    Directory.CreateDirectory(_uploadPath);
-
-                var fileName = Guid.NewGuid() + Path.GetExtension(imageUploadDto.File.FileName);
-                var filePath = Path.Combine(_uploadPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                List<Image> addedImages = new List<Image>();
+                foreach (var file in imageUploadDto.Files)
                 {
-                    await imageUploadDto.File.CopyToAsync(stream);
+                    if (file is null || file.Length == 0)
+                        return new ErrorDataResult<List<Image>>("Dosya boş");
+
+                    var allowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
+                    if (!allowedTypes.Contains(file.ContentType))
+                        return new ErrorDataResult<List<Image>>("Desteklenmeyen dosya formatı.");
+
+                    if (!Directory.Exists(_uploadPath))
+                        Directory.CreateDirectory(_uploadPath);
+
+                    var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(_uploadPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                    var image = new Image
+                    {
+                        CreatedDate = DateTime.Now,
+                        ImageType = imageUploadDto.ImageType,
+                        RelationshipId = imageUploadDto.RelationshipId,
+                        FileName = file.FileName,
+                        FilePath = $"/images/{fileName}",
+                        ContentType = file.ContentType,
+                    };
+                    addedImages.Add(image);
                 }
 
-                var image = new Image
-                {
-                    CreatedDate = DateTime.Now,
-                    ImageType = imageUploadDto.ImageType,
-                    RelationshipId = imageUploadDto.RelationshipId,
-                    FileName = imageUploadDto.File.FileName,
-                    FilePath = $"/images/{fileName}",
-                    ContentType = imageUploadDto.File.ContentType,
-                };
-                await _unitOfWork.Images.AddAsync(image);
-                return new SuccessDataResult<Image>(image);
+                await _unitOfWork.Images.AddRangeAsync(addedImages);
+                return new SuccessDataResult<List<Image>>(addedImages, $"{addedImages.Count} adet resim eklendi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<Image>("Resim eklenirken hata oluştu");
+                return new ErrorDataResult<List<Image>>("Resim eklenirken hata oluştu");
             }
         }
     }

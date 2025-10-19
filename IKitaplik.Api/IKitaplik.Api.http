@@ -1,6 +1,3 @@
 @IKitaplik.Api_HostAddress = https://localhost:7228
 
-GET {{IKitaplik.Api_HostAddress}}/Book/getall
-Accept: application/json
-
-###
+GET http://localhost:7228/api/Book/getall

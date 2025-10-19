@@ -1,0 +1,154 @@
+﻿@using IKitaplik.Entities.DTOs.ImagesDTOs
+@inject IImageService _imageService
+@inject ISnackbar Snackbar
+<MudDialog>
+	<DialogContent>
+		@if (!string.IsNullOrEmpty(_errorMessage))
+		{
+			<MudAlert Class="my-3" Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+		}
+		<MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+			<ActivatorContent>
+				<MudButton Variant="Variant.Filled"
+						   Color="Color.Primary"
+						   StartIcon="@Icons.Material.Filled.CloudUpload">
+					Resim Ekle
+				</MudButton>
+			</ActivatorContent>
+		</MudFileUpload>
+
+		<div class="d-flex flex-wrap gap-4 mt-4">
+			@foreach (var item in _files.Where(p => !p.isDeleted))
+			{
+				<div class="position-relative">
+					<MudImage Src="@item.PreviewUrl" Width="150" Height="150" Elevation="25" />
+					<MudIconButton Icon="@Icons.Material.Filled.Close"
+								   Color="Color.Error"
+								   Size="Size.Small"
+								   Class="position-absolute top-0 end-0"
+								   OnClick="@(() => RemoveFile(item))" />
+				</div>
+			}
+		</div>
+	</DialogContent>
+	<DialogActions>
+		<MudButton OnClick="Vazgec" Variant="Variant.Filled" ButtonType="ButtonType.Button" Color="Color.Error">Vazgeç</MudButton>
+		<MudButton OnClick="Kaydet" Variant="Variant.Filled" ButtonType="ButtonType.Button" Color="Color.Info">Kaydet</MudButton>
+	</DialogActions>
+</MudDialog>
+@code {
+	[CascadingParameter]
+	IMudDialogInstance Dialog { get; set; }
+
+	[Parameter]
+	public ImageType Type { get; set; }
+	[Parameter]
+	public int RelationshipId { get; set; }
+
+	private string _errorMessage = "";
+	private List<LocalImage> _files = new();
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			var res = await _imageService.GetAll(Type, RelationshipId);
+			if (res.Success)
+			{
+				foreach (var item in res.Data)
+				{
+					string url = Settings.fileUrl + item.FilePath;
+					_files.Add(new LocalImage
+					{
+						PreviewUrl = url,
+						Id = item.Id
+					});
+				}
+			}
+			StateHasChanged();
+		}
+	}
+
+	public class LocalImage
+	{
+		public int Id { get; set; } = 0;
+		public IBrowserFile File { get; set; } = default!;
+		public string PreviewUrl { get; set; } = string.Empty;
+		public bool isDeleted { get; set; }
+	}
+
+	private async Task UploadFiles(IBrowserFile file)
+	{
+		if (file.Size > 2 * 1024 * 1024) // 2MB sınırı
+		{
+			_errorMessage = "Dosya boyutu çok büyük!";
+			StateHasChanged();
+			return;
+		}
+		if (!file.ContentType.StartsWith("image/"))
+		{
+			_errorMessage = "Sadece resim dosyaları yüklenebilir!";
+			StateHasChanged();
+			return;
+		}
+		var url = await CreatePreviewUrl(file);
+		_files.Add(new LocalImage { File = file, PreviewUrl = url });
+	}
+
+	private async Task<string> CreatePreviewUrl(IBrowserFile file)
+	{
+		using var stream = file.OpenReadStream();
+		using var ms = new MemoryStream();
+		await stream.CopyToAsync(ms);
+		var base64 = Convert.ToBase64String(ms.ToArray());
+		return $"data:{file.ContentType};base64,{base64}";
+	}
+
+	private void RemoveFile(LocalImage file)
+	{
+		if (file.Id > 0)
+		{
+			file.isDeleted = true;
+		}
+	}
+
+	private void Vazgec(MouseEventArgs e)
+	{
+		Dialog.Cancel();
+	}
+
+	private async Task Kaydet()
+	{
+		_errorMessage = "";
+		if (_files.Any())
+		{
+			ImageUploadDto addedImages = new ImageUploadDto
+			{
+				RelationshipId = RelationshipId,
+				ImageType = Type
+			};
+			foreach (var item in _files)
+			{
+				if (item.Id == 0)
+				{
+					IFormFile file = await FileConverter.ConvertToIFormFile(item.File);
+					addedImages.Files.Add(file);
+				}
+			}
+			if (addedImages?.Files?.Any() ?? false)
+			{
+				var res = await _imageService.Upload(addedImages);
+				Snackbar.Add(res.Message, res.Success ? Severity.Success : Severity.Error);
+			}
+			if (_files.Where(p => p.isDeleted).Count() > 0)
+			{
+				var res = await _imageService.DeleteRange(_files.Where(p => p.isDeleted).Select(p => p.Id).ToList());
+				Snackbar.Add(res.Message, res.Success ? Severity.Success : Severity.Error);
+			}
+			Snackbar.Add("İlgili işlemler tamamlandı", Severity.Info);
+		}
+		else
+			_errorMessage = "İşlem yapmak için resim ekleyin";
+		Dialog.Close();
+	}
+}

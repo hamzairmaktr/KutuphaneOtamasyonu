@@ -14,16 +14,18 @@ namespace IKitaplik.Business.Concrete
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMovementService _movementService;
         private readonly IMapper _mapper;
-
+        private readonly IImageService _imageService;
         public StudentManager(IValidator<Student> validator,
                               IUnitOfWork unitOfWork,
                               IMovementService movementService,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IImageService imageService)
         {
             _movementService = movementService;
             _unitOfWork = unitOfWork;
             _validator = validator;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
         public async Task<IResult> AddAsync(StudentAddDto studentAddDto)
@@ -66,7 +68,7 @@ namespace IKitaplik.Business.Concrete
                 if (!student.Success)
                     return new ErrorResult(student.Message);
                 await _unitOfWork.Students.DeleteAsync(student.Data);
-
+                await _imageService.DeleteAllAsync(Entities.Enums.ImageType.Student, id);
                 var movementResponse = await _movementService.AddAsync(new Movement
                 {
                     StudentId = student.Data.Id,

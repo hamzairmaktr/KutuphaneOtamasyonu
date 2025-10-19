@@ -16,17 +16,20 @@ namespace IKitaplik.Business.Concrete
         private readonly IMovementService _movementService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
         public DepositManager(IBookService bookService,
                               IStudentService studentService,
                               IMovementService movementService,
                               IUnitOfWork unitOfWork,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _movementService = movementService;
             _bookService = bookService;
             _studentService = studentService;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
         public async Task<IResult> DepositGivenAsync(DepositAddDto depositAddDto)
@@ -88,6 +91,7 @@ namespace IKitaplik.Business.Concrete
                 if (!deposit.Success)
                     return new ErrorResult(deposit.Message);
                 _unitOfWork.Deposits.Delete(deposit.Data);
+                await _imageService.DeleteAllAsync(Entities.Enums.ImageType.Deposit, id);
                 await AddMovementAsync("Emanet Kaydı Silindi", "Emanet kaydı silindi.", deposit.Data.BookId, deposit.Data.StudentId, deposit.Data.Id);
                 return new SuccessResult("Emanet kaydı başarıyla silindi.");
             }, _unitOfWork);

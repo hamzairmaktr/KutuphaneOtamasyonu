@@ -14,11 +14,13 @@ namespace IKitaplik.Business.Concrete
         private IUnitOfWork _unitOfWork;
         private readonly IValidator<Writer> _validator;
         IMapper _mapper;
-        public WriterManager(IUnitOfWork unitOfWork, IValidator<Writer> validator, IMapper mapper)
+        private readonly IImageService _imageService;
+        public WriterManager(IUnitOfWork unitOfWork, IValidator<Writer> validator, IMapper mapper,IImageService imageService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _validator = validator;
+            _imageService = imageService;
         }
         public async Task<IResult> AddAsync(WriterAddDto writerAddDto)
         {
@@ -44,6 +46,7 @@ namespace IKitaplik.Business.Concrete
                 if (!writer.Success)
                     return new ErrorResult(writer.Message);
                 await _unitOfWork.Writer.DeleteAsync(writer.Data);
+                await _imageService.DeleteAllAsync(Entities.Enums.ImageType.Writer, id);
                 return new SuccessResult("Yazar silindi");
             }, _unitOfWork);
         }

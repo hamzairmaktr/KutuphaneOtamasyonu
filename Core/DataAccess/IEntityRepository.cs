@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,6 +16,8 @@ namespace Core.DataAccess
         Task<T> GetAsync(Expression<Func<T, bool>> filter);
         void Add(T entity);
         Task AddAsync(T entity);
+        void AddRange(List<T> entities);
+        Task AddRangeAsync(List<T> entities);
         void Update(T entity);
         Task UpdateAsync(T entity);
         void Delete(T entity);

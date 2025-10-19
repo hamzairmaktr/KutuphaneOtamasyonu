@@ -131,5 +131,16 @@ namespace Core.DataAccess.EntityFramework
             foreach (var entity in entities)
                 await DeleteAsync(entity);
         }
+
+        public void AddRange(List<TEntity> entities)
+        {
+            _context.AddRange(entities);
+        }
+
+        public async Task AddRangeAsync(List<TEntity> entities)
+        {
+            await _context.AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -16,13 +16,15 @@ namespace IKitaplik.Business.Concrete
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMovementService _movementService;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
 
-        public BookManager(IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork, IMapper mapper)
+        public BookManager(IValidator<Book> validator, IMovementService movementService, IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService)
         {
             _movementService = movementService;
             _unitOfWork = unitOfWork;
             _validator = validator;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
         public async Task<IDataResult<Book>> AddAsync(BookAddDto bookAddDto, bool isDonation = false)
@@ -50,6 +52,7 @@ namespace IKitaplik.Business.Concrete
                     return new ErrorResult(res.Message);
                 }
                 await _unitOfWork.Books.DeleteAsync(res.Data);
+                await _imageService.DeleteAllAsync(Entities.Enums.ImageType.Book, id);
                 _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile silindi");
 

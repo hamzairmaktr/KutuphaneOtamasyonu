@@ -31,7 +31,6 @@ namespace IKitaplik.Api.Controllers
             }
             return BadRequest(res);
         }
-
         [HttpGet("getAll")]
         public async Task<IActionResult> GetAll([FromQuery] ImageType? type = null, int relantshipId = 0)
         {
@@ -54,11 +53,20 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
 
-        [HttpPost("delete")] 
+        [HttpPost("delete")]
         public async Task<IActionResult> Delete([FromBody] DeleteDto deleteDto)
-        { 
-            var deleted = await _imageService.DeleteAsync(deleteDto.Id); 
-            if (deleted.Success) 
+        {
+            var deleted = await _imageService.DeleteAsync(deleteDto.Id);
+            if (deleted.Success)
+                return Ok(deleted);
+            return BadRequest(deleted);
+        }
+
+        [HttpPost("deleteRange")]
+        public async Task<IActionResult> DeleteRange([FromBody] List<DeleteDto> deleteDtos)
+        {
+            var deleted = await _imageService.DeleteRangeAsync(deleteDtos.Select(p => p.Id).ToArray());
+            if (deleted.Success)
                 return Ok(deleted);
             return BadRequest(deleted);
         }

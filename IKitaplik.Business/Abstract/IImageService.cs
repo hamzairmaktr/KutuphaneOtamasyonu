@@ -12,10 +12,11 @@ namespace IKitaplik.Business.Abstract
 {
     public interface IImageService
     {
-        Task<IDataResult<Image>> UploadAsync(ImageUploadDto imageUploadDto);
+        Task<IDataResult<List<Image>>> UploadAsync(ImageUploadDto imageUploadDto);
         Task<IDataResult<Image>> GetByIdAsync(int id);
         Task<IDataResult<List<Image>>> GetAllAsync(ImageType? type = null, int? relantshipId = 0);
         Task<IResult> DeleteAsync(int id);
+        Task<IResult> DeleteRangeAsync(int[] ids);
         Task<IResult> DeleteAllAsync(ImageType type, int relantshipId);
     }
 }

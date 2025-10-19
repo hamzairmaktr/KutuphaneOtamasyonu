@@ -12,6 +12,6 @@ namespace IKitaplik.Entities.DTOs.ImagesDTOs
     {
         public ImageType ImageType { get; set; }
         public int RelationshipId { get; set; }
-        public IFormFile File { get; set; }
+        public List<IFormFile> Files { get; set; } = new List<IFormFile>();
     }
 }

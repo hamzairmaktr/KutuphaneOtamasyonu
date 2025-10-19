@@ -11,6 +11,7 @@ namespace IKitaplik.Entities.Enums
         Deposit = 1,
         Book = 2,
         Student = 3,
-        User = 4
+        User = 4,
+        Writer = 5
     }
 }

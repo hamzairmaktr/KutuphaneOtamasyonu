@@ -39,6 +39,23 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
+        public async Task<Response> DeleteRange(List<int> ids)
+        {
+            string token = await _authService.GetToken() ?? "";
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                List<DeleteDto> deleteDtos = ids.Select(id => new DeleteDto { Id = id }).ToList();
+                var res = await _httpClient.PostAsJsonAsync("image/deleteRange", deleteDtos);
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
+            }
+            else
+            {
+                return await Task.FromException<Response>(new Exception("Login Olunamadı"));
+            }
+        }
+
         public async Task<Response<List<Image>>> GetAll(ImageType? type = null, int relationshipId = 0)
         {
             string token = await _authService.GetToken();
@@ -72,12 +89,14 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 using var content = new MultipartFormDataContent();
+                foreach (var item in imageUploadDto.Files)
+                {
+                    var fileStream = item.OpenReadStream();
+                    var fileContent = new StreamContent(fileStream);
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(item.ContentType);
+                    content.Add(fileContent, "File", item.Name);
+                }
 
-                var fileStream = imageUploadDto.File.OpenReadStream();
-                var fileContent = new StreamContent(fileStream);
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue(imageUploadDto.File.ContentType);
-
-                content.Add(fileContent, "File", imageUploadDto.File.Name);
                 content.Add(new StringContent(((int)imageUploadDto.ImageType).ToString()), "ImageType");
                 content.Add(new StringContent(imageUploadDto.RelationshipId.ToString()), "RelationshipId");
 
@@ -90,6 +109,5 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 return await Task.FromException<Response<Image>>(new Exception("Login Olunamadı"));
             }
         }
-
     }
 }

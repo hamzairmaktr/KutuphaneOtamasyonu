@@ -10,5 +10,6 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response<Image>> Upload(ImageUploadDto imageUploadDto);
         Task<Response<List<Image>>> GetAll(ImageType? type = null, int relationshipId = 0);
         Task<Response> Delete(int id);
+        Task<Response> DeleteRange(List<int> ids);
     }
 }
