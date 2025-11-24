@@ -14,7 +14,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(_configuration.GetConnectionString("conStringLocal"));
+            options.UseSqlServer(_configuration.GetConnectionString("conStringGlobal"));
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

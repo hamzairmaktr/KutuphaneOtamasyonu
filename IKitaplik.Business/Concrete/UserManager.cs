@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Concrete
@@ -48,6 +49,12 @@ namespace IKitaplik.Business.Concrete
             var exists = await _unitOfWork.Users.GetAsync(u => u.Username == userRegisterDto.Username);
             if (exists != null) return new ErrorResult("Username already exists");
 
+            var res = _userValidator.ValidateAsync(userRegisterDto).GetAwaiter().GetResult();
+            if (!res.IsValid)
+            {
+                return new ErrorResult(res.Errors.FirstOrDefault()!.ToString());
+            }
+
             var user = new User
             {
                 Username = userRegisterDto.Username,
@@ -56,7 +63,7 @@ namespace IKitaplik.Business.Concrete
                 PasswordHash = PasswordHasher.Hash(userRegisterDto.Password),
                 Role = "User"
             };
-
+           
             _unitOfWork.Users.Add(user);
             return new SuccessResult("Kullanıcı eklendi");
         }

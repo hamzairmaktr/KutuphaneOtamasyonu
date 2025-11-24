@@ -107,6 +107,11 @@ namespace IKitaplik.Business.Concrete
                 else
                     deposit.DeliveryDate = deposit.DeliveryDate.AddDays(depositExtentDueDateDto.AdditionalDays.GetValueOrDefault());
 
+                var book = await _bookService.GetByIdAsync(deposit.BookId);
+                var student = await _studentService.GetByIdAsync(deposit.StudentId);
+
+                await AddMovementAsync("Emanete Ekstra Süre Verildi", $"{student.Data.Name} adlı öğrenci aldığı {book.Data.Name} adlı kitabı zamanında teslim edemediğinden ilgili teslim tarihi ertelendi. Yeni Tarih : {deposit.DeliveryDate.ToString("dd.MM.yyyy")}",deposit.BookId,deposit.StudentId,deposit.Id);
+
                 await _unitOfWork.Deposits.UpdateAsync(deposit);
                 return new SuccessResult("Emanete ek süre verildi.");
             }, _unitOfWork);

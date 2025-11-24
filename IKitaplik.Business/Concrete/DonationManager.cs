@@ -29,10 +29,6 @@ namespace IKitaplik.Business.Concrete
             return await HandleWithTransactionHelper.Handling(async () =>
             {
                 var res = await _unitOfWork.Donations.GetAsync(p => p.BookId == donationAddDto.BookId);
-                if (res is not null)
-                {
-                    return new ErrorResult("Bu Kitap zaten bağış olarak eklenmiş");
-                }
                 var donation = _mapper.Map<Donation>(donationAddDto);
                 donation.CreatedDate = DateTime.Now;
 
