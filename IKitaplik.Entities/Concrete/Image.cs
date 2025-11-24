@@ -15,5 +15,7 @@ namespace IKitaplik.Entities.Concrete
         public string ContentType { get; set; }
         public ImageType ImageType { get; set; }
         public int RelationshipId { get; set; }
+        public User User { get; set; }
+
     }
 }

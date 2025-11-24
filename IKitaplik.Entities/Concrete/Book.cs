@@ -17,7 +17,8 @@ namespace IKitaplik.Entities.Concrete
         public int Piece { get; set; }
         public bool Situation { get; set; }
         public int PageSize { get; set; }
-
+       
+        public User User { get; set; }
         public Writer Writer { get; set; }
         public Category Category { get; set; }
         public ICollection<Deposit> Deposits { get; set; }

@@ -14,6 +14,8 @@ namespace IKitaplik.Entities.Concrete
         public DateTime? DeathDate { get; set; }
         public string Biography { get; set; }
 
+        public User User { get; set; }
+
         public ICollection<Book> Books { get; set; }
     }
 }

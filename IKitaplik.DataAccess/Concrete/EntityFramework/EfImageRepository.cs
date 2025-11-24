@@ -1,4 +1,5 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using Core.Contexts;
+using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using System;
@@ -11,7 +12,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
 {
     public class EfImageRepository : EfEntityRepositoryBase<Image, Context>, IImageRepository
     {
-        public EfImageRepository(Context context) : base(context)
+        public EfImageRepository(Context context,IUserContext userContext) : base(context, userContext)
         {
         }
     }

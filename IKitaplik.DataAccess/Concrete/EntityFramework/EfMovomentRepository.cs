@@ -1,4 +1,5 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using Core.Contexts;
+using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
@@ -15,7 +16,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
     public class EfMovomentRepository : EfEntityRepositoryBase<Movement, Context>, IMovementRepository
     {
         Context _context;
-        public EfMovomentRepository(Context context) : base(context)
+        public EfMovomentRepository(Context context,IUserContext userContext) : base(context,userContext)
         {
             _context = context;
         }

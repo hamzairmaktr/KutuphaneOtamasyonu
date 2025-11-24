@@ -61,6 +61,16 @@
                     Emanetler
                 </MudNavLink>
             </MudNavGroup>
+
+            @if (context.User.IsInRole("Admin"))
+            {
+                <MudNavGroup Title="Kullanıcılar" Icon="@Icons.Material.Filled.Person">
+                    <MudNavLink Href="/user/list">
+                        <MudIcon Icon="@Icons.Material.Filled.List" />
+                        Kullanıcı Listesi
+                    </MudNavLink>
+                </MudNavGroup>
+            }
         </Authorized>
         <NotAuthorized>
             <MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Giriş Yap</MudNavLink>

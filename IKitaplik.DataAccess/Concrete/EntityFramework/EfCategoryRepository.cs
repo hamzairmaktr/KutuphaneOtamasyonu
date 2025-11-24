@@ -1,4 +1,5 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using Core.Contexts;
+using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
@@ -13,7 +14,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
 {
     public class EfCategoryRepository : EfEntityRepositoryBase<Category, Context>, ICategoryRepository
     {
-        public EfCategoryRepository(Context context) : base(context)
+        public EfCategoryRepository(Context context,IUserContext userContext) : base(context, userContext)
         {
         }
     }

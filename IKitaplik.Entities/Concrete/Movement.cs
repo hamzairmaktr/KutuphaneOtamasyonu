@@ -19,6 +19,8 @@ namespace IKitaplik.Entities.Concrete
         public int? DonationId { get; set; }
         public int? DepositId { get; set; }
 
+        public User User { get; set; }
+
         public Deposit? Deposit { get; set; } = null;
         public Donation? Donation { get; set; } = null;
         public Book? Book { get; set; } = null;

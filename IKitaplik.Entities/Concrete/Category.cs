@@ -10,6 +10,7 @@ namespace IKitaplik.Entities.Concrete
     public class Category:BaseEntities
     {
         public string Name { get; set; }
+        public User User { get; set; }
 
         public ICollection<Book> Books { get; set; }
     }

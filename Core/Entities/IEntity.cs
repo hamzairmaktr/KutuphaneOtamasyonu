@@ -10,5 +10,6 @@ namespace Core.Entities
 
     public interface IEntity
     {
+        bool IsDeleted { get; set; }
     }
 }

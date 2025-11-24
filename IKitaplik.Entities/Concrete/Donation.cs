@@ -13,6 +13,7 @@ namespace IKitaplik.Entities.Concrete
         public int StudentId { get; set; }
         public int BookId { get; set; }
         public bool? IsItDamaged { get; set; }
+        public User User { get; set; }
 
         public Student Student { get; set; }
         public Book Book { get; set; }

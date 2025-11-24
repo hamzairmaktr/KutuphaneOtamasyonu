@@ -18,6 +18,8 @@ namespace IKitaplik.Entities.Concrete
         public bool Situation { get; set; }
         public int Point { get; set; }
 
+        public User User { get; set; }
+
         public ICollection<Deposit> Deposits { get; set; }
         public ICollection<Donation> Donations { get; set; }
     }

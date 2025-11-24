@@ -1,4 +1,5 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using Core.Contexts;
+using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
@@ -15,7 +16,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
     public class EfBookRepository : EfEntityRepositoryBase<Book, Context>, IBookRepository
     {
         private readonly Context _context;
-        public EfBookRepository(Context context) : base(context)
+        public EfBookRepository(Context context,IUserContext context1) : base(context,context1)
         {
             this._context = context;
         }

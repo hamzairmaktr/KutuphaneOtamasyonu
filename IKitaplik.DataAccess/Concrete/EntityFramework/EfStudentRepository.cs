@@ -1,4 +1,5 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using Core.Contexts;
+using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using System;
@@ -13,7 +14,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
     {
         private readonly Context _context;
 
-        public EfStudentRepository(Context context) : base(context)
+        public EfStudentRepository(Context context,IUserContext userContext) : base(context, userContext)
         {
             this._context = context;
         }

@@ -17,6 +17,7 @@ namespace IKitaplik.Entities.Concrete
         public bool IsItDamaged { get; set; }
         public string Note { get; set; }
         public bool IsDelivered { get; set; } = false;
+        public User User { get; set; }
 
         public Book Book { get; set; }
         public Student Student { get; set; }

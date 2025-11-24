@@ -1,3 +1,4 @@
+using Core.Contexts;
 using FluentValidation;
 using IKitaplik.Api.Services;
 using IKitaplik.Business.Abstract;
@@ -18,7 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddDbContext<Context>();
 builder.Services.AddScoped<IBookRepository, EfBookRepository>();
 builder.Services.AddScoped<ICategoryRepository, EfCategoryRepository>();

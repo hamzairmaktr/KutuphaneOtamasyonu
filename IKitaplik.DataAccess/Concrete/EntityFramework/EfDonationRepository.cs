@@ -1,4 +1,5 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using Core.Contexts;
+using Core.DataAccess.EntityFramework;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.DonationDTOs;
@@ -15,7 +16,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
     public class EfDonationRepository : EfEntityRepositoryBase<Donation, Context>, IDonationRepository
     {
         Context _context;
-        public EfDonationRepository(Context context) : base(context)
+        public EfDonationRepository(Context context,IUserContext userContext) : base(context, userContext)
         {
             _context = context;
         }

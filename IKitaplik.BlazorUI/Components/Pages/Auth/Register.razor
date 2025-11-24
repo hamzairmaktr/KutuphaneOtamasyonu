@@ -3,14 +3,14 @@
 
 <MudForm>
     <MudText Typo="Typo.h4" Class="mb-4">Kayıt Ol</MudText>
-    <MudTextField Label="İsim Soyisim" @bind-Value="fullname" Required="true" RequiredError="İsim soyisim gereklidir." />
-    <MudTextField Label="Kullanıcı Adı" @bind-Value="username" Required="true" RequiredError="Kullanıcı adı gereklidir." />
-    <MudTextField Label="E-Mail" @bind-Value="email" Required="true" RequiredError="Email gereklidir." />
-    <MudTextField Label="Şifre" @bind-Value="password" Type="password" Required="true" RequiredError="Şifre gereklidir." />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@KayitOl">Kayıt Ol</MudButton>
+    <MudTextField Label="İsim Soyisim" @bind-Value="fullname" name="name" InputType="InputType.Text" Required="true" RequiredError="İsim soyisim gereklidir." />
+    <MudTextField Label="Kullanıcı Adı" @bind-Value="username" name="username" InputType="InputType.Text" Required="true" RequiredError="Kullanıcı adı gereklidir." />
+    <MudTextField Label="E-Mail" @bind-Value="email" name="email" Required="true" InputType="InputType.Email" RequiredError="Email gereklidir." />
+    <MudTextField Label="Şifre" @bind-Value="password" name="password" Type="password" InputType="InputType.Password" Required="true" RequiredError="Şifre gereklidir." />
+    <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" OnClick="@KayitOl">Kayıt Ol</MudButton>
     @if (errorMessage != null)
     {
-        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="mt-3">@errorMessage</MudAlert>
     }
 </MudForm>
 

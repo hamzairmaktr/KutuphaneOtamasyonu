@@ -7,8 +7,8 @@
     {
         <MudAlert Class="mt-3 mb-3" Severity="Severity.Error">@errorMessage</MudAlert>
     }
-    <MudTextField Class="mt-2" Label="Kullanıcı Adı" @bind-Value="username" Required="true" RequiredError="Kullanıcı adı gereklidir." />
-    <MudTextField Class="mt-2" Label="Şifre" @bind-Value="password" Type="password" Required="true" RequiredError="Şifre gereklidir." />
+    <MudTextField Class="mt-2" Label="Kullanıcı Adı" @bind-Value="username" InputType="InputType.Text" Required="true" RequiredError="Kullanıcı adı gereklidir." />
+    <MudTextField Class="mt-2" Label="Şifre" @bind-Value="password" InputType="InputType.Password" Required="true" RequiredError="Şifre gereklidir." />
     <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoginOl">Giriş Yap</MudButton>
 
 </MudForm>

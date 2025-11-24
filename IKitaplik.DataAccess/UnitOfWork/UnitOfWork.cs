@@ -1,4 +1,5 @@
-﻿using IKitaplik.DataAccess.Abstract;
+﻿using Core.Contexts;
+using IKitaplik.DataAccess.Abstract;
 using IKitaplik.DataAccess.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -8,6 +9,7 @@ namespace IKitaplik.DataAccess.UnitOfWork
     {
         private IDbContextTransaction _transaction;
         private readonly Context _context;
+        private readonly IUserContext _userContext;
         public IBookRepository Books { get; private set; }
         public ICategoryRepository Categorys { get; private set; }
         public IDepositRepository Deposits { get; private set; }
@@ -17,18 +19,19 @@ namespace IKitaplik.DataAccess.UnitOfWork
         public IWriterRepository Writer { get; private set; }
         public IUserRepository Users { get; private set; }
         public IImageRepository Images { get; private set; }
-        public UnitOfWork(Context context)
+        public UnitOfWork(Context context,IUserContext userContext)
         {
             _context = context;
-            Books = new EfBookRepository(_context);
-            Categorys = new EfCategoryRepository(_context);
-            Deposits = new EfDepositRepository(_context);
-            Donations = new EfDonationRepository(_context);
-            Movements = new EfMovomentRepository(_context);
-            Students = new EfStudentRepository(_context);
-            Writer = new EfWriterRepository(_context);
-            Users = new EfUserRepository(_context);
-            Images = new EfImageRepository(_context);
+            _userContext = userContext;
+            Books = new EfBookRepository(_context,userContext);
+            Categorys = new EfCategoryRepository(_context,userContext);
+            Deposits = new EfDepositRepository(_context, userContext);
+            Donations = new EfDonationRepository(_context, userContext);
+            Movements = new EfMovomentRepository(_context, userContext);
+            Students = new EfStudentRepository(_context, userContext);
+            Writer = new EfWriterRepository(_context, userContext);
+            Users = new EfUserRepository(_context, userContext);
+            Images = new EfImageRepository(_context, userContext);
         }
 
         public void BeginTransaction()
