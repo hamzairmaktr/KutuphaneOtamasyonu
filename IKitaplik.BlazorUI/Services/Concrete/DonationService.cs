@@ -53,7 +53,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync("Donation/getAll");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<DonationGetDTO>>>(content, _jsonOptions)!;
             }
@@ -69,7 +68,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync($"Donation/getById?id={id}");
-                response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<DonationGetDTO>>(content, _jsonOptions)!;
             }

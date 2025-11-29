@@ -53,7 +53,6 @@ namespace IKitaplik.Business.Concrete
                 }
                 await _unitOfWork.Books.DeleteAsync(res.Data);
                 await _imageService.DeleteAllAsync(Entities.Enums.ImageType.Book, id);
-                _unitOfWork.Commit();
                 return new SuccessResult("Kitap başarı ile silindi");
 
             }, _unitOfWork);

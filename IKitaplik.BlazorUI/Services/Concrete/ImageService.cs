@@ -81,7 +81,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<Image>> Upload(ImageUploadDto imageUploadDto)
+        public async Task<Response<List<Image>>> Upload(ImageUploadDto imageUploadDto)
         {
             string token = await _authService.GetToken() ?? "";
             if (!string.IsNullOrEmpty(token))
@@ -94,6 +94,12 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                     var fileStream = item.OpenReadStream();
                     var fileContent = new StreamContent(fileStream);
                     fileContent.Headers.ContentType = new MediaTypeHeaderValue(item.ContentType);
+                    fileContent.Headers.ContentDisposition =
+                       new ContentDispositionHeaderValue("form-data")
+                       {
+                           Name = "\"Files\"",
+                           FileName = $"\"{item.Name}\""
+                       };
                     content.Add(fileContent, "File", item.Name);
                 }
 
@@ -102,11 +108,11 @@ namespace IKitaplik.BlazorUI.Services.Concrete
 
                 var res = await _httpClient.PostAsync("image/add", content);
                 var responseContent = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<Image>>(responseContent, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<List<Image>>>(responseContent, _jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<Image>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<List<Image>>>(new Exception("Login Olunamadı"));
             }
         }
     }

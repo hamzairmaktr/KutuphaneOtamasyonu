@@ -95,14 +95,14 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                 .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Category>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Book>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Deposit>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Writer>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Student>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Image>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Movement>().HasQueryFilter(c => c.UserId == _currentUserId);
-            modelBuilder.Entity<Donation>().HasQueryFilter(c => c.UserId == _currentUserId);
+            modelBuilder.Entity<Category>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Book>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Deposit>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Writer>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Student>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Image>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Movement>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
+            modelBuilder.Entity<Donation>().HasQueryFilter(c => c.UserId == _currentUserId && c.IsDeleted == false);
             base.OnModelCreating(modelBuilder);
         }
 

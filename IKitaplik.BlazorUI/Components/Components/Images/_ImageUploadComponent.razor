@@ -145,10 +145,8 @@
 				var res = await _imageService.DeleteRange(_files.Where(p => p.isDeleted).Select(p => p.Id).ToList());
 				Snackbar.Add(res.Message, res.Success ? Severity.Success : Severity.Error);
 			}
-			Snackbar.Add("İlgili işlemler tamamlandı", Severity.Info);
 		}
 		else
 			_errorMessage = "İşlem yapmak için resim ekleyin";
-		Dialog.Close();
 	}
 }

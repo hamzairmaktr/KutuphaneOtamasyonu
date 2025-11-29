@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs.WriterDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,9 @@ namespace IKitaplik.Business.Validations.FluentValidations
     {
         public WriterValidator()
         {
-            RuleFor(p => p.WriterName).MinimumLength(5).WithMessage("Yazar adı en az 5 karakter olmalıdır");
+            RuleFor(p => p.WriterName)
+                .NotEmpty().WithMessage("Yazar adı boş olamaz")
+                .MinimumLength(5).WithMessage("Yazar adı en az 5 karakter olmalıdır");
         }
     }
 }

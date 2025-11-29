@@ -46,8 +46,8 @@ else
             <MudTd DataLabel="Nr">@context.Id</MudTd>
             <MudTd DataLabel="Kitap">@context.BookName</MudTd>
             <MudTd DataLabel="Öğrenci">@context.StudentName</MudTd>
-            <MudTd DataLabel="Verilme Tarihi">@context.IssueDate</MudTd>
-            <MudTd DataLabel="Alış Tarihi">@context.DeliveryDate</MudTd>
+            <MudTd DataLabel="Verilme Tarihi">@context.IssueDate.ToString("dd.MM.yyyy HH:mm")</MudTd>
+            <MudTd DataLabel="Alış Tarihi">@context.DeliveryDate.ToString("dd.MM.yyyy HH:mm")</MudTd>
             <MudTd DataLabel="Teslim Edildi">@(context.IsDelivered ? "Evet" : "Hayır")</MudTd>
             <MudTd DataLabel="Hasarlı Teslim">@(context.IsItDamaged ? "Evet" : "Hayır")</MudTd>
             <MudTd DataLabel="Geç Teslim">@(context.AmILate ? "Evet" : "Hayır")</MudTd>

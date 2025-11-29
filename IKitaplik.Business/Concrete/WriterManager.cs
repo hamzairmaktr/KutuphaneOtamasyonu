@@ -30,7 +30,7 @@ namespace IKitaplik.Business.Concrete
                 var validator = _validator.Validate(writer);
                 if (!validator.IsValid)
                 {
-                    return new ErrorResult(validator.Errors.Select(p => p.ErrorMessage).ToList().ToString());
+                    return new ErrorResult(validator.Errors.Select(p => p.ErrorMessage).FirstOrDefault()!.ToString());
                 }
                 writer.CreatedDate = DateTime.Now;
                 await _unitOfWork.Writer.AddAsync(writer);
@@ -110,7 +110,7 @@ namespace IKitaplik.Business.Concrete
                 var validator = _validator.Validate(writer);
                 if (!validator.IsValid)
                 {
-                    return new ErrorResult(validator.Errors.Select(p => p.ErrorMessage).ToList().ToString());
+                    return new ErrorResult(validator.Errors.Select(p => p.ErrorMessage).FirstOrDefault()!.ToString());
                 }
                 writer.CreatedDate = existingWriter.Data.CreatedDate;
                 writer.UpdatedDate = DateTime.Now;

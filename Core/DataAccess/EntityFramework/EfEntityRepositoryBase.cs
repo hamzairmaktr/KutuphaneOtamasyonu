@@ -47,10 +47,7 @@ namespace Core.DataAccess.EntityFramework
 
         public void Delete(TEntity entity)
         {
-            if (entity is BaseEntities baseEntity)
-            {
-                baseEntity.UserId = int.Parse(_userContext.UserId);
-            }
+          
             if (entity is IEntity softDeletable)
             {
                 var updatedEntity = _context.Entry(entity);
@@ -78,10 +75,7 @@ namespace Core.DataAccess.EntityFramework
 
         public void Update(TEntity entity)
         {
-            if (entity is BaseEntities baseEntity)
-            {
-                baseEntity.UserId = int.Parse(_userContext.UserId);
-            }
+           
             var updatedEntity = _context.Entry(entity);
             updatedEntity.State = EntityState.Modified;
             _context.SaveChanges();
@@ -115,10 +109,6 @@ namespace Core.DataAccess.EntityFramework
 
         public async Task UpdateAsync(TEntity entity)
         {
-            if (entity is BaseEntities baseEntity)
-            {
-                baseEntity.UserId = int.Parse(_userContext.UserId);
-            }
             var updatedEntity = _context.Entry(entity);
             updatedEntity.State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -127,10 +117,6 @@ namespace Core.DataAccess.EntityFramework
 
         public async Task DeleteAsync(TEntity entity)
         {
-            if (entity is BaseEntities baseEntity)
-            {
-                baseEntity.UserId = int.Parse(_userContext.UserId);
-            }
             if (entity is IEntity softDeletable)
             {
                 var updatedEntity = _context.Entry(entity);

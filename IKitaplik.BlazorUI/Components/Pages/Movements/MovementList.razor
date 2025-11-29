@@ -35,7 +35,7 @@ else
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Nr">@context.Id</MudTd>
-            <MudTd DataLabel="Barkod">@context.MovementDate</MudTd>
+            <MudTd DataLabel="Barkod">@context.MovementDate.ToString("dd.MM.yyyy HH:mm")</MudTd>
             <MudTd DataLabel="Barkod">@context.Title</MudTd>
             <MudTd DataLabel="Barkod">@context.Note</MudTd>
             <MudTd DataLabel="Barkod">@context.BookName</MudTd>
@@ -53,7 +53,7 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    public bool isLoading { get; set; } = true;
+    public bool isLoading { get; set; } = false;
 
     private string errorMessage = "", searchString = "";
     private List<MovementGetDTO> Items = new List<MovementGetDTO>();
@@ -62,6 +62,7 @@ else
     {
         if (firstRender)
         {
+            isLoading = true;
             if ((int)MovementType.Deposit == Type)
             {
                 var res = await _service.GetAllByDepositIdAsync(Id);

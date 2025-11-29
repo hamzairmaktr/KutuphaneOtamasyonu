@@ -1,8 +1,6 @@
 ﻿@page "/"
 @inject IImageService _imageService
 
-<PageTitle>Home</PageTitle>
-
 <AuthorizeView>
     <Authorized>
         <h1>Hello, @context.User.FindFirst("FullName")?.Value</h1>

@@ -32,7 +32,7 @@ else
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Nr">@context.Id</MudTd>
-            <MudTd DataLabel="Tarih">@context.Date</MudTd>
+            <MudTd DataLabel="Tarih">@context.Date.ToString("dd.MM.yyyy HH:mm")</MudTd>
             <MudTd DataLabel="Kitap Barkodu">@context.BookBarcode</MudTd>
             <MudTd DataLabel="Kitap İsmi">@context.BookName</MudTd>
             <MudTd DataLabel="Öğrenci İsmi">@context.StudentName</MudTd>

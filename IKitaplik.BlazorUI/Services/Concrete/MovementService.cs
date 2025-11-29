@@ -40,7 +40,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync("Movement/getAll");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -56,7 +55,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync($"Movement/getAllBookId?id={id}");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -72,7 +70,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync($"Movement/getAllBookName?bookName={bookName}");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -88,7 +85,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync($"Movement/getAllDepositId?id={id}");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -104,7 +100,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync($"Movement/getAllStudentId?id={id}");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -120,7 +115,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync($"Movement/getAllStudentName?studentName={studentName}");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -136,7 +130,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var res = await _httpClient.GetAsync($"Movement/getAllDonationId?id={id}");
-                res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
             }
@@ -152,7 +145,6 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 await SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync($"Movement/getById?id={id}");
-                response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<MovementGetDTO>>(content, _jsonOptions)!;
             }
