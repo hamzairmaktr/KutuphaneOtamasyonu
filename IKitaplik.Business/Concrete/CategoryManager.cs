@@ -6,6 +6,7 @@ using IKitaplik.DataAccess.UnitOfWork;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using AutoMapper;
 using System.Threading.Tasks;
+using IKitaplik.Entities.DTOs;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -52,17 +53,17 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public async Task<IDataResult<List<CategoryGetDto>>> GetAllAsync()
+        public async Task<IDataResult<PagedResult<CategoryGetDto>>> GetAllAsync(PageRequestDto requestDto)
         {
             try
             {
-                var list = await _unitOfWork.Categorys.GetAllAsync();
-                var dtoList = _mapper.Map<List<CategoryGetDto>>(list);
-                return new SuccessDataResult<List<CategoryGetDto>>(dtoList, "Kategoriler çekildi");
+                var list = await _unitOfWork.Categorys.GetAllAsyncPageResult(requestDto.Page,requestDto.PageSize);
+                var dtoList = _mapper.Map<PagedResult<CategoryGetDto>>(list);
+                return new SuccessDataResult<PagedResult<CategoryGetDto>>(dtoList, "Kategoriler çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<CategoryGetDto>>("Kategoriler çekilirken hata oluştu" + ex.Message);
+                return new ErrorDataResult<PagedResult<CategoryGetDto>>("Kategoriler çekilirken hata oluştu" + ex.Message);
             }
         }
 

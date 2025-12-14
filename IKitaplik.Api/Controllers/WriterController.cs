@@ -21,9 +21,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(PageRequestDto page)
         {
-            var res = await _writerService.GetAllAsync();
+            var res = await _writerService.GetAllAsync(page.Page, page.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);

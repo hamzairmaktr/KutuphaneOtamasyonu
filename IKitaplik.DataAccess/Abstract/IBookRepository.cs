@@ -1,4 +1,5 @@
 ﻿using Core.DataAccess;
+using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using System;
@@ -10,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace IKitaplik.DataAccess.Abstract
 {
-    public interface IBookRepository:IEntityRepository<Book>
+    public interface IBookRepository : IEntityRepository<Book>
     {
-        List<BookGetDTO> GetAllBookDTOs(Expression<Func<BookGetDTO, bool>>? filter = null);
-        Task<List<BookGetDTO>> GetAllBookDTOsAsync(Expression<Func<BookGetDTO,bool>>? filter = null);
+        PagedResult<BookGetDTO> GetAllBookDTOs(int page, int pageSize, Expression<Func<BookGetDTO, bool>>? filter = null);
+        Task<PagedResult<BookGetDTO>> GetAllBookDTOsAsync(int page, int pageSize, Expression<Func<BookGetDTO, bool>>? filter = null);
     }
 }

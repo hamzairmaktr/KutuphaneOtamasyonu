@@ -16,7 +16,7 @@ namespace IKitaplik.Business.Abstract
         Task<IResult> UpdateAsync(WriterUpdateDto writerUpdateDto);
 
         Task<IDataResult<List<WriterGetDto>>> GetAllFilteredNameContainsAsync(string name);
-        Task<IDataResult<List<WriterGetDto>>> GetAllAsync();
+        Task<IDataResult<PagedResult<WriterGetDto>>> GetAllAsync(int page, int pageSize);
         Task<IDataResult<Writer>> GetByIdAsync(int id);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Core.Contexts;
 using Core.DataAccess.EntityFramework;
+using Core.Utilities.Results;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.DonationDTOs;
@@ -16,12 +17,12 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
     public class EfDonationRepository : EfEntityRepositoryBase<Donation, Context>, IDonationRepository
     {
         Context _context;
-        public EfDonationRepository(Context context,IUserContext userContext) : base(context, userContext)
+        public EfDonationRepository(Context context, IUserContext userContext) : base(context, userContext)
         {
             _context = context;
         }
 
-        public List<DonationGetDTO> GetAllDTO(Expression<Func<DonationGetDTO, bool>> filter = null)
+        public PagedResult<DonationGetDTO> GetAllDTO(int page, int pageSize, Expression<Func<DonationGetDTO, bool>> filter = null)
         {
             var list = from d in _context.Donations
                        join s in _context.Students
@@ -38,10 +39,20 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                            IsItDamaged = d.IsItDamaged,
                            StudentName = s.Name,
                        };
-            return filter == null ? list.ToList() : list.Where(filter).ToList();
+            if (filter != null)
+                list = list.Where(filter);
+            int totalCount = list.Count();
+            list = list.Skip((page - 1) * pageSize).Take(pageSize);
+            return new PagedResult<DonationGetDTO>
+            {
+                Items = list.ToList(),
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<DonationGetDTO>> GetAllDTOAsync(Expression<Func<DonationGetDTO, bool>> filter = null)
+        public async Task<PagedResult<DonationGetDTO>> GetAllDTOAsync(int page, int pageSize, Expression<Func<DonationGetDTO, bool>> filter = null)
         {
             var list = from d in _context.Donations
                        join s in _context.Students
@@ -58,9 +69,17 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                            IsItDamaged = d.IsItDamaged,
                            StudentName = s.Name,
                        };
-            return filter == null 
-                ? await list.ToListAsync() 
-                : await list.Where(filter).ToListAsync();
+           if(filter != null)
+                list = list.Where(filter);
+            int totalCount = await list.CountAsync();
+            list = list.Skip((page - 1) * pageSize).Take(pageSize);
+            return new PagedResult<DonationGetDTO>
+            {
+                Items =  await list.ToListAsync(),
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public DonationGetDTO GetDTO(Expression<Func<DonationGetDTO, bool>> filter)

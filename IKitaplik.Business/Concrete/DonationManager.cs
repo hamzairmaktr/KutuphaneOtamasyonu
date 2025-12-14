@@ -69,14 +69,14 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public async Task<IDataResult<List<DonationGetDTO>>> GetAllDTOAsync()
+        public async Task<IDataResult<PagedResult<DonationGetDTO>>> GetAllDTOAsync(int page, int pageSize)
         {
-            var res = await _unitOfWork.Donations.GetAllDTOAsync();
-            if (res.Count <= 0)
+            var res = await _unitOfWork.Donations.GetAllDTOAsync(page,pageSize);
+            if (res.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<DonationGetDTO>>("Kayıt bulunamadı");
+                return new ErrorDataResult<PagedResult<DonationGetDTO>>("Kayıt bulunamadı");
             }
-            return new SuccessDataResult<List<DonationGetDTO>>(res, "Kayıtlar çekildi");
+            return new SuccessDataResult<PagedResult<DonationGetDTO>>(res, "Kayıtlar çekildi");
         }
 
         public async Task<IDataResult<DonationGetDTO>> GetByIdDTOAsync(int id)

@@ -22,17 +22,17 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getall")]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll(PageRequestDto pageRequest)
         {
-            var res = await _bookService.GetAllAsync();
+            var res = await _bookService.GetAllAsync(pageRequest.Page, pageRequest.PageSize);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
         [HttpGet("getallisactive")]
-        public async Task<ActionResult> GetAllActive()
+        public async Task<ActionResult> GetAllActive(PageRequestDto pageRequestDto)
         {
-            var res = await _bookService.GetAllActiveAsync();
+            var res = await _bookService.GetAllActiveAsync(pageRequestDto.Page, pageRequestDto.PageSize);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
@@ -70,9 +70,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
         [HttpGet("getallfilter")]
-        public async Task<IActionResult> GetAllFilter([FromQuery] BookFilterDto bookFilterDto)
+        public async Task<IActionResult> GetAllFilter([FromQuery] BookFilterDto bookFilterDto, PageRequestDto page)
         {
-            var res = await _bookService.GetAllFilteredAsync(bookFilterDto);
+            var res = await _bookService.GetAllFilteredAsync(page.Page, page.PageSize, bookFilterDto);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);
@@ -89,7 +89,7 @@ namespace IKitaplik.Api.Controllers
         public async Task<ActionResult> GetById([FromQuery] int id)
         {
             var res = await _bookService.GetByIdAsync(id);
-            if(res.Success)
+            if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }
@@ -107,7 +107,7 @@ namespace IKitaplik.Api.Controllers
         public async Task<IActionResult> BookAddedPiece(BookAddPieceDto bookAddPieceDto)
         {
             var res = await _bookService.BookAddedPieceAsync(bookAddPieceDto);
-            if(res.Success)
+            if (res.Success)
                 return Ok(res);
             return BadRequest(res);
         }

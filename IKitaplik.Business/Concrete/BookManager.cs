@@ -74,38 +74,38 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public async Task<IDataResult<List<BookGetDTO>>> GetAllFilteredAsync(BookFilterDto filter)
+        public async Task<IDataResult<PagedResult<BookGetDTO>>> GetAllFilteredAsync(int page, int pageSize, BookFilterDto filter)
         {
-            List<BookGetDTO> books = new List<BookGetDTO>();
+            PagedResult<BookGetDTO> books = new PagedResult<BookGetDTO>();
             if (!string.IsNullOrEmpty(filter.barcode))
-                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.Barcode.Equals(filter.barcode));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(page, pageSize, dto => dto.Barcode.Equals(filter.barcode));
             else if (!string.IsNullOrEmpty(filter.category) && !string.IsNullOrEmpty(filter.title))
-                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.CategoryName.Equals(filter.category) && dto.Name.Contains(filter.title));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(page, pageSize, dto => dto.CategoryName.Equals(filter.category) && dto.Name.Contains(filter.title));
             else if (!string.IsNullOrEmpty(filter.title))
-                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.Name.Contains(filter.title));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(page, pageSize, dto => dto.Name.Contains(filter.title));
             else if (!string.IsNullOrEmpty(filter.category))
-                books = await _unitOfWork.Books.GetAllBookDTOsAsync(dto => dto.CategoryName.Equals(filter.category));
+                books = await _unitOfWork.Books.GetAllBookDTOsAsync(page, pageSize, dto => dto.CategoryName.Equals(filter.category));
             else
-                return new ErrorDataResult<List<BookGetDTO>>("Hatalı filtreleme yaptınız");
+                return new ErrorDataResult<PagedResult<BookGetDTO>>("Hatalı filtreleme yaptınız");
 
-            if (books.Count > 0)
+            if (books.TotalCount > 0)
             {
-                return new SuccessDataResult<List<BookGetDTO>>(books);
+                return new SuccessDataResult<PagedResult<BookGetDTO>>(books);
             }
 
-            return new ErrorDataResult<List<BookGetDTO>>("Kayıt bulunamadı");
+            return new ErrorDataResult<PagedResult<BookGetDTO>>("Kayıt bulunamadı");
         }
 
-        public async Task<IDataResult<List<BookGetDTO>>> GetAllAsync()
+        public async Task<IDataResult<PagedResult<BookGetDTO>>> GetAllAsync(int page, int pageSize)
         {
             try
             {
-                List<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync();
-                return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
+                PagedResult<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(page, pageSize);
+                return new SuccessDataResult<PagedResult<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
+                return new ErrorDataResult<PagedResult<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
             }
         }
 
@@ -131,8 +131,8 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                List<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(p => p.Name.Contains(name));
-                return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
+                PagedResult<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(1,1000,p => p.Name.Contains(name));
+                return new SuccessDataResult<List<BookGetDTO>>(books.Items, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
             {
@@ -255,16 +255,16 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public async Task<IDataResult<List<BookGetDTO>>> GetAllActiveAsync()
+        public async Task<IDataResult<PagedResult<BookGetDTO>>> GetAllActiveAsync(int page, int pageSize)
         {
             try
             {
-                List<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(p => p.Piece > 0);
-                return new SuccessDataResult<List<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
+                PagedResult<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(page, pageSize, p => p.Piece > 0);
+                return new SuccessDataResult<PagedResult<BookGetDTO>>(books, "Kitaplar başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
+                return new ErrorDataResult<PagedResult<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
             }
         }
     }

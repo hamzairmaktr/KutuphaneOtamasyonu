@@ -1,4 +1,5 @@
 ﻿using IKitaplik.Business.Abstract;
+using IKitaplik.Entities.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,62 +18,62 @@ namespace IKitaplik.Api.Controllers
             _movementService = movementService;
         }
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(PageRequestDto page)
         {
-            var res = await _movementService.GetAllAsync();
+            var res = await _movementService.GetAllAsync(page.Page, page.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
         [HttpGet("getAllBookId")]
-        public async Task<IActionResult> GetAllBookId(int id)
+        public async Task<IActionResult> GetAllBookId(int id, PageRequestDto page)
         {
-            var res = await _movementService.GetAllFilteredBookIdAsync(id);
+            var res = await _movementService.GetAllFilteredBookIdAsync(id, page.Page, page.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllBookName")]
-        public async Task<IActionResult> GetAllBookName(string bookName)
+        public async Task<IActionResult> GetAllBookName(string bookName, PageRequestDto pageRequestDto)
         {
-            var res = await _movementService.GetAllFilteredBookNameAsync(bookName);
+            var res = await _movementService.GetAllFilteredBookNameAsync(bookName, pageRequestDto.Page, pageRequestDto.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllDepositId")]
-        public async Task<IActionResult> GetAllDepositId(int id)
+        public async Task<IActionResult> GetAllDepositId(int id, PageRequestDto pageRequestDto)
         {
-            var res = await _movementService.GetAllFilteredDepositIdAsync(id);
+            var res = await _movementService.GetAllFilteredDepositIdAsync(id, pageRequestDto.Page, pageRequestDto.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllStudentId")]
-        public async Task<IActionResult> GetAllStudentId(int id)
+        public async Task<IActionResult> GetAllStudentId(int id, PageRequestDto pageRequestDto)
         {
-            var res = await _movementService.GetAllFilteredStudentIdAsync(id);
+            var res = await _movementService.GetAllFilteredStudentIdAsync(id, pageRequestDto.Page, pageRequestDto.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllStudentName")]
-        public async Task<IActionResult> GetAllStudentName(string studentName)
+        public async Task<IActionResult> GetAllStudentName(string studentName, PageRequestDto pageRequestDto)
         {
-            var res = await _movementService.GetAllFilteredStudentNameAsync(studentName);
+            var res = await _movementService.GetAllFilteredStudentNameAsync(studentName, pageRequestDto.Page, pageRequestDto.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
         }
 
         [HttpGet("getAllDonationId")]
-        public async Task<IActionResult> GetAllDonationId(int id)
+        public async Task<IActionResult> GetAllDonationId(int id, PageRequestDto pageRequestDto)
         {
-            var res = await _movementService.GetAllFilteredDonationIdAsync(id);
+            var res = await _movementService.GetAllFilteredDonationIdAsync(id, pageRequestDto.Page, pageRequestDto.PageSize);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);

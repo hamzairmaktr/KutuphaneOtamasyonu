@@ -1,4 +1,5 @@
-﻿using Core.Utilities.Results;
+﻿using Azure;
+using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
 using System;
@@ -13,13 +14,13 @@ namespace IKitaplik.Business.Abstract
     {
         Task<IResult> AddAsync(Movement movement);
 
-        Task<IDataResult<List<MovementGetDTO>>> GetAllAsync();
-        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredStudentNameAsync(string fullName);
-        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredStudentIdAsync(int id);
-        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredBookIdAsync(int id);
-        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredBookNameAsync(string name);
-        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredDepositIdAsync(int id);
-        Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredDonationIdAsync(int id);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllAsync(int page, int pageSize);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredStudentNameAsync(string fullName, int page, int pageSize);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredStudentIdAsync(int id, int page, int pageSize);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredBookIdAsync(int id, int page, int pageSize);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredBookNameAsync(string name, int page, int pageSize);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredDepositIdAsync(int id, int page, int pageSize);
+        Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredDonationIdAsync(int id, int page, int pageSize);
         Task<IDataResult<MovementGetDTO>> GetByIdDtoAsync(int id);
         Task<IDataResult<Movement>> GetByIdAsync(int id);
     }

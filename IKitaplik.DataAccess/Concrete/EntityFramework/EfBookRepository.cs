@@ -1,5 +1,6 @@
 ﻿using Core.Contexts;
 using Core.DataAccess.EntityFramework;
+using Core.Utilities.Results;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
@@ -21,7 +22,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             this._context = context;
         }
 
-        public List<BookGetDTO> GetAllBookDTOs(Expression<Func<BookGetDTO, bool>> filter = null)
+        public PagedResult<BookGetDTO> GetAllBookDTOs(int page,int pageSize,Expression<Func<BookGetDTO, bool>> filter = null)
         {
             var result = from b in _context.Books
                          join c in _context.Categories
@@ -45,10 +46,18 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                          };
             if (filter != null)
                 result = result.Where(filter);
-            return result.ToList();
+            var totalCount = result.Count();
+            var items = result.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            return new PagedResult<BookGetDTO>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<BookGetDTO>> GetAllBookDTOsAsync(Expression<Func<BookGetDTO, bool>> filter = null)
+        public async Task<PagedResult<BookGetDTO>> GetAllBookDTOsAsync(int page,int pageSize,Expression<Func<BookGetDTO, bool>> filter = null)
         {
             var result = from b in _context.Books
                          join c in _context.Categories
@@ -72,7 +81,15 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                          };
             if (filter != null)
                 result = result.Where(filter);
-            return await result.ToListAsync();
+            var totalCount = result.Count();
+            var items = await result.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PagedResult<BookGetDTO>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

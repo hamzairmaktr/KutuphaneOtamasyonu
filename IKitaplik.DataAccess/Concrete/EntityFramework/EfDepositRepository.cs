@@ -1,5 +1,6 @@
 ﻿using Core.Contexts;
 using Core.DataAccess.EntityFramework;
+using Core.Utilities.Results;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.DepositDTOs;
@@ -21,7 +22,7 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
             this._context = context;
         }
 
-        public List<DepositGetDTO> GetAllDepositDTOs(Expression<Func<DepositGetDTO, bool>> filter = null)
+        public PagedResult<DepositGetDTO> GetAllDepositDTOs(int page, int pageSize, Expression<Func<DepositGetDTO, bool>> filter = null)
         {
             var result = from d in _context.Deposits
                          join b in _context.Books
@@ -41,12 +42,19 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              StudentName = s.Name,
                              IsDelivered = d.IsDelivered
                          };
-            return filter == null
-                ? result.ToList()
-                : result.Where(filter).ToList();
+            result = filter == null ? result : result.Where(filter);
+            var totalCount = result.Count();
+            var items = result.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            return new PagedResult<DepositGetDTO>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<DepositGetDTO>> GetAllDepositDTOsAsync(Expression<Func<DepositGetDTO, bool>> filter = null)
+        public async Task<PagedResult<DepositGetDTO>> GetAllDepositDTOsAsync(int page, int pageSize, Expression<Func<DepositGetDTO, bool>> filter = null)
         {
             var result = from d in _context.Deposits
                          join b in _context.Books
@@ -66,9 +74,17 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              StudentName = s.Name,
                              IsDelivered = d.IsDelivered
                          };
-            return filter == null
-                ? await result.ToListAsync()
-                : await result.Where(filter).ToListAsync();
+            if (filter != null)
+                result = result.Where(filter);
+            var totalCount = await result.CountAsync();
+            var items = await result.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PagedResult<DepositGetDTO>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public DepositGetDTO GetDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter)

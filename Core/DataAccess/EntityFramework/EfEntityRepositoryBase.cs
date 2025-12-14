@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using Core.Contexts;
+using Core.Utilities.Results;
 
 namespace Core.DataAccess.EntityFramework
 {
@@ -26,70 +27,29 @@ namespace Core.DataAccess.EntityFramework
             _userContext = userContext;
         }
 
-        public void Add(TEntity entity)
+        public async Task<List<TEntity>> GetAllAsync(
+            Expression<Func<TEntity, bool>>? filter = null,
+            Expression<Func<TEntity, object>>? orderBy = null, bool desc = false)
         {
-            if (entity is BaseEntities baseEntity)
+            var query = _context.Set<TEntity>().AsNoTracking().AsQueryable();
+            if (filter != null)
             {
-                var addedEntity = _context.Entry(entity);
-                addedEntity.State = EntityState.Added;
-                baseEntity.UserId = int.Parse(_userContext.UserId);
-                _context.SaveChanges();
-                addedEntity.State = EntityState.Detached;
+                query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = desc ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
             }
             else
             {
-                var addedEntity = _context.Entry(entity);
-                addedEntity.State = EntityState.Added;
-                _context.SaveChanges();
-                addedEntity.State = EntityState.Detached;
+                query = query.OrderByDescending(e => EF.Property<object>(e, "Id"));
             }
+            int count = query.Count();
+            var result = await query.ToListAsync();
+            return result;
         }
 
-        public void Delete(TEntity entity)
-        {
-          
-            if (entity is IEntity softDeletable)
-            {
-                var updatedEntity = _context.Entry(entity);
-                updatedEntity.State = EntityState.Modified;
-                softDeletable.IsDeleted = true;
-                _context.SaveChanges();
-                updatedEntity.State = EntityState.Detached;
-            }
-
-        }
-
-        public List<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null)
-        {
-            return filter == null
-                ? _context.Set<TEntity>().AsNoTracking().ToList()
-                : _context.Set<TEntity>().AsNoTracking().Where(filter).ToList();
-        }
-
-        public TEntity Get(Expression<Func<TEntity, bool>> filter)
-        {
-
-            return _context.Set<TEntity>().AsNoTracking().FirstOrDefault(filter);
-
-        }
-
-        public void Update(TEntity entity)
-        {
-           
-            var updatedEntity = _context.Entry(entity);
-            updatedEntity.State = EntityState.Modified;
-            _context.SaveChanges();
-            updatedEntity.State = EntityState.Detached;
-        }
-
-        public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter)
-        {
-            return filter == null
-               ? await _context.Set<TEntity>().AsNoTracking().ToListAsync()
-               : await _context.Set<TEntity>().AsNoTracking().Where(filter).ToListAsync();
-        }
-
-        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> filter)
+        public async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
         {
             return await _context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(filter);
         }
@@ -126,32 +86,11 @@ namespace Core.DataAccess.EntityFramework
                 updatedEntity.State = EntityState.Detached;
             }
         }
-
-        public void DeleteRange(List<TEntity> entities)
-        {
-            foreach (var entity in entities)
-                Delete(entity);
-        }
-
         public async Task DeleteRangeAsync(List<TEntity> entities)
         {
             foreach (var entity in entities)
                 await DeleteAsync(entity);
         }
-
-        public void AddRange(List<TEntity> entities)
-        {
-            foreach (var entity in entities)
-            {
-                if (entity is BaseEntities baseEntity)
-                {
-                    baseEntity.UserId = int.Parse(_userContext.UserId);
-                }
-            }
-            _context.AddRange(entities);
-            _context.SaveChanges();
-        }
-
         public async Task AddRangeAsync(List<TEntity> entities)
         {
             foreach (var entity in entities)
@@ -163,6 +102,34 @@ namespace Core.DataAccess.EntityFramework
             }
             await _context.AddRangeAsync(entities);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<PagedResult<TEntity>> GetAllAsyncPageResult(int page = 1, int pageSize = 20, Expression<Func<TEntity, bool>>? filter = null, Expression<Func<TEntity, object>>? orderBy = null, bool desc = false)
+        {
+            var query = _context.Set<TEntity>().AsNoTracking().AsQueryable();
+            if (filter != null)
+            {
+                query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = desc ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
+            }
+            else
+            {
+                query = query.OrderByDescending(e => EF.Property<object>(e, "Id"));
+            }
+            int count = query.Count();
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var result = await query.ToListAsync();
+            return new PagedResult<TEntity>
+            {
+                Items = result,
+                TotalCount = count,
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

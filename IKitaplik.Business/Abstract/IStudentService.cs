@@ -15,8 +15,8 @@ namespace IKitaplik.Business.Abstract
         Task<IResult> UpdateAsync(StudentUpdateDto studentUpdateDto, bool isDonationOrDeposit = false);
         Task<IResult> DeleteAsync(int id);
 
-        Task<IDataResult<List<StudentGetDto>>> GetAllAsync();
-        Task<IDataResult<List<StudentGetDto>>> GetAllActiveAsync();
+        Task<IDataResult<PagedResult<StudentGetDto>>> GetAllAsync(int page,int pageSize);
+        Task<IDataResult<PagedResult<StudentGetDto>>> GetAllActiveAsync(int page, int pageSize);
         Task<IDataResult<List<StudentGetDto>>> GetAllByNameAsync(string name);
         Task<IDataResult<Student>> GetByIdAsync(int id);
     }

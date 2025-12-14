@@ -64,7 +64,7 @@ namespace IKitaplik.Business.Concrete
                 Role = "User"
             };
            
-            _unitOfWork.Users.Add(user);
+            await _unitOfWork.Users.AddAsync(user);
             return new SuccessResult("Kullanıcı eklendi");
         }
 

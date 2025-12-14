@@ -18,9 +18,9 @@ namespace IKitaplik.Business.Abstract
         Task<IResult> DeleteAsync(int id);
         Task<IResult> BookAddedPieceAsync(BookAddPieceDto bookAddPieceDto, bool isDonationOrDeposit = false);
 
-        Task<IDataResult<List<BookGetDTO>>> GetAllFilteredAsync(BookFilterDto filter);
-        Task<IDataResult<List<BookGetDTO>>> GetAllAsync();
-        Task<IDataResult<List<BookGetDTO>>> GetAllActiveAsync();
+        Task<IDataResult<PagedResult<BookGetDTO>>> GetAllFilteredAsync(int page, int pageSize, BookFilterDto filter);
+        Task<IDataResult<PagedResult<BookGetDTO>>> GetAllAsync(int page, int pageSize);
+        Task<IDataResult<PagedResult<BookGetDTO>>> GetAllActiveAsync(int page, int pageSize);
         Task<IDataResult<List<BookGetDTO>>> GetAllByNameAsync(string name);
         Task<IDataResult<Book>> GetByIdAsync(int id);
         Task<IDataResult<Book>> GetByBarcodeAsync(string barcode);

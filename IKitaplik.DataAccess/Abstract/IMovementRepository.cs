@@ -1,4 +1,5 @@
 ﻿using Core.DataAccess;
+using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
 using System;
@@ -12,9 +13,9 @@ namespace IKitaplik.DataAccess.Abstract
 {
     public interface IMovementRepository:IEntityRepository<Movement>
     {
-        List<MovementGetDTO> GetAllDTO(Expression<Func<MovementGetDTO, bool>> filter = null);
+        PagedResult<MovementGetDTO> GetAllDTO(int page,int pageSize,Expression<Func<MovementGetDTO, bool>> filter = null);
         MovementGetDTO GetDTO(Expression<Func<MovementGetDTO, bool>> filter);
-        Task<List<MovementGetDTO>> GetAllDTOAsync(Expression<Func<MovementGetDTO, bool>> filter = null);
+        Task<PagedResult<MovementGetDTO>> GetAllDTOAsync(int page, int pageSize, Expression<Func<MovementGetDTO, bool>> filter = null);
         Task<MovementGetDTO> GetDTOAsync(Expression<Func<MovementGetDTO, bool>> filter);
     }
 }

@@ -28,72 +28,72 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllAsync()
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllAsync(int page,int pageSize)
         {
-            var result = await _unitOfWork.Movements.GetAllDTOAsync();
-            if (result.Count <= 0)
+            var result = await _unitOfWork.Movements.GetAllDTOAsync(page,pageSize);
+            if (result.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Veri bulunamadı");
             }
-            return new SuccessDataResult<List<MovementGetDTO>>(result);
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(result);
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredBookIdAsync(int id)
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredBookIdAsync(int id, int page, int pageSize)
         {
-            var result = await _unitOfWork.Movements.GetAllDTOAsync(p => p.BookId == id);
-            if (result.Count <= 0)
+            var result = await _unitOfWork.Movements.GetAllDTOAsync(page, pageSize,p => p.BookId == id);
+            if (result.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Veri bulunamadı");
             }
-            return new SuccessDataResult<List<MovementGetDTO>>(result);
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(result);
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredBookNameAsync(string name)
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredBookNameAsync(string name, int page, int pageSize)
         {
-            var result = await _unitOfWork.Movements.GetAllDTOAsync(p => p.BookName.Contains(name) || p.BookName.Equals(name));
-            if (result.Count <= 0)
+            var result = await _unitOfWork.Movements.GetAllDTOAsync(page, pageSize,p => p.BookName.Contains(name) || p.BookName.Equals(name));
+            if (result.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Veri bulunamadı");
             }
-            return new SuccessDataResult<List<MovementGetDTO>>(result);
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(result);
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredDepositIdAsync(int id)
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredDepositIdAsync(int id, int page, int pageSize)
         {
-            var result = await _unitOfWork.Movements.GetAllDTOAsync(p => p.DepositId == id);
-            if (result.Count <= 0)
+            var result = await _unitOfWork.Movements.GetAllDTOAsync(page, pageSize,p => p.DepositId == id);
+            if (result.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Veri bulunamadı");
             }
-            return new SuccessDataResult<List<MovementGetDTO>>(result);
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(result);
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredDonationIdAsync(int id)
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredDonationIdAsync(int id, int page, int pageSize)
         {
-            var res = await _unitOfWork.Movements.GetAllDTOAsync(p => p.DonationId == id);
-            if (res.Count <= 0)
-                return new ErrorDataResult<List<MovementGetDTO>>("Kayıt bulunamadı");
-            return new SuccessDataResult<List<MovementGetDTO>>(res,"Kayıt çekildi");
+            var res = await _unitOfWork.Movements.GetAllDTOAsync(page, pageSize,p => p.DonationId == id);
+            if (res.TotalCount <= 0)
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Kayıt bulunamadı");
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(res,"Kayıt çekildi");
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredStudentIdAsync(int id)
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredStudentIdAsync(int id, int page, int pageSize)
         {
-            var result = await _unitOfWork.Movements.GetAllDTOAsync(p => p.StudentId == id);
-            if (result.Count <= 0)
+            var result = await _unitOfWork.Movements.GetAllDTOAsync(page, pageSize,p => p.StudentId == id);
+            if (result.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Veri bulunamadı");
             }
-            return new SuccessDataResult<List<MovementGetDTO>>(result);
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(result);
         }
 
-        public async Task<IDataResult<List<MovementGetDTO>>> GetAllFilteredStudentNameAsync(string fullName)
+        public async Task<IDataResult<PagedResult<MovementGetDTO>>> GetAllFilteredStudentNameAsync(string fullName, int page, int pageSize)
         {
-            var result = await _unitOfWork.Movements.GetAllDTOAsync(p => p.StudentName.Contains(fullName) || p.StudentName.Equals(fullName));
-            if (result.Count <= 0)
+            var result = await _unitOfWork.Movements.GetAllDTOAsync(page, pageSize,p => p.StudentName.Contains(fullName) || p.StudentName.Equals(fullName));
+            if (result.TotalCount <= 0)
             {
-                return new ErrorDataResult<List<MovementGetDTO>>("Veri bulunamadı");
+                return new ErrorDataResult<PagedResult<MovementGetDTO>>("Veri bulunamadı");
             }
-            return new SuccessDataResult<List<MovementGetDTO>>(result);
+            return new SuccessDataResult<PagedResult<MovementGetDTO>>(result);
         }
 
         public async Task<IDataResult<Movement>> GetByIdAsync(int id)

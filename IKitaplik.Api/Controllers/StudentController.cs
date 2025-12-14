@@ -18,9 +18,9 @@ namespace IKitaplik.Api.Controllers
             _studentService = studentService;
         }
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(PageRequestDto page)
         {
-            var result = await _studentService.GetAllAsync();
+            var result = await _studentService.GetAllAsync(page.Page,page.PageSize);
             if (result.Success)
             {
                 return Ok(result);
@@ -28,9 +28,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
         [HttpGet("getallisactive")]
-        public async Task<ActionResult> GetAllActive()
+        public async Task<ActionResult> GetAllActive(PageRequestDto page)
         {
-            var res = await _studentService.GetAllActiveAsync();
+            var res = await _studentService.GetAllActiveAsync(page.Page,page.PageSize);
             if (res.Success)
                 return Ok(res);
             return BadRequest(res);

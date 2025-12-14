@@ -1,5 +1,6 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace IKitaplik.Business.Abstract
         Task<IResult> UpdateAsync(CategoryUpdateDto categoryUpdateDto);
         Task<IResult> DeleteAsync(int id);
 
-        Task<IDataResult<List<CategoryGetDto>>> GetAllAsync();
+        Task<IDataResult<PagedResult<CategoryGetDto>>> GetAllAsync(PageRequestDto pageRequestDto);
         Task<IDataResult<Category>> GetByIdAsync(int id);
     }
 }

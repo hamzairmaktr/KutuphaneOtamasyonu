@@ -21,9 +21,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PageRequestDto pageRequestDto)
         {
-            var result = await _categoryService.GetAllAsync();
+            var result = await _categoryService.GetAllAsync(pageRequestDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -63,7 +63,7 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(result);
         }
         [HttpPost("delete")]
-        public async Task<IActionResult> Delete([FromBody]DeleteDto deleteDto)
+        public async Task<IActionResult> Delete([FromBody] DeleteDto deleteDto)
         {
             var result = await _categoryService.DeleteAsync(deleteDto.Id);
             if (result.Success)

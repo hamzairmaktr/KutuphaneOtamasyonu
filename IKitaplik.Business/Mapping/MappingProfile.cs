@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
@@ -62,6 +63,8 @@ namespace IKitaplik.Business.Mapping
             CreateMap<UserLoginDto, User>();
             CreateMap<User, UserRegisterDto>();
             CreateMap<User, UserLoginDto>();
+
+            CreateMap(typeof(PagedResult<>), typeof(PagedResult<>));
         }
     }
 }

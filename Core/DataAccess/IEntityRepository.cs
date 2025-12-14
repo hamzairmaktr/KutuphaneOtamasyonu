@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Utilities.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,19 +11,13 @@ namespace Core.DataAccess
 {
     public interface IEntityRepository<T>
     {
-        List<T> GetAll(Expression<Func<T, bool>>? filter = null);
-        Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null);
-        T Get(Expression<Func<T, bool>> filter);
-        Task<T> GetAsync(Expression<Func<T, bool>> filter);
-        void Add(T entity);
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>? orderBy = null,bool desc = false);
+        Task<PagedResult<T>> GetAllAsyncPageResult(int page = 1,int pageSize = 20,Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>? orderBy = null,bool desc = false);
+        Task<T?> GetAsync(Expression<Func<T, bool>> filter);
         Task AddAsync(T entity);
-        void AddRange(List<T> entities);
         Task AddRangeAsync(List<T> entities);
-        void Update(T entity);
         Task UpdateAsync(T entity);
-        void Delete(T entity);
         Task DeleteAsync(T entity);
-        void DeleteRange(List<T> entities);
         Task DeleteRangeAsync(List<T> entities);
     }
 }

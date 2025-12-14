@@ -1,4 +1,5 @@
 ﻿using IKitaplik.Business.Abstract;
+using IKitaplik.Entities.DTOs;
 using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.DonationDTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -30,9 +31,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(PageRequestDto pageRequestDto)
         {
-            var res = await _donationService.GetAllDTOAsync();
+            var res = await _donationService.GetAllDTOAsync(pageRequestDto.Page,pageRequestDto.PageSize);
             if(!res.Success)
                 return BadRequest(res);
             return Ok(res);

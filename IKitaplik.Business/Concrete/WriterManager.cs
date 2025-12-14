@@ -15,7 +15,7 @@ namespace IKitaplik.Business.Concrete
         private readonly IValidator<Writer> _validator;
         IMapper _mapper;
         private readonly IImageService _imageService;
-        public WriterManager(IUnitOfWork unitOfWork, IValidator<Writer> validator, IMapper mapper,IImageService imageService)
+        public WriterManager(IUnitOfWork unitOfWork, IValidator<Writer> validator, IMapper mapper, IImageService imageService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -66,19 +66,19 @@ namespace IKitaplik.Business.Concrete
             }
         }
 
-        public async Task<IDataResult<List<WriterGetDto>>> GetAllAsync()
+        public async Task<IDataResult<PagedResult<WriterGetDto>>> GetAllAsync(int page, int pageSize)
         {
             try
             {
-                var res = await _unitOfWork.Writer.GetAllAsync();
-                if (res.Count <= 0)
-                    return new ErrorDataResult<List<WriterGetDto>>("Veri bulunamadı");
-                var dto = _mapper.Map<List<WriterGetDto>>(res);
-                return new SuccessDataResult<List<WriterGetDto>>(dto, "Veriler çekildi");
+                var res = await _unitOfWork.Writer.GetAllAsyncPageResult(page, pageSize);
+                if (res.TotalCount <= 0)
+                    return new ErrorDataResult<PagedResult<WriterGetDto>>("Veri bulunamadı");
+                var dto = _mapper.Map<PagedResult<WriterGetDto>>(res);
+                return new SuccessDataResult<PagedResult<WriterGetDto>>(dto, "Veriler çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<WriterGetDto>>("Yazar çekilirken hata oluştu: " + ex.Message);
+                return new ErrorDataResult<PagedResult<WriterGetDto>>("Yazar çekilirken hata oluştu: " + ex.Message);
             }
         }
 

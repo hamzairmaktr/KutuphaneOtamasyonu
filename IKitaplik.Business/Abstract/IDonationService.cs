@@ -14,7 +14,7 @@ namespace IKitaplik.Business.Abstract
     {
         Task<IResult> AddAsync(DonationAddDto donation);
 
-        Task<IDataResult<List<DonationGetDTO>>> GetAllDTOAsync();
+        Task<IDataResult<PagedResult<DonationGetDTO>>> GetAllDTOAsync(int page,int pageSize);
         Task<IDataResult<DonationGetDTO>> GetByIdDTOAsync(int id);
     }
 }

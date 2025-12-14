@@ -1,4 +1,5 @@
 ﻿using Core.DataAccess;
+using Core.Utilities.Results;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs.DepositDTOs;
 using System;
@@ -10,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace IKitaplik.DataAccess.Abstract
 {
-    public interface IDepositRepository:IEntityRepository<Deposit>
+    public interface IDepositRepository : IEntityRepository<Deposit>
     {
-        List<DepositGetDTO> GetAllDepositDTOs(Expression<Func<DepositGetDTO, bool>> filter = null);
+        PagedResult<DepositGetDTO> GetAllDepositDTOs(int page, int pageSize, Expression<Func<DepositGetDTO, bool>> filter = null);
         DepositGetDTO GetDepositFilteredDTOs(Expression<Func<DepositGetDTO, bool>> filter);
 
-        Task<List<DepositGetDTO>> GetAllDepositDTOsAsync(Expression<Func<DepositGetDTO, bool>> filter = null);
+        Task<PagedResult<DepositGetDTO>> GetAllDepositDTOsAsync(int page, int pageSize, Expression<Func<DepositGetDTO, bool>> filter = null);
         Task<DepositGetDTO> GetDepositFilteredDTOsAsync(Expression<Func<DepositGetDTO, bool>> filter);
     }
 }

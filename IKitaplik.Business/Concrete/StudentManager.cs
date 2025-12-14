@@ -87,31 +87,31 @@ namespace IKitaplik.Business.Concrete
             }, _unitOfWork);
         }
 
-        public async Task<IDataResult<List<StudentGetDto>>> GetAllAsync()
+        public async Task<IDataResult<PagedResult<StudentGetDto>>> GetAllAsync(int page, int pageSize)
         {
             try
             {
-                List<Student> students = await _unitOfWork.Students.GetAllAsync();
-                var listDto = _mapper.Map<List<StudentGetDto>>(students);
-                return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
+                PagedResult<Student> students = await _unitOfWork.Students.GetAllAsyncPageResult(page, pageSize);
+                var listDto = _mapper.Map<PagedResult<StudentGetDto>>(students);
+                return new SuccessDataResult<PagedResult<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<StudentGetDto>>("Öğrenciler çekilirken bir hata oluştu: " + ex.Message);
+                return new ErrorDataResult<PagedResult<StudentGetDto>>("Öğrenciler çekilirken bir hata oluştu: " + ex.Message);
             }
         }
 
-        public async Task<IDataResult<List<StudentGetDto>>> GetAllActiveAsync()
+        public async Task<IDataResult<PagedResult<StudentGetDto>>> GetAllActiveAsync(int page, int pageSize)
         {
             try
             {
-                List<Student> students = await _unitOfWork.Students.GetAllAsync(p => p.Situation);
-                var listDto = _mapper.Map<List<StudentGetDto>>(students);
-                return new SuccessDataResult<List<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
+                PagedResult<Student> students = await _unitOfWork.Students.GetAllAsyncPageResult(page, pageSize, p => p.Situation);
+                var listDto = _mapper.Map<PagedResult<StudentGetDto>>(students);
+                return new SuccessDataResult<PagedResult<StudentGetDto>>(listDto, "Öğrenciler başarı ile çekildi");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<StudentGetDto>>("Öğrenciler çekilirken bir hata oluştu: " + ex.Message);
+                return new ErrorDataResult<PagedResult<StudentGetDto>>("Öğrenciler çekilirken bir hata oluştu: " + ex.Message);
             }
         }
 

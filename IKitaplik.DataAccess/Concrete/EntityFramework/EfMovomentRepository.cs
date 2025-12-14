@@ -1,5 +1,6 @@
 ﻿using Core.Contexts;
 using Core.DataAccess.EntityFramework;
+using Core.Utilities.Results;
 using IKitaplik.DataAccess.Abstract;
 using IKitaplik.Entities.Concrete;
 using IKitaplik.Entities.DTOs;
@@ -16,12 +17,12 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
     public class EfMovomentRepository : EfEntityRepositoryBase<Movement, Context>, IMovementRepository
     {
         Context _context;
-        public EfMovomentRepository(Context context,IUserContext userContext) : base(context,userContext)
+        public EfMovomentRepository(Context context, IUserContext userContext) : base(context, userContext)
         {
             _context = context;
         }
 
-        public List<MovementGetDTO> GetAllDTO(Expression<Func<MovementGetDTO, bool>> filter = null)
+        public PagedResult<MovementGetDTO> GetAllDTO(int page, int pageSize, Expression<Func<MovementGetDTO, bool>> filter = null)
         {
             var result = from movement in _context.Movements
                          join book in _context.Books
@@ -43,12 +44,20 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              StudentId = movement.StudentId,
                              Type = movement.Type
                          };
-            return filter == null
-                ? result.ToList()
-                : result.Where(filter).ToList();
+            if (filter != null)
+                result = result.Where(filter);
+            var totalCount = result.Count();
+            var items = result.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            return new PagedResult<MovementGetDTO>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<MovementGetDTO>> GetAllDTOAsync(Expression<Func<MovementGetDTO, bool>> filter = null)
+        public async Task<PagedResult<MovementGetDTO>> GetAllDTOAsync(int page, int pageSize, Expression<Func<MovementGetDTO, bool>> filter = null)
         {
             var result = from movement in _context.Movements
                          join book in _context.Books
@@ -70,9 +79,17 @@ namespace IKitaplik.DataAccess.Concrete.EntityFramework
                              StudentId = movement.StudentId,
                              Type = movement.Type
                          };
-            return filter == null
-                ? await result.ToListAsync()
-                : await result.Where(filter).ToListAsync();
+            if (filter != null)
+                result = result.Where(filter);
+            var totalCount = await result.CountAsync();
+            var items = await result.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PagedResult<MovementGetDTO>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public MovementGetDTO GetDTO(Expression<Func<MovementGetDTO, bool>> filter)

@@ -51,7 +51,7 @@ namespace IKitaplik.Business.Concrete
                 var studentDto = _mapper.Map<StudentUpdateDto>(student.Data);
                 await _studentService.UpdateAsync(studentDto, true);
 
-                _unitOfWork.Deposits.Add(deposit);
+                await _unitOfWork.Deposits.AddAsync(deposit);
 
                 await AddMovementAsync("Emanet Verildi", $"{student.Data.Name} adlı öğrenciye {book.Data.Name} adlı kitap emanet verildi", deposit.BookId, deposit.StudentId, deposit.Id);
 
@@ -62,7 +62,7 @@ namespace IKitaplik.Business.Concrete
         {
             return await HandleWithTransactionHelper.Handling(async () =>
             {
-                var existingDeposit = _unitOfWork.Deposits.Get(d => d.Id == depositUpdateDto.Id);
+                var existingDeposit = await _unitOfWork.Deposits.GetAsync(d => d.Id == depositUpdateDto.Id);
                 if (existingDeposit == null) return new ErrorResult("Emanet kaydı bulunamadı.");
 
                 var book = await ValidateBookAsync(existingDeposit.BookId);
@@ -76,7 +76,7 @@ namespace IKitaplik.Business.Concrete
                 existingDeposit.UpdatedDate = DateTime.Now;
                 existingDeposit.Note = depositUpdateDto.Note;
                 existingDeposit.IsDelivered = true;
-                _unitOfWork.Deposits.Update(existingDeposit);
+                await _unitOfWork.Deposits.UpdateAsync(existingDeposit);
 
                 await AddMovementAsync("Emanet Teslim Alındı", $"{student.Data.Name} adlı öğrenci {book.Data.Name} adlı kitapı {GetDepositStatus(depositUpdateDto)} teslim etti", book.Data.Id, student.Data.Id, depositUpdateDto.Id);
 
@@ -90,7 +90,7 @@ namespace IKitaplik.Business.Concrete
                 var deposit = await GetByIdAsync(id);
                 if (!deposit.Success)
                     return new ErrorResult(deposit.Message);
-                _unitOfWork.Deposits.Delete(deposit.Data);
+                await _unitOfWork.Deposits.DeleteAsync(deposit.Data);
                 await _imageService.DeleteAllAsync(Entities.Enums.ImageType.Deposit, id);
                 await AddMovementAsync("Emanet Kaydı Silindi", "Emanet kaydı silindi.", deposit.Data.BookId, deposit.Data.StudentId, deposit.Data.Id);
                 return new SuccessResult("Emanet kaydı başarıyla silindi.");
@@ -110,22 +110,22 @@ namespace IKitaplik.Business.Concrete
                 var book = await _bookService.GetByIdAsync(deposit.BookId);
                 var student = await _studentService.GetByIdAsync(deposit.StudentId);
 
-                await AddMovementAsync("Emanete Ekstra Süre Verildi", $"{student.Data.Name} adlı öğrenci aldığı {book.Data.Name} adlı kitabı zamanında teslim edemediğinden ilgili teslim tarihi ertelendi. Yeni Tarih : {deposit.DeliveryDate.ToString("dd.MM.yyyy")}",deposit.BookId,deposit.StudentId,deposit.Id);
+                await AddMovementAsync("Emanete Ekstra Süre Verildi", $"{student.Data.Name} adlı öğrenci aldığı {book.Data.Name} adlı kitabı zamanında teslim edemediğinden ilgili teslim tarihi ertelendi. Yeni Tarih : {deposit.DeliveryDate.ToString("dd.MM.yyyy")}", deposit.BookId, deposit.StudentId, deposit.Id);
 
                 await _unitOfWork.Deposits.UpdateAsync(deposit);
                 return new SuccessResult("Emanete ek süre verildi.");
             }, _unitOfWork);
         }
-        public async Task<IDataResult<List<DepositGetDTO>>> GetAllDTOAsync()
+        public async Task<IDataResult<PagedResult<DepositGetDTO>>> GetAllDTOAsync(int page, int pageSize)
         {
             try
             {
-                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync();
-                return new SuccessDataResult<List<DepositGetDTO>>(deposits, "Emanet kayıtları başarıyla çekildi.");
+                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync(page, pageSize);
+                return new SuccessDataResult<PagedResult<DepositGetDTO>>(deposits, "Emanet kayıtları başarıyla çekildi.");
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<DepositGetDTO>>("Emanet kayıtları çekilirken hata oluştu: " + ex.Message);
+                return new ErrorDataResult<PagedResult<DepositGetDTO>>("Emanet kayıtları çekilirken hata oluştu: " + ex.Message);
             }
         }
         public async Task<IDataResult<DepositGetDTO>> GetByIdDTOAsync(int id)
