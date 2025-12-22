@@ -1,8 +1,10 @@
-﻿using IKitaplik.BlazorUI.Cosntant;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs;
-using IKitaplik.Entities.DTOs.DepositDTOs; 
+using IKitaplik.Entities.DTOs.DepositDTOs;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -94,19 +96,19 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<DepositGetDTO>>> GetAllAsync()
+        public async Task<Response<PagedResult<DepositGetDTO>>> GetAllAsync(int page,int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync("Deposit/getAll");
+                var res = await _httpClient.GetAsync($"Deposit/getAll?page={page}&pageSize={pageSize}");
                 res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<DepositGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<DepositGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<DepositGetDTO>> { Success = false, Message = $"Tüm depozitolar getirilirken hata oluştu: {ex.Message}", Data = new List<DepositGetDTO>() };
+                return new Response<PagedResult<DepositGetDTO>> { Success = false, Message = $"Tüm depozitolar getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<DepositGetDTO>() };
             }
         }
 

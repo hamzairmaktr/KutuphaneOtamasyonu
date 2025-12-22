@@ -1,4 +1,5 @@
-﻿using IKitaplik.BlazorUI.Cosntant;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs;
@@ -66,19 +67,19 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<CategoryGetDto>>> GetAllAsync()
+        public async Task<Response<PagedResult<CategoryGetDto>>> GetAllAsync(int page,int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync("Category/getall");
+                var res = await _httpClient.GetAsync($"Category/getall?page={page}&pageSize={pageSize}");
                 res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<CategoryGetDto>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<CategoryGetDto>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<CategoryGetDto>> { Success = false, Message = $"Kategoriler getirilirken hata oluştu: {ex.Message}", Data = new List<CategoryGetDto>() };
+                return new Response<PagedResult<CategoryGetDto>> { Success = false, Message = $"Kategoriler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<CategoryGetDto>() };
             }
         }
 

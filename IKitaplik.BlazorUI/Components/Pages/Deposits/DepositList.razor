@@ -14,103 +14,81 @@
         <MudText>@errorMessage</MudText>
     </MudAlert>
 }
-else if (Loading)
-{
-     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
-        <img src="/images/Loading.gif" alt="Loading" />
-    </div>
-}
 else
 {
-    <MudCheckBox T="bool" Label="Hepsini Getir" Value="HepsiniGetir" ValueChanged="val => Getir(val)" Class="mt-2"></MudCheckBox>
-
-    <MudTable Class="mt-3" Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<DepositGetDTO, bool>(FilterFunc)"
-              SortLabel="Sort By" CommitEditTooltip="Commit Edit" Loading="Loading">
+    <MudCheckBox T="bool" Label="Hepsini Getir" Value="HepsiniGetir" ValueChanged="val => HepsiniGetirChange(val)" Class="mt-2"></MudCheckBox>
+    <MudDataGrid T="DepositGetDTO"
+                 @ref="_dataGrid"
+                 Filterable
+                 FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                 ServerData="ServerReload"
+                 Loading="isLoading">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Emanetler</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
-        <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.BookName)">Kitap</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.StudentName)">Öğrenci</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.IssueDate)">Verilme Tarihi</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.DeliveryDate)">Alış Tarihi</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.IsDelivered)">Teslim Edildi</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.IsItDamaged)">Hasarlı Teslim</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DepositGetDTO, object>(x => x.AmILate)">Geç Teslim</MudTableSortLabel></MudTh>
-            <MudTh>İşlemler</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Nr">@context.Id</MudTd>
-            <MudTd DataLabel="Kitap">@context.BookName</MudTd>
-            <MudTd DataLabel="Öğrenci">@context.StudentName</MudTd>
-            <MudTd DataLabel="Verilme Tarihi">@context.IssueDate.ToString("dd.MM.yyyy HH:mm")</MudTd>
-            <MudTd DataLabel="Alış Tarihi">@context.DeliveryDate.ToString("dd.MM.yyyy HH:mm")</MudTd>
-            <MudTd DataLabel="Teslim Edildi">@(context.IsDelivered ? "Evet" : "Hayır")</MudTd>
-            <MudTd DataLabel="Hasarlı Teslim">@(context.IsItDamaged ? "Evet" : "Hayır")</MudTd>
-            <MudTd DataLabel="Geç Teslim">@(context.AmILate ? "Evet" : "Hayır")</MudTd>
-            <MudTd>
-                <MudButtonGroup>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => DepositUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => DepositDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => GoMovements(context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.ViewList"></MudIconButton>
-                </MudButtonGroup>
-            </MudTd>
-        </RowTemplate>
+        <Columns>
+            <TemplateColumn Title="İşlemler">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => DepositUpdate(context.Item.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => DepositDelete(context.Item.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => GoMovements(context.Item.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.ViewList"></MudIconButton>
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="b => b.Id" Title="Nr." />
+            <PropertyColumn Property="b => b.BookName" Title="Kitap" />
+            <PropertyColumn Property="b => b.StudentName" Title="Öğrenci" />
+            <PropertyColumn Property="@(b => b.IssueDate.ToString("dd.MM.yyyy HH:mm"))" Title="Verilme Tarihi" />
+            <PropertyColumn Property="@(b => b.DeliveryDate.ToString("dd.MM.yyyy HH:mm"))" Title="Teslim Tarihi" />
+            <PropertyColumn Property="@(b => b.IsDelivered ? "Evet" : "Hayıt")" Title="Teslim Edildi" />
+            <PropertyColumn Property="@(b => b.IsItDamaged ? "Evet" : "Hayıt")" Title="Hasarlı Teslim" />
+            <PropertyColumn Property="@(b => b.AmILate ? "Evet" : "Hayıt")" Title="Geç Teslim" />
+        </Columns>
         <PagerContent>
-            <MudTablePager />
+            <MudDataGridPager></MudDataGridPager>
         </PagerContent>
-    </MudTable>
+    </MudDataGrid>
 }
 
 @code {
-    private string searchString = "", errorMessage = "";
-    private IEnumerable<DepositGetDTO> Items = new List<DepositGetDTO>();
+    private string errorMessage = "";
     public bool HepsiniGetir { get; set; }
-    public bool Loading { get; set; } = true;
+    public bool isLoading { get; set; } = true;
+    private MudDataGrid<DepositGetDTO> _dataGrid;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task<GridData<DepositGetDTO>> ServerReload(GridState<DepositGetDTO> gridState)
     {
-        if (firstRender)
+        try
         {
-            await Getir(false);
-            Loading = false;
-            StateHasChanged();
-        }
-    }
-
-
-    private async Task Getir(bool hepsiniGetir)
-    {
-        HepsiniGetir = hepsiniGetir;
-        var res = await _service.GetAllAsync();
-        if (!res.Success)
-        {
-            errorMessage = res.Message;
-        }
-        else
-        {
-            if (hepsiniGetir)
-                Items = res.Data;
+            isLoading = true;
+            var res = await _service.GetAllAsync(gridState.Page + 1, gridState.PageSize);
+            if (res.Success)
+            {
+                var filteredItems = HepsiniGetir ? res.Data.Items : res.Data.Items.Where(p => !p.IsDelivered);
+                return new GridData<DepositGetDTO>()
+                {
+                    Items = filteredItems,
+                    TotalItems = res.Data.TotalCount
+                };
+            }
             else
-                Items = res.Data.Where(p => !p.IsDelivered);
+            {
+                errorMessage = res.Message;
+                return new GridData<DepositGetDTO>() { Items = new List<DepositGetDTO>(), TotalItems = 0 };
+            }
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
-    private bool FilterFunc(DepositGetDTO item)
+    private async void HepsiniGetirChange(bool val)
     {
-        searchString = searchString?.Trim().ToLower() ?? "";
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (item.BookName.ToLower().Contains(searchString))
-            return true;
-        if (item.StudentName.ToLower().Contains(searchString))
-            return true;
-        if (item.Note.ToLower().Contains(searchString))
-            return true;
-        return false;
+        HepsiniGetir = val;
+        await _dataGrid.ReloadServerData();
+        StateHasChanged();
     }
 
     private void GoMovements(int id)
@@ -127,16 +105,7 @@ else
             Snackbar.Add(res.Message, severity: res.Success ? Severity.Success : Severity.Error);
             if (res.Success)
             {
-                var res1 = await _service.GetAllAsync();
-                if (res1.Success)
-                {
-                    Items = res1.Data.ToList();
-                    StateHasChanged();
-                }
-                else
-                {
-                    errorMessage = res1.Message;
-                }
+                await _dataGrid.ReloadServerData();
             }
             StateHasChanged();
         }

@@ -53,19 +53,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var categories = await _categoryService.GetAllAsync();
+        var categories = await _categoryService.GetAllAsync(1,2000);
         if (categories.Success)
         {
-            Categories = categories.Data;
+            Categories = categories.Data.Items;
         }
         else
         {
             errorMessage = categories.Message;
         }
-        var writers = await _writerService.GetAllAsync();
+        var writers = await _writerService.GetAllAsync(1,2000);
         if (writers.Success)
         {
-            Writers = writers.Data;
+            Writers = writers.Data.Items;
         }
         else
         {

@@ -22,7 +22,7 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getall")]
-        public async Task<ActionResult> GetAll(PageRequestDto pageRequest)
+        public async Task<ActionResult> GetAll([FromQuery] PageRequestDto pageRequest)
         {
             var res = await _bookService.GetAllAsync(pageRequest.Page, pageRequest.PageSize);
             if (res.Success)
@@ -30,7 +30,7 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
         [HttpGet("getallisactive")]
-        public async Task<ActionResult> GetAllActive(PageRequestDto pageRequestDto)
+        public async Task<ActionResult> GetAllActive([FromQuery] PageRequestDto pageRequestDto)
         {
             var res = await _bookService.GetAllActiveAsync(pageRequestDto.Page, pageRequestDto.PageSize);
             if (res.Success)
@@ -70,7 +70,7 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
         [HttpGet("getallfilter")]
-        public async Task<IActionResult> GetAllFilter([FromQuery] BookFilterDto bookFilterDto, PageRequestDto page)
+        public async Task<IActionResult> GetAllFilter([FromQuery] BookFilterDto bookFilterDto, [FromQuery] PageRequestDto page)
         {
             var res = await _bookService.GetAllFilteredAsync(page.Page, page.PageSize, bookFilterDto);
             if (res.Success)

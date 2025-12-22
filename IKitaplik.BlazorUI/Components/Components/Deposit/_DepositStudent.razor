@@ -31,10 +31,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var res = await _service.GetAllActiveAsync();
+        var res = await _service.GetAllActiveAsync(1,2000);
         if (res.Success)
         {
-            list = res.Data;
+            list = res.Data.Items;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Utilities.Results;
 using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
@@ -54,19 +55,19 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<WriterGetDto>>> GetAllAsync()
+        public async Task<Response<PagedResult<WriterGetDto>>> GetAllAsync(int page,int pageSize)
         {
             string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.GetAsync("writer/getall");
+                var res = await _httpClient.GetAsync($"writer/getall?page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<WriterGetDto>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<WriterGetDto>>>(content, _jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<List<WriterGetDto>>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<PagedResult<WriterGetDto>>>(new Exception("Login Olunamadı"));
             }
         }
 

@@ -7,77 +7,63 @@
         <MudText>@errorMessage</MudText>
     </MudAlert>
 }
-else if(isLoading)
-{
-    <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
-        <img src="/images/Loading.gif" alt="Loading" />
-    </div>
-}
 else
 {
-    <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<DonationGetDTO, bool>(FilterFunc)"
-              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
+
+    <MudDataGrid T="DonationGetDTO"
+                 @ref="_dataGrid"
+                 Filterable
+                 FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                 ServerData="ServerReload"
+                 Loading="isLoading">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Bağışlar</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
-        <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.Date)">Tarih</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.BookBarcode)">Kitap Barkodu</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.BookName)">Kitap İsmi</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DonationGetDTO, object>(x => x.StudentName)">Öğrenci İsmi</MudTableSortLabel></MudTh>
-            <MudTh>Hasarlımı</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Nr">@context.Id</MudTd>
-            <MudTd DataLabel="Tarih">@context.Date.ToString("dd.MM.yyyy HH:mm")</MudTd>
-            <MudTd DataLabel="Kitap Barkodu">@context.BookBarcode</MudTd>
-            <MudTd DataLabel="Kitap İsmi">@context.BookName</MudTd>
-            <MudTd DataLabel="Öğrenci İsmi">@context.StudentName</MudTd>
-            <MudTd DataLabel="Hasarlımı">@(context.IsItDamaged == true ? "Evet" : "Hayır")</MudTd>           
-        </RowTemplate>
+        <Columns>
+            <PropertyColumn Property="b => b.Id" Title="Nr." />
+            <PropertyColumn Property="@(b => b.Date.ToString("dd.MM.yyyy HH:mm"))" Title="Tarih" />
+            <PropertyColumn Property="b => b.BookBarcode" Title="Kitap Barkodu" />
+            <PropertyColumn Property="b => b.BookName" Title="Kitap İsmi" />
+            <PropertyColumn Property="b => b.StudentName" Title="Öğrenci İsmi" />
+            <PropertyColumn Property="@(b => b.IsItDamaged == true ? "Evet" : "Hayır")" Title="Hasarlımı" />
+        </Columns>
         <PagerContent>
-            <MudTablePager />
+            <MudDataGridPager></MudDataGridPager>
         </PagerContent>
-    </MudTable>
+    </MudDataGrid>
 }
 @code {
-    private List<DonationGetDTO> Items = new List<DonationGetDTO>();
     string errorMessage = "";
-    string searchString = "";
     public bool isLoading { get; set; } = true;
+    private MudDataGrid<DonationGetDTO> _dataGrid;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task<GridData<DonationGetDTO>> ServerReload(GridState<DonationGetDTO> gridState)
     {
-        if (firstRender)
+        try
         {
-            var res = await _service.GetAllAsync();
-            if (!res.Success)
+            isLoading = true;
+            var res = await _service.GetAllAsync(gridState.Page + 1, gridState.PageSize);
+            if (res.Success)
             {
-                errorMessage = res.Message;
+                return new GridData<DonationGetDTO>()
+                {
+                    Items = res.Data.Items,
+                    TotalItems = res.Data.TotalCount
+                };
             }
             else
             {
-                Items = res.Data;
+                errorMessage = res.Message;
+                return new GridData<DonationGetDTO>()
+                {
+                    Items = new List<DonationGetDTO>(),
+                    TotalItems = 0
+                };
             }
-            isLoading = false;
-            StateHasChanged();
         }
-    }
-
-    private bool FilterFunc(DonationGetDTO item)
-    {
-        searchString = searchString?.Trim().ToLower() ?? "";
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (item.BookName.ToLower().Contains(searchString))
-            return true;
-        if (item.StudentName.ToLower().Contains(searchString))
-            return true;
-        if (item.BookBarcode.ToLower().Contains(searchString))
-            return true;
-        return false;
+        finally
+        {
+            isLoading = false;
+        }
     }
 }

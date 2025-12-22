@@ -33,10 +33,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var res = await _service.GetAllActiveBooksAsync();
+        var res = await _service.GetAllActiveBooksAsync(1,200);
         if (res.Success)
         {
-            list = res.Data;
+            list = res.Data.Items;
         }
     }
 

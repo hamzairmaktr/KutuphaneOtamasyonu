@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Utilities.Results;
 using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
@@ -70,35 +71,35 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<BookGetDTO>>> GetAllActiveBooksAsync()
+        public async Task<Response<PagedResult<BookGetDTO>>> GetAllActiveBooksAsync(int page,int pageSize)
         {
             string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.GetAsync("book/getallisactive");
+                var res = await _httpClient.GetAsync($"book/getallisactive?page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<BookGetDTO>>>(content, _jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<List<BookGetDTO>>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<PagedResult<BookGetDTO>>>(new Exception("Login Olunamadı"));
             }
         }
 
-        public async Task<Response<List<BookGetDTO>>> GetAllBooksAsync()
+        public async Task<Response<PagedResult<BookGetDTO>>> GetAllBooksAsync(int page,int pageSize)
         {
             string token = await _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.GetAsync("book/getall");
+                var res = await _httpClient.GetAsync($"book/getall?page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<BookGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<BookGetDTO>>>(content, _jsonOptions)!;
             }
             else
             {
-                return await Task.FromException<Response<List<BookGetDTO>>>(new Exception("Login Olunamadı"));
+                return await Task.FromException<Response<PagedResult<BookGetDTO>>>(new Exception("Login Olunamadı"));
             }
         }
         //getByBarcode

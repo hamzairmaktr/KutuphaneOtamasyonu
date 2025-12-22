@@ -1,4 +1,5 @@
-﻿using IKitaplik.BlazorUI.Responses;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Responses;
 using IKitaplik.Entities.DTOs.DepositDTOs;
 
 namespace IKitaplik.BlazorUI.Services.Abstract
@@ -9,7 +10,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response> DepositReceivedAsync(DepositUpdateDto depositUpdateDto);
         Task<Response> DeleteAsync(int id);
         Task<Response> ExtendDueDateAsync(DepositExtentDueDateDto depositExtentDueDateDto);
-        Task<Response<List<DepositGetDTO>>> GetAllAsync();
+        Task<Response<PagedResult<DepositGetDTO>>> GetAllAsync(int page,int pageSize);
         Task<Response<DepositGetDTO>> GetByIdAsync(int id);
     }
 }

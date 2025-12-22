@@ -31,7 +31,7 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll(PageRequestDto pageRequestDto)
+        public async Task<IActionResult> GetAll([FromQuery] PageRequestDto pageRequestDto)
         {
             var res = await _donationService.GetAllDTOAsync(pageRequestDto.Page,pageRequestDto.PageSize);
             if(!res.Success)

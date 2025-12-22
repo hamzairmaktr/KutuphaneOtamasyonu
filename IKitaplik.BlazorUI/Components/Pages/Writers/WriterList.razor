@@ -6,95 +6,77 @@
 @inject MessageBoxService MessageBoxService
 @attribute [Authorize]
 
-@if (isLoading)
+
+<MudItem Class="mt-2 mb-2 text-end">
+    <MudButton Href="writer/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
+        Yeni Yazar Ekle
+    </MudButton>
+</MudItem>
+@if (!string.IsNullOrEmpty(errorMessage))
 {
-     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
-        <img src="/images/Loading.gif" alt="Loading" />
-    </div>
+    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
 }
 else
 {
-
-    <MudItem Class="mt-2 mb-2 text-end">
-        <MudButton Href="writer/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
-            Yeni Yazar Ekle
-        </MudButton>
-    </MudItem>
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
-            <MudText>@errorMessage</MudText>
-        </MudAlert>
-    }
-    else
-    {
-        <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<WriterGetDto, bool>(FilterFunc)"
-                  SortLabel="Sort By" CommitEditTooltip="Commit Edit">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Yazarlar</MudText>
-                <MudSpacer />
-                <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.WriterName)">İsmi</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.BirthDate)">Doğum Tarihi</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.DeathDate)">Ölüm Tarihi</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<WriterGetDto, object>(x => x.Biography)">Biyografisi</MudTableSortLabel></MudTh>
-                <MudTh>İşlemler</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Nr">@context.Id</MudTd>
-                <MudTd DataLabel="İsmi">@context.WriterName</MudTd>
-                <MudTd DataLabel="Doğum Tarihi">@context?.BirthDate?.ToShortDateString()</MudTd>
-                <MudTd DataLabel="Ölüm Tarihi">@context?.DeathDate?.ToShortDateString()</MudTd>
-                <MudTd DataLabel="Biyografisi">@context.Biography</MudTd>
-                <MudTd>
-                    <MudButtonGroup>
-                        <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => WriterUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
-                        <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => WriterDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
-                    </MudButtonGroup>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    }
-
+    <MudDataGrid T="WriterGetDto"
+                 @ref="_dataGrid"
+                 Filterable
+                 FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                 ServerData="ServerReload"
+                 Loading="isLoading">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Yazarlar</MudText>
+        </ToolBarContent>
+        <Columns>
+            <TemplateColumn Title="İşlemler">
+                <CellTemplate>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => WriterUpdate(context.Item.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => WriterDelete(context.Item.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="b => b.Id" Title="Nr." />
+            <PropertyColumn Property="b => b.WriterName" Title="Yazar Adı" />
+            <PropertyColumn Property="b => b.BirthDate.GetValueOrDefault().ToShortDateString()" Title="Doğum Tarihi" />
+            <PropertyColumn Property="@(b => b.DeathDate.HasValue ? b.DeathDate.Value.ToShortDateString() : "")" Title="Ölüm Tarihi" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
 }
 
 @code {
     private string errorMessage = string.Empty;
-    private string searchString = string.Empty;
-    IEnumerable<WriterGetDto> Items = new List<WriterGetDto>();
     public bool isLoading { get; set; } = true;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private MudDataGrid<WriterGetDto> _dataGrid;
+
+    private async Task<GridData<WriterGetDto>> ServerReload(GridState<WriterGetDto> gridState)
     {
-        if (firstRender)
+        try
         {
-            var res = await _writerService.GetAllAsync();
-            if (res.Success)
-            {
-                Items = res.Data.ToList();
-            }
-            else
+            isLoading = true;
+            var res = await _writerService.GetAllAsync(gridState.Page + 1, gridState.PageSize);
+            if (!res.Success)
             {
                 errorMessage = res.Message;
+                return new GridData<WriterGetDto>() { Items = new List<WriterGetDto>(), TotalItems = 0 };
             }
+            return new GridData<WriterGetDto>()
+            {
+                Items = res.Data.Items,
+                TotalItems = res.Data.TotalCount
+            };
+        }
+        finally
+        {
             isLoading = false;
             StateHasChanged();
         }
     }
-    private bool FilterFunc(WriterGetDto item)
-    {
-        searchString = searchString?.Trim().ToLower() ?? "";
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (item.WriterName.ToLower().Contains(searchString))
-            return true;
-        return false;
-    }
+
+
     private async Task WriterDelete(int id)
     {
         bool? result = await MessageBoxService.ShowConfirmDialog("Uyarı", "Yazar silinsin mi ?");
@@ -104,16 +86,7 @@ else
             Snackbar.Add(res.Message, severity: res.Success ? Severity.Success : Severity.Error);
             if (res.Success)
             {
-                var res1 = await _writerService.GetAllAsync();
-                if (res1.Success)
-                {
-                    Items = res1.Data.ToList();
-                    StateHasChanged();
-                }
-                else
-                {
-                    errorMessage = res1.Message;
-                }
+                await _dataGrid.ReloadServerData();
             }
             StateHasChanged();
         }

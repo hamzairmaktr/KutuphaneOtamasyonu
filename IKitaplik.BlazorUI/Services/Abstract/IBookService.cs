@@ -7,8 +7,8 @@ namespace IKitaplik.BlazorUI.Services.Abstract
 {
     public interface IBookService
     {
-        Task<Response<List<BookGetDTO>>> GetAllBooksAsync();
-        Task<Response<List<BookGetDTO>>> GetAllActiveBooksAsync();
+        Task<Response<PagedResult<BookGetDTO>>> GetAllBooksAsync(int page, int pageSize);
+        Task<Response<PagedResult<BookGetDTO>>> GetAllActiveBooksAsync(int page, int pageSize);
         Task<Response<Book>> GetBookByIdAsync(int id);
         Task<Response<Book>> GetBookByBarcodeAsync(string barcode);
         Task<Response> AddBookAsync(BookAddDto dto);

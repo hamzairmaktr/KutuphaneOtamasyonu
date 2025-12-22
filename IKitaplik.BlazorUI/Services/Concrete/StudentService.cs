@@ -1,4 +1,5 @@
-﻿using IKitaplik.BlazorUI.Cosntant;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs;
@@ -65,19 +66,19 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<StudentGetDto>>> GetAllAsync()
+        public async Task<Response<PagedResult<StudentGetDto>>> GetAllAsync(int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync("Student/getall");
+                var res = await _httpClient.GetAsync($"Student/getall?page={page}&pageSize={pageSize}");
                 res.EnsureSuccessStatusCode(); // HTTP olmayan bir durum kodu varsa hata fırlatır
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<StudentGetDto>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<StudentGetDto>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<StudentGetDto>> { Success = false, Message = $"Öğrenciler getirilirken hata oluştu: {ex.Message}", Data = new List<StudentGetDto>() };
+                return new Response<PagedResult<StudentGetDto>> { Success = false, Message = $"Öğrenciler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<StudentGetDto>() };
             }
         }
 
@@ -129,19 +130,19 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<StudentGetDto>>> GetAllActiveAsync()
+        public async Task<Response<PagedResult<StudentGetDto>>> GetAllActiveAsync(int page,int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync("Student/getallisactive");
+                var res = await _httpClient.GetAsync($"Student/getallisactive?page={page}&pageSize={pageSize}");
                 res.EnsureSuccessStatusCode(); // HTTP olmayan bir durum kodu varsa hata fırlatır
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<StudentGetDto>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<StudentGetDto>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<StudentGetDto>> { Success = false, Message = $"Öğrenciler getirilirken hata oluştu: {ex.Message}", Data = new List<StudentGetDto>() };
+                return new Response<PagedResult<StudentGetDto>> { Success = false, Message = $"Öğrenciler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<StudentGetDto>() };
             }
         }
     }

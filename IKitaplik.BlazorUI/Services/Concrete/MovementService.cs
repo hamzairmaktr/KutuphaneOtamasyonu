@@ -1,4 +1,5 @@
-﻿using IKitaplik.BlazorUI.Cosntant;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs;
@@ -34,108 +35,108 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllAsync()
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllAsync(int page,int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync("Movement/getAll");
+                var res = await _httpClient.GetAsync($"Movement/getAll?page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Tüm hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Tüm hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllByBookIdAsync(int id)
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllByBookIdAsync(int id, int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Movement/getAllBookId?id={id}");
+                var res = await _httpClient.GetAsync($"Movement/getAllBookId?id={id}&page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Kitap ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Kitap ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllByBookNameAsync(string bookName)
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllByBookNameAsync(string bookName, int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Movement/getAllBookName?bookName={bookName}");
+                var res = await _httpClient.GetAsync($"Movement/getAllBookName?bookName={bookName}&page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Kitap adına göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Kitap adına göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllByDepositIdAsync(int id)
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllByDepositIdAsync(int id, int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Movement/getAllDepositId?id={id}");
+                var res = await _httpClient.GetAsync($"Movement/getAllDepositId?id={id}&page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Depozito ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Depozito ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllByStudentIdAsync(int id)
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllByStudentIdAsync(int id, int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Movement/getAllStudentId?id={id}");
+                var res = await _httpClient.GetAsync($"Movement/getAllStudentId?id={id}&page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Öğrenci ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Öğrenci ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllByStudentNameAsync(string studentName)
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllByStudentNameAsync(string studentName, int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Movement/getAllStudentName?studentName={studentName}");
+                var res = await _httpClient.GetAsync($"Movement/getAllStudentName?studentName={studentName}&page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Öğrenci adına göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Öğrenci adına göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 
-        public async Task<Response<List<MovementGetDTO>>> GetAllByDonationIdAsync(int id)
+        public async Task<Response<PagedResult<MovementGetDTO>>> GetAllByDonationIdAsync(int id, int page, int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Movement/getAllDonationId?id={id}");
+                var res = await _httpClient.GetAsync($"Movement/getAllDonationId?id={id}&page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<MovementGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<MovementGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<MovementGetDTO>> { Success = false, Message = $"Bağış ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new List<MovementGetDTO>() };
+                return new Response<PagedResult<MovementGetDTO>> { Success = false, Message = $"Bağış ID'ye göre hareketler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<MovementGetDTO>() };
             }
         }
 

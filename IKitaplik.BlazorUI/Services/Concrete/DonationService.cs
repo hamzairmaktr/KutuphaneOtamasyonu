@@ -1,4 +1,5 @@
-﻿using IKitaplik.BlazorUI.Cosntant;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs.DonationDTOs; 
@@ -47,18 +48,18 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<List<DonationGetDTO>>> GetAllAsync()
+        public async Task<Response<PagedResult<DonationGetDTO>>> GetAllAsync(int page,int pageSize)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync("Donation/getAll");
+                var res = await _httpClient.GetAsync($"Donation/getAll?page={page}&pageSize={pageSize}");
                 var content = await res.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Response<List<DonationGetDTO>>>(content, _jsonOptions)!;
+                return JsonSerializer.Deserialize<Response<PagedResult<DonationGetDTO>>>(content, _jsonOptions)!;
             }
             catch (Exception ex)
             {
-                return new Response<List<DonationGetDTO>> { Success = false, Message = $"Tüm bağışlar getirilirken hata oluştu: {ex.Message}", Data = new List<DonationGetDTO>() };
+                return new Response<PagedResult<DonationGetDTO>> { Success = false, Message = $"Tüm bağışlar getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<DonationGetDTO>() };
             }
         }
 

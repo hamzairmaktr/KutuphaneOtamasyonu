@@ -14,100 +14,59 @@
         <MudText>@errorMessage</MudText>
     </MudAlert>
 }
-else if (isLoading)
-{
-     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center" id="loading">
-        <img src="/images/Loading.gif" alt="Loading" />
-    </div>
-}
-else
-{
-    <MudTable Items="@Items" Hover="true" ReadOnly="true" Filter="new Func<BookGetDTO, bool>(FilterFunc)"
-              SortLabel="Sort By" CommitEditTooltip="Commit Edit">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">Kitaplar</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-        </ToolBarContent>
-        <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Id)">Nr</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Barcode)">Barkod</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Name)">İsim</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.WriterName)">Yazar</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.CategoryName)">Kategori</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.ShelfNo)">Raf No</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.Piece)">Adet</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<BookGetDTO, object>(x => x.PageSize)">Sayfa Sayısı</MudTableSortLabel></MudTh>
-            <MudTh>İşlemler</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Nr">@context.Id</MudTd>
-            <MudTd DataLabel="Barkod">@context.Barcode</MudTd>
-            <MudTd DataLabel="İsim">@context.Name</MudTd>
-            <MudTd DataLabel="Yazar">@context.WriterName</MudTd>
-            <MudTd DataLabel="Kategori">@context.CategoryName</MudTd>
-            <MudTd DataLabel="Raf No">@context.ShelfNo</MudTd>
-            <MudTd DataLabel="Adet">@context.Piece</MudTd>
-            <MudTd DataLabel="Sayfa Sayısı">@context.PageSize</MudTd>
-            <MudTd>
-                <MudButtonGroup>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => BookUpdate(context.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => BookAddPiece(context.Id))" Color="Color.Info" Icon="@Icons.Material.Filled.Add"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => BookDelete(context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => GoMovements(context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.ViewList"></MudIconButton>
-                </MudButtonGroup>
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
-}
+
+<MudDataGrid T="BookGetDTO"
+             @ref="_dataGrid"
+             Filterable
+             FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+             ServerData="ServerReload"
+             Loading>
+    <Columns>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => BookUpdate(context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => BookDelete(context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.List" Color="Color.Info" OnClick="() => GoMovements(context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Success" OnClick="() => BookAddPiece(context.Item.Id)" />
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="b => b.Id" Title="Nr." />
+        <PropertyColumn Property="b => b.Barcode" Title="Barkod" />
+        <PropertyColumn Property="b => b.ShelfNo" Title="Dolap No" />
+        <PropertyColumn Property="b => b.Name" Title="Kitap Adı" />
+        <PropertyColumn Property="b => b.Piece" Title="Adet" />
+        <PropertyColumn Property="b => b.CategoryName" Title="Kategori Adı" />
+        <PropertyColumn Property="b => b.WriterName" Title="Yazar Adı" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager></MudDataGridPager>
+    </PagerContent>
+</MudDataGrid>
 
 @code {
     private string searchString = "", errorMessage = "";
-    private IEnumerable<BookGetDTO> Items = new List<BookGetDTO>();
-    public bool isLoading { get; set; } = true;
+    private MudDataGrid<BookGetDTO> _dataGrid;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task<GridData<BookGetDTO>> ServerReload(GridState<BookGetDTO> gridState)
     {
-        if (firstRender)
+        try
         {
-            try
+            var res = await _service.GetAllBooksAsync(gridState.Page + 1, gridState.PageSize);
+            if (!res.Success)
             {
-                var res = await _service.GetAllBooksAsync();
-                if (!res.Success)
-                {
-                    errorMessage = res.Message;
-                }
-                else
-                {
-                    Items = res.Data;
-                }
+                errorMessage = res.Message;
+                return new GridData<BookGetDTO>() { Items = new List<BookGetDTO>(), TotalItems = 0 };
             }
-            catch (Exception ex)
+            return new GridData<BookGetDTO>()
             {
-                //errorMessage = ex.Message;
-            }
-            isLoading = false;
+                Items = res.Data.Items,
+                TotalItems = res.Data.TotalCount
+            };
+        }
+        finally
+        {
             StateHasChanged();
         }
-    }
-
-    private bool FilterFunc(BookGetDTO item)
-    {
-        searchString = searchString?.Trim().ToLower() ?? "";
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (item.Name.ToLower().Contains(searchString))
-            return true;
-        if (item.WriterName.ToLower().Contains(searchString))
-            return true;
-        if ($"{item.CategoryName.ToLower()} {item.Barcode.ToString()} {item.Id}".Contains(searchString))
-            return true;
-        if ($"{item.Situation.ToString().ToLower()} {item.ShelfNo.ToLower()}".Contains(searchString))
-            return true;
-        return false;
     }
 
     private async Task BookDelete(int id)
@@ -119,16 +78,7 @@ else
             Snackbar.Add(res.Message, severity: res.Success ? Severity.Success : Severity.Error);
             if (res.Success)
             {
-                var res1 = await _service.GetAllBooksAsync();
-                if (res1.Success)
-                {
-                    Items = res1.Data.ToList();
-                    StateHasChanged();
-                }
-                else
-                {
-                    errorMessage = res1.Message;
-                }
+                await _dataGrid.ReloadServerData();
             }
             StateHasChanged();
         }
@@ -185,7 +135,8 @@ else
             {
                 Snackbar.Add(res.Message, Severity.Error);
             }
-            await OnInitializedAsync();
+            await _dataGrid.ReloadServerData();
         }
     }
+
 }

@@ -1,17 +1,18 @@
-﻿using IKitaplik.BlazorUI.Responses;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Responses;
 using IKitaplik.Entities.DTOs;
 
 namespace IKitaplik.BlazorUI.Services.Abstract
 {
     public interface IMovementService
     {
-        Task<Response<List<MovementGetDTO>>> GetAllAsync();
-        Task<Response<List<MovementGetDTO>>> GetAllByBookIdAsync(int id);
-        Task<Response<List<MovementGetDTO>>> GetAllByBookNameAsync(string bookName);
-        Task<Response<List<MovementGetDTO>>> GetAllByDepositIdAsync(int id);
-        Task<Response<List<MovementGetDTO>>> GetAllByStudentIdAsync(int id);
-        Task<Response<List<MovementGetDTO>>> GetAllByStudentNameAsync(string studentName);
-        Task<Response<List<MovementGetDTO>>> GetAllByDonationIdAsync(int id);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllAsync(int page,int pageSize);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllByBookIdAsync(int id, int page, int pageSize);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllByBookNameAsync(string bookName, int page, int pageSize);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllByDepositIdAsync(int id, int page, int pageSize);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllByStudentIdAsync(int id, int page, int pageSize);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllByStudentNameAsync(string studentName, int page, int pageSize);
+        Task<Response<PagedResult<MovementGetDTO>>> GetAllByDonationIdAsync(int id, int page, int pageSize);
         Task<Response<MovementGetDTO>> GetByIdAsync(int id);
     }
 }

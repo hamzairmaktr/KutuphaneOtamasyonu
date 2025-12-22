@@ -42,10 +42,10 @@
     {
         if (firstRender)
         {
-            var res = await _studentService.GetAllAsync();
+            var res = await _studentService.GetAllAsync(1,2000);
             if (res.Success)
             {
-                List = res.Data;
+                List = res.Data.Items;
             }
         }
     }

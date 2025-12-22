@@ -1,11 +1,12 @@
-﻿using IKitaplik.BlazorUI.Responses;
+﻿using Core.Utilities.Results;
+using IKitaplik.BlazorUI.Responses;
 
 namespace IKitaplik.BlazorUI.Services.Abstract
 {
     public interface IStudentService
     {
-        Task<Response<List<StudentGetDto>>> GetAllAsync();
-        Task<Response<List<StudentGetDto>>> GetAllActiveAsync();
+        Task<Response<PagedResult<StudentGetDto>>> GetAllAsync(int page, int pageSize);
+        Task<Response<PagedResult<StudentGetDto>>> GetAllActiveAsync(int page, int pageSize);
         Task<Response<List<StudentGetDto>>> GetAllByNameAsync(string name);
         Task<Response<StudentGetDto>> GetByIdAsync(int id);
         Task<Response> AddAsync(StudentAddDto studentAddDto);
