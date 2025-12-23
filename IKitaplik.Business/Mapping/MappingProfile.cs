@@ -15,45 +15,78 @@ using System.Threading.Tasks;
 
 namespace IKitaplik.Business.Mapping
 {
-    public class MappingProfile:Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
-            CreateMap<BookAddDto, Book>();
-            CreateMap<BookUpdateDto, Book>();
+            CreateMap<BookAddDto, Book>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())  // UserId maplenmesin
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore()); ;
+            CreateMap<BookUpdateDto, Book>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())  // UserId maplenmesin
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore()); ;
             CreateMap<BookGetDTO, Book>();
             CreateMap<Book, BookAddDto>();
             CreateMap<Book, BookUpdateDto>();
             CreateMap<Book, BookGetDTO>();
 
-            CreateMap<CategoryAddDto, Category>();
-            CreateMap<CategoryUpdateDto, Category>();
+            CreateMap<CategoryAddDto, Category>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())  // UserId maplenmesin
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore()); ;
+            CreateMap<CategoryUpdateDto, Category>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore()); ;
             CreateMap<CategoryGetDto, Category>();
             CreateMap<Category, CategoryGetDto>();
             CreateMap<Category, CategoryUpdateDto>();
             CreateMap<Category, CategoryAddDto>();
 
-            CreateMap<StudentAddDto, Student>();
-            CreateMap<StudentUpdateDto, Student>();
+            CreateMap<StudentAddDto, Student>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
+            CreateMap<StudentUpdateDto, Student>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
             CreateMap<StudentGetDto, Student>();
             CreateMap<Student, StudentAddDto>();
             CreateMap<Student, StudentUpdateDto>();
             CreateMap<Student, StudentGetDto>();
 
-            CreateMap<WriterAddDto, Writer>();
-            CreateMap<WriterUpdateDto, Writer>();
+            CreateMap<WriterAddDto, Writer>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
+            CreateMap<WriterUpdateDto, Writer>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
             CreateMap<WriterGetDto, Writer>();
-            CreateMap<Writer,WriterAddDto>();
-            CreateMap<Writer,WriterUpdateDto>();
-            CreateMap<Writer,WriterGetDto>();
+            CreateMap<Writer, WriterAddDto>();
+            CreateMap<Writer, WriterUpdateDto>();
+            CreateMap<Writer, WriterGetDto>();
 
-            CreateMap<Donation,DonationAddDto>();
+            CreateMap<Donation, DonationAddDto>();
             CreateMap<Donation, DonationGetDTO>();
-            CreateMap<DonationAddDto, Donation>();
+            CreateMap<DonationAddDto, Donation>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
             CreateMap<DonationGetDTO, Donation>();
 
-            CreateMap<DepositAddDto, Deposit>();
-            CreateMap<DepositUpdateDto, Deposit>();
+            CreateMap<DepositAddDto, Deposit>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
+            CreateMap<DepositUpdateDto, Deposit>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
             CreateMap<DepositGetDTO, Deposit>();
             CreateMap<Deposit, DepositAddDto>();
             CreateMap<Deposit, DepositUpdateDto>();

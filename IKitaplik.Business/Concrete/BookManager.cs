@@ -149,19 +149,15 @@ namespace IKitaplik.Business.Concrete
                 {
                     return new ErrorResult(bookExisting.Message);
                 }
-                DateTime createdDate = bookExisting.Data.CreatedDate;
-                Book book = _mapper.Map<Book>(bookUpdateDto);
-                book.CreatedDate = createdDate;
-                book.UpdatedDate = DateTime.Now;
+                Book book = _mapper.Map(bookUpdateDto,bookExisting.Data);
+                
                 var validationResult = _validator.Validate(book);
                 if (!validationResult.IsValid)
                 {
                     return new ErrorResult(validationResult.Errors.Select(e => e.ErrorMessage)
                         .First());
                 }
-
                 await _unitOfWork.Books.UpdateAsync(book);
-
                 var result = await _movementService.AddAsync(new Movement
                 {
                     BookId = book.Id,
@@ -169,12 +165,10 @@ namespace IKitaplik.Business.Concrete
                     Title = "Kitap Güncellendi",
                     Note = $"{DateTime.Now:g} tarihinde {book.Name} adlı kitap güncellendi",
                 });
-
                 if (!result.Success)
                 {
                     return new ErrorResult(result.Message);
                 }
-
                 return new SuccessResult("Kitap başarı ile güncellendi");
 
             }, _unitOfWork);

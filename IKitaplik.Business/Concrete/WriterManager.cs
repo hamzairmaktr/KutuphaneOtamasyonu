@@ -106,7 +106,7 @@ namespace IKitaplik.Business.Concrete
                     return new ErrorResult(existingWriter.Message);
                 }
 
-                var writer = _mapper.Map<Writer>(writerUpdateDto);
+                var writer = _mapper.Map(writerUpdateDto, existingWriter.Data);
                 var validator = _validator.Validate(writer);
                 if (!validator.IsValid)
                 {

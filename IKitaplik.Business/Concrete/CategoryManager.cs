@@ -91,35 +91,21 @@ namespace IKitaplik.Business.Concrete
         {
             return await HandleWithTransactionHelper.Handling(async () =>
             { 
-                // Önce mevcut kategoriyi veritabanından alalım
                 var existingCategory = await GetByIdAsync(categoryUpdateDto.Id);
                 if (!existingCategory.Success)
                 {
                     return new ErrorResult(existingCategory.Message);
                 }
-
-                // Mevcut kategorinin CreatedDate bilgisini saklayalım
-                var createdDate = existingCategory.Data.CreatedDate;
-
-                // DTO'dan gelen bilgileri mevcut kategoriye mapleyelim
-                var category = _mapper.Map<Category>(categoryUpdateDto);
-
-                // CreatedDate'i koruyalım ve UpdatedDate'i güncelleyelim
-                category.CreatedDate = createdDate;
-                category.UpdatedDate = DateTime.Now;
-
+                var category = _mapper.Map(categoryUpdateDto,existingCategory.Data);
                 var validator = _validator.Validate(category);
                 if (!validator.IsValid)
                 {
                     return new ErrorResult(validator.Errors.Select(e => e.ErrorMessage)
                         .First());
                 }
-
                 await _unitOfWork.Categorys.UpdateAsync(category);
                 return new SuccessResult("Kategori güncellendi");
-            }, _unitOfWork);
-                
-           
+            }, _unitOfWork); 
         }
     }
 }

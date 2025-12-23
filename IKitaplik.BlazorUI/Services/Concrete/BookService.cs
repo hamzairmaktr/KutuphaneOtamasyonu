@@ -109,7 +109,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var res = await _httpClient.GetAsync("book/getByBarcode?barcode?" + barcode);
+                var res = await _httpClient.GetAsync("book/getByBarcode?barcode=" + barcode);
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<Book>>(content, _jsonOptions)!;
             }

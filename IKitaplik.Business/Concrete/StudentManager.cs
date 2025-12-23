@@ -165,15 +165,12 @@ namespace IKitaplik.Business.Concrete
             {
                 return new ErrorResult(studentExisting.Message);
             }
-            DateTime createdDate = studentExisting.Data.CreatedDate;
-            var student = _mapper.Map<Student>(studentUpdateDto);
+            var student = _mapper.Map(studentUpdateDto,studentExisting.Data);
             var isValid = _validator.Validate(student);
             if (!isValid.IsValid)
             {
                 return new ErrorResult(isValid.Errors.First().ErrorMessage);
             }
-            student.CreatedDate = createdDate;
-            student.UpdatedDate = DateTime.Now;
             await _unitOfWork.Students.UpdateAsync(student);
 
             var movementResponse = await _movementService.AddAsync(new Movement
