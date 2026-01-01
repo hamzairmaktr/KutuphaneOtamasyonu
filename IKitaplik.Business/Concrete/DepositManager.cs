@@ -116,11 +116,11 @@ namespace IKitaplik.Business.Concrete
                 return new SuccessResult("Emanete ek süre verildi.");
             }, _unitOfWork);
         }
-        public async Task<IDataResult<PagedResult<DepositGetDTO>>> GetAllDTOAsync(int page, int pageSize)
+        public async Task<IDataResult<PagedResult<DepositGetDTO>>> GetAllDTOAsync(int page, int pageSize, bool includeDelivered)
         {
             try
             {
-                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync(page, pageSize);
+                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync(page, pageSize, p => includeDelivered || !p.IsDelivered);
                 return new SuccessDataResult<PagedResult<DepositGetDTO>>(deposits, "Emanet kayıtları başarıyla çekildi.");
             }
             catch (Exception ex)

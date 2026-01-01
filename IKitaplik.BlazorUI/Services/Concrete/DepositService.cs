@@ -96,12 +96,12 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             }
         }
 
-        public async Task<Response<PagedResult<DepositGetDTO>>> GetAllAsync(int page,int pageSize)
+        public async Task<Response<PagedResult<DepositGetDTO>>> GetAllAsync(int page,int pageSize,bool includeDelivered)
         {
             try
             {
                 await SetAuthorizationHeader();
-                var res = await _httpClient.GetAsync($"Deposit/getAll?page={page}&pageSize={pageSize}");
+                var res = await _httpClient.GetAsync($"Deposit/getAll?page={page}&pageSize={pageSize}&IncludeDelivered={includeDelivered}");
                 res.EnsureSuccessStatusCode();
                 var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<Response<PagedResult<DepositGetDTO>>>(content, _jsonOptions)!;

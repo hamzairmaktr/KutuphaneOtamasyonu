@@ -62,13 +62,12 @@ else
         try
         {
             isLoading = true;
-            var res = await _service.GetAllAsync(gridState.Page + 1, gridState.PageSize);
+            var res = await _service.GetAllAsync(gridState.Page + 1, gridState.PageSize, HepsiniGetir);
             if (res.Success)
             {
-                var filteredItems = HepsiniGetir ? res.Data.Items : res.Data.Items.Where(p => !p.IsDelivered);
                 return new GridData<DepositGetDTO>()
                 {
-                    Items = filteredItems,
+                    Items = res.Data.Items,
                     TotalItems = res.Data.TotalCount
                 };
             }

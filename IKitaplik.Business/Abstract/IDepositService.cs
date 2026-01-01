@@ -16,7 +16,7 @@ namespace IKitaplik.Business.Abstract
         Task<IResult> DeleteAsync(int id);
         Task<IResult> ExtendDueDateAsync(DepositExtentDueDateDto depositExtentDueDateDto);
 
-        Task<IDataResult<PagedResult<DepositGetDTO>>> GetAllDTOAsync(int page, int pageSize);
+        Task<IDataResult<PagedResult<DepositGetDTO>>> GetAllDTOAsync(int page, int pageSize,bool includeDelivered);
         Task<IDataResult<DepositGetDTO>> GetByIdDTOAsync(int id);
         Task<IDataResult<Deposit>> GetByIdAsync(int id);
     }

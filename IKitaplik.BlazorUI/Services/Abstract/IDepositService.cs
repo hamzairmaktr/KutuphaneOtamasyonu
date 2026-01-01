@@ -10,7 +10,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response> DepositReceivedAsync(DepositUpdateDto depositUpdateDto);
         Task<Response> DeleteAsync(int id);
         Task<Response> ExtendDueDateAsync(DepositExtentDueDateDto depositExtentDueDateDto);
-        Task<Response<PagedResult<DepositGetDTO>>> GetAllAsync(int page,int pageSize);
+        Task<Response<PagedResult<DepositGetDTO>>> GetAllAsync(int page,int pageSize,bool includeDelivered);
         Task<Response<DepositGetDTO>> GetByIdAsync(int id);
     }
 }

@@ -57,9 +57,9 @@ namespace IKitaplik.Api.Controllers
         }
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll([FromQuery] PageRequestDto page)
+        public async Task<IActionResult> GetAll([FromQuery] PageRequestDto page, [FromQuery] DepositGetAllRequestDto depositGetAllRequestDto)
         {
-            var res = await _depositService.GetAllDTOAsync(page.Page,page.PageSize);
+            var res = await _depositService.GetAllDTOAsync(page.Page, page.PageSize, depositGetAllRequestDto.IncludeDelivered);
             if (!res.Success)
                 return BadRequest(res);
             return Ok(res);
