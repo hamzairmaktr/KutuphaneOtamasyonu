@@ -150,5 +150,46 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 return await Task.FromException<Response>(new Exception("Login Olunamadı"));
             }
         }
+        public async Task<Response<List<BookAutocompleteDto>>> SearchBooksAsync(string query)
+        {
+            try
+            {
+                string token = await _authService.GetToken();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    var res = await _httpClient.GetAsync($"book/search?query={query}");
+                    var content = await res.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<Response<List<BookAutocompleteDto>>>(content, _jsonOptions)!;
+                }
+                else
+                {
+                    return new Response<List<BookAutocompleteDto>> { Success = false, Message = "Login Olunamadı" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<BookAutocompleteDto>> { Success = false, Message = $"Arama yapılırken hata oluştu: {ex.Message}" };
+            }
+        }
+        public async Task<Response<BookGetDTO>> GetBookDtoByIdAsync(int id)
+        {
+             try
+             {
+                 string token = await _authService.GetToken();
+                 if(!string.IsNullOrEmpty(token))
+                 {
+                      _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                      var res = await _httpClient.GetAsync($"book/getDtoById?id={id}");
+                      res.EnsureSuccessStatusCode();
+                      return await res.Content.ReadFromJsonAsync<Response<BookGetDTO>>(_jsonOptions)!;
+                 }
+                 return new Response<BookGetDTO> { Success = false, Message = "Login Olunamadı" };
+             }
+             catch (Exception ex)
+             {
+                 return new Response<BookGetDTO> { Success = false, Message = $"Hata: {ex.Message}" };
+             }
+        }
     }
 }

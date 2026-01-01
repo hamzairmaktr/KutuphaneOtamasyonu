@@ -261,5 +261,37 @@ namespace IKitaplik.Business.Concrete
                 return new ErrorDataResult<PagedResult<BookGetDTO>>("Kitaplar çekilirken bir hata oluştu : " + ex.Message);
             }
         }
+        public async Task<IDataResult<List<BookAutocompleteDto>>> SearchForAutocompleteAsync(string query)
+        {
+            try
+            {
+                PagedResult<BookGetDTO> books = await _unitOfWork.Books.GetAllBookDTOsAsync(1, 20, 
+                    p => (p.Name != null && p.Name.ToLower().Contains(query.ToLower())) || 
+                         (p.Barcode != null && p.Barcode.ToLower().Contains(query.ToLower())));
+                
+                var result = _mapper.Map<List<BookAutocompleteDto>>(books.Items);
+                return new SuccessDataResult<List<BookAutocompleteDto>>(result, "Kitaplar başarı ile çekildi");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<List<BookAutocompleteDto>>("Arama yapılırken hata oluştu: " + ex.Message);
+            }
+        }
+        public async Task<IDataResult<BookGetDTO>> GetDtoByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _unitOfWork.Books.GetAllBookDTOsAsync(1, 1, x => x.Id == id);
+                if (result.Items.Any())
+                {
+                    return new SuccessDataResult<BookGetDTO>(result.Items.First(), "Kitap başarı ile getirildi");
+                }
+                return new ErrorDataResult<BookGetDTO>("Kitap bulunamadı");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<BookGetDTO>("Hata: " + ex.Message);
+            }
+        }
     }
 }

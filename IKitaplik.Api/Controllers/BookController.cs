@@ -111,5 +111,25 @@ namespace IKitaplik.Api.Controllers
                 return Ok(res);
             return BadRequest(res);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string query)
+        {
+            var result = await _bookService.SearchForAutocompleteAsync(query);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("getDtoById")]
+        public async Task<IActionResult> GetDtoById([FromQuery] int id)
+        {
+            var res = await _bookService.GetDtoByIdAsync(id);
+            if (res.Success)
+                return Ok(res);
+            return BadRequest(res);
+        }
     }
 }

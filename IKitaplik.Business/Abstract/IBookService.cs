@@ -24,5 +24,7 @@ namespace IKitaplik.Business.Abstract
         Task<IDataResult<List<BookGetDTO>>> GetAllByNameAsync(string name);
         Task<IDataResult<Book>> GetByIdAsync(int id);
         Task<IDataResult<Book>> GetByBarcodeAsync(string barcode);
+        Task<IDataResult<List<BookAutocompleteDto>>> SearchForAutocompleteAsync(string query);
+        Task<IDataResult<BookGetDTO>> GetDtoByIdAsync(int id);
     }
 }

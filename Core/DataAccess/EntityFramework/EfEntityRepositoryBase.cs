@@ -34,7 +34,7 @@ namespace Core.DataAccess.EntityFramework
             var query = _context.Set<TEntity>().AsNoTracking().AsQueryable();
             if (filter != null)
             {
-                query.Where(filter);
+                query = query.Where(filter);
             }
             if (orderBy != null)
             {
@@ -109,7 +109,7 @@ namespace Core.DataAccess.EntityFramework
             var query = _context.Set<TEntity>().AsNoTracking().AsQueryable();
             if (filter != null)
             {
-                query.Where(filter);
+                query = query.Where(filter);
             }
             if (orderBy != null)
             {

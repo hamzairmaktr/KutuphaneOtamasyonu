@@ -1,13 +1,19 @@
-﻿@inject IStudentService _studentService
+﻿@using IKitaplik.Entities.DTOs.StudentDTOs
+@inject IStudentService _studentService
+
 <MudDialog>
     <DialogContent>
         <p class="text-danger">Eğer kitap bağış değilse alanları boş bırakabilirsiniz</p>
-        <MudAutocomplete SearchFunc="SearchStudent"
+        <MudAutocomplete T="StudentAutocompleteDto" 
+                         SearchFunc="SearchStudent"
                          Label="Bağışçı"
-                         Variant=" Variant.Outlined"
-                         @bind-Value="SelectedStudend"
+                         Variant="Variant.Outlined"
+                         @bind-Value="SelectedStudent"
                          Clearable="true"
-                         ToStringFunc="@(x => x?.Name ?? "")">
+                         ResetValueOnEmptyText="true"
+                         CoerceText="false"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         ToStringFunc="@(e => e==null?null : $"{e.Name} - {e.StudentNumber}")">
         </MudAutocomplete>
         <MudDatePicker Date="DonationAddDto.Date"
                        DateChanged="@(val => DonationAddDto.Date = val ?? DateTime.Now)"
@@ -24,30 +30,18 @@
 @code {
     [CascadingParameter]
     IMudDialogInstance Dialog { get; set; }
-    public StudentGetDto? SelectedStudend { get; set; }
+    public StudentAutocompleteDto? SelectedStudent { get; set; }
 
     public DonationAddDto DonationAddDto { get; set; } = new();
-    public List<StudentGetDto> List { get; set; }
+
     private void Select()
     {
-        DonationAddDto.StudentId = SelectedStudend?.Id ?? 0;
+        DonationAddDto.StudentId = SelectedStudent?.Id ?? 0;
         Dialog.Close(DialogResult.Ok(DonationAddDto));
     }
     private void Cancel()
     {
         Dialog.Cancel();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var res = await _studentService.GetAllAsync(1,2000);
-            if (res.Success)
-            {
-                List = res.Data.Items;
-            }
-        }
     }
 
     protected override void OnParametersSet()
@@ -56,11 +50,16 @@
         DonationAddDto.IsItDamaged = false;
     }
 
-    private async Task<IEnumerable<StudentGetDto>> SearchStudent(string val, CancellationToken e)
+    private async Task<IEnumerable<StudentAutocompleteDto>> SearchStudent(string val, CancellationToken e)
     {
-        if (!string.IsNullOrEmpty(val))
-            return List.Where(p => p.Name.Contains(val)).AsEnumerable();
-        else
-            return List.AsEnumerable();
+        if (string.IsNullOrEmpty(val))
+            return new List<StudentAutocompleteDto>();
+            
+        var res = await _studentService.SearchStudentsAsync(val);
+        if (res.Success)
+        {
+            return res.Data;
+        }
+        return new List<StudentAutocompleteDto>();
     }
 }

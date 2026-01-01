@@ -1,9 +1,12 @@
 ﻿@page "/deposit/add"
 @inject IDialogService DialogService
 @inject IBookService _bookService
+@inject IStudentService _studentService
 @inject IDepositService _service
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
+@using IKitaplik.Entities.DTOs.BookDTOs
+@using IKitaplik.Entities.DTOs.StudentDTOs
 @attribute [Authorize]
 
 
@@ -79,15 +82,16 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <div class="mb-4">
-                        <MudButton ButtonType="ButtonType.Button"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Large"
-                                   FullWidth="true"
-                                   StartIcon="@Icons.Material.Filled.Search"
-                                   OnClick="SelectBook">
-                            Kitap Seç
-                        </MudButton>
+                        <MudAutocomplete T="BookAutocompleteDto"
+                                         Label="Kitap Ara (İsim veya Barkod)"
+                                         SearchFunc="@SearchBooks"
+                                         ValueChanged="@OnBookSelected"
+                                         ToStringFunc="@(e => e==null?null : $"{e.Name} - {e.Barcode}")"
+                                         ResetValueOnEmptyText="true"
+                                         CoerceText="false"
+                                         AdornmentIcon="@Icons.Material.Filled.Search"
+                                         Variant="Variant.Outlined"
+                                         Class="mb-4"/>
                     </div>
 
                     @if (!string.IsNullOrEmpty(selectedBook.Name))
@@ -182,15 +186,16 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <div class="mb-4">
-                        <MudButton ButtonType="ButtonType.Button"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   Size="Size.Large"
-                                   FullWidth="true"
-                                   StartIcon="@Icons.Material.Filled.Search"
-                                   OnClick="SelectStudent">
-                            Öğrenci Seç
-                        </MudButton>
+                        <MudAutocomplete T="StudentAutocompleteDto"
+                                         Label="Öğrenci Ara (İsim veya Numara)"
+                                         SearchFunc="@SearchStudents"
+                                         ValueChanged="@OnStudentSelected"
+                                         ToStringFunc="@(e => e==null?null : $"{e.Name} - {e.StudentNumber}")"
+                                         ResetValueOnEmptyText="true"
+                                         CoerceText="false"
+                                         AdornmentIcon="@Icons.Material.Filled.Search"
+                                         Variant="Variant.Outlined"
+                                         Class="mb-4"/>
                     </div>
 
                     @if (!string.IsNullOrEmpty(selectedStudent.Name))
@@ -293,30 +298,58 @@
     public DateTime? returnDate = DateTime.Now.AddDays(14);
     public string depositNote = string.Empty;
 
-    private async Task SelectBook(MouseEventArgs args)
+    private async Task<IEnumerable<BookAutocompleteDto>> SearchBooks(string value, CancellationToken token)
     {
-        var dialogRes = await DialogService.ShowAsync<_DepositBook>("Kitap Seç", options: new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium,
-            CloseOnEscapeKey = true,
-            BackdropClick = false
-        });
-        var res = await dialogRes.Result;
-        selectedBook = (BookGetDTO?)res?.Data ?? new();
+        if (string.IsNullOrEmpty(value))
+            return new List<BookAutocompleteDto>();
+        
+        var response = await _bookService.SearchBooksAsync(value);
+        if (response.Success)
+            return response.Data;
+        return new List<BookAutocompleteDto>();
     }
 
-    private async Task SelectStudent(MouseEventArgs args)
+    private async Task OnBookSelected(BookAutocompleteDto? book)
     {
-        var dialogRes = await DialogService.ShowAsync<_DepositStudent>("Öğrenci Seç", new DialogOptions
+        if (book != null)
         {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium,
-            CloseOnEscapeKey = true,
-            BackdropClick = false
-        });
-        var res = await dialogRes.Result;
-        selectedStudent = (StudentGetDto?)res?.Data ?? new();
+            var res = await _bookService.GetBookDtoByIdAsync(book.Id);
+            if (res.Success)
+            {
+                selectedBook = res.Data;
+            }
+        }
+        else
+        {
+            selectedBook = new BookGetDTO();
+        }
+    }
+
+    private async Task<IEnumerable<StudentAutocompleteDto>> SearchStudents(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return new List<StudentAutocompleteDto>();
+        
+        var response = await _studentService.SearchStudentsAsync(value);
+        if (response.Success)
+            return response.Data;
+        return new List<StudentAutocompleteDto>();
+    }
+
+    private async Task OnStudentSelected(StudentAutocompleteDto? student)
+    {
+        if (student != null)
+        {
+             var res = await _studentService.GetStudentDtoByIdAsync(student.Id);
+             if (res.Success)
+             {
+                 selectedStudent = res.Data;
+             }
+        }
+        else
+        {
+            selectedStudent = new StudentGetDto();
+        }
     }
     private void Vazgec(MouseEventArgs args)
     {

@@ -5,6 +5,7 @@ using IKitaplik.Entities.DTOs.BookDTOs;
 using IKitaplik.Entities.DTOs.CategoryDTOs;
 using IKitaplik.Entities.DTOs.DepositDTOs;
 using IKitaplik.Entities.DTOs.DonationDTOs;
+using IKitaplik.Entities.DTOs.StudentDTOs;
 using IKitaplik.Entities.DTOs.UserDTOs;
 using IKitaplik.Entities.DTOs.WriterDTOs;
 using System;
@@ -31,6 +32,8 @@ namespace IKitaplik.Business.Mapping
             CreateMap<Book, BookAddDto>();
             CreateMap<Book, BookUpdateDto>();
             CreateMap<Book, BookGetDTO>();
+            CreateMap<BookGetDTO, BookAutocompleteDto>();
+            CreateMap<Book, BookAutocompleteDto>();
 
             CreateMap<CategoryAddDto, Category>()
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())  // UserId maplenmesin
@@ -57,6 +60,7 @@ namespace IKitaplik.Business.Mapping
             CreateMap<Student, StudentAddDto>();
             CreateMap<Student, StudentUpdateDto>();
             CreateMap<Student, StudentGetDto>();
+            CreateMap<Student, StudentAutocompleteDto>();
 
             CreateMap<WriterAddDto, Writer>()
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())

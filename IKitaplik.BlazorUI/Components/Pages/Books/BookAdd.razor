@@ -8,6 +8,8 @@
 @inject IStudentService _studentService
 @attribute [Authorize]
 
+@using IKitaplik.Entities.DTOs.StudentDTOs
+
 <h3 class="mt-2">Kitap Ekle</h3>
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -35,11 +37,14 @@
 
     <MudAutocomplete Label="Bağışçı Seç"
                      Variant="Variant.Outlined"
-                     T="StudentGetDto"
-                     ToStringFunc="@(x => x?.Name ?? string.Empty)"
+                     T="StudentAutocompleteDto"
+                     ToStringFunc="@(e => e==null?null : $"{e.Name} - {e.StudentNumber}")"
                      @bind-Value="SelectedStudent"
                      SearchFunc="SelectStudent"
-                     Clearable="true"></MudAutocomplete>
+                     ResetValueOnEmptyText="true"
+                     CoerceText="false"
+                     Clearable="true"
+                     AdornmentIcon="@Icons.Material.Filled.Search"></MudAutocomplete>
     <MudDatePicker Label="Bağış Tarihi"
                    Variant="Variant.Outlined"
                    Date="@donationAddDto.Date"
@@ -60,7 +65,7 @@
     private bool isDonation = false;
     private CategoryGetDto Category = null;
     private WriterGetDto Writer = null;
-    private StudentGetDto SelectedStudent = null;
+    private StudentAutocompleteDto SelectedStudent = null;
     private DonationAddDto donationAddDto = new()
     {
         Date = DateTime.Now,
@@ -68,7 +73,7 @@
     };
     private List<CategoryGetDto> Categories = new List<CategoryGetDto>();
     private List<WriterGetDto> Writers = new List<WriterGetDto>();
-    private IEnumerable<StudentGetDto> Students = new List<StudentGetDto>();
+
     protected override async Task OnInitializedAsync()
     {
         var categories = await _categoryService.GetAllAsync(1,2000);
@@ -88,12 +93,6 @@
         else
         {
             errorMessage = writers.Message;
-        }
-
-        var students = await _studentService.GetAllAsync(1,2000);
-        if (students.Success)
-        {
-            Students = students.Data.Items;
         }
     }
 
@@ -140,9 +139,12 @@
         Snackbar.Add(res.Message, Severity.Success);
         Nav.NavigateTo("book/list");
     }
-    private async Task<IEnumerable<StudentGetDto>> SelectStudent(string val, CancellationToken e)
+    private async Task<IEnumerable<StudentAutocompleteDto>> SelectStudent(string val, CancellationToken e)
     {
-        if (string.IsNullOrWhiteSpace(val)) return Students.AsEnumerable();
-        return Students.Where(p => p.Name.Contains(val)).AsEnumerable();
+        if (string.IsNullOrWhiteSpace(val)) return new List<StudentAutocompleteDto>();
+        var res = await _studentService.SearchStudentsAsync(val);
+        if(res.Success)
+            return res.Data;
+        return new List<StudentAutocompleteDto>();
     }
 }

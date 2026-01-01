@@ -5,6 +5,7 @@ using IKitaplik.Entities.Concrete;
 using IKitaplik.DataAccess.UnitOfWork;
 using AutoMapper;
 using System.Threading.Tasks;
+using IKitaplik.Entities.DTOs.StudentDTOs;
 
 namespace IKitaplik.Business.Concrete
 {
@@ -186,6 +187,40 @@ namespace IKitaplik.Business.Concrete
                 return new ErrorResult(movementResponse.Message);
             }
             return new SuccessResult("Öğrenci başarı ile güncellendi");
+        }
+
+        public async Task<IDataResult<List<StudentAutocompleteDto>>> SearchForAutocompleteAsync(string query)
+        {
+            try
+            {
+                List<Student> students = await _unitOfWork.Students.GetAllAsync(
+                    p => (p.Name != null && p.Name.ToLower().Contains(query.ToLower())) || 
+                         p.StudentNumber.ToString().Contains(query));
+
+                var result = _mapper.Map<List<StudentAutocompleteDto>>(students.Take(20).ToList());
+                return new SuccessDataResult<List<StudentAutocompleteDto>>(result, "Öğrenciler başarı ile çekildi");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<List<StudentAutocompleteDto>>("Arama yapılırken hata oluştu: " + ex.Message);
+            }
+        }
+        public async Task<IDataResult<StudentGetDto>> GetDtoByIdAsync(int id)
+        {
+            try
+            {
+                 var student = await _unitOfWork.Students.GetAsync(x => x.Id == id);
+                 if(student != null)
+                 {
+                     var dto = _mapper.Map<StudentGetDto>(student);
+                     return new SuccessDataResult<StudentGetDto>(dto, "Öğrenci başarı ile getirildi");
+                 }
+                 return new ErrorDataResult<StudentGetDto>("Öğrenci bulunamadı");
+            }
+            catch (Exception ex)
+            {
+                 return new ErrorDataResult<StudentGetDto>("Hata: " + ex.Message);
+            }
         }
     }
 }

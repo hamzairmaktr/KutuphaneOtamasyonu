@@ -3,6 +3,7 @@ using IKitaplik.BlazorUI.Cosntant;
 using IKitaplik.BlazorUI.Responses;
 using IKitaplik.BlazorUI.Services.Abstract;
 using IKitaplik.Entities.DTOs;
+using IKitaplik.Entities.DTOs.StudentDTOs;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -144,6 +145,35 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             {
                 return new Response<PagedResult<StudentGetDto>> { Success = false, Message = $"Öğrenciler getirilirken hata oluştu: {ex.Message}", Data = new PagedResult<StudentGetDto>() };
             }
+        }
+        public async Task<Response<List<StudentAutocompleteDto>>> SearchStudentsAsync(string query)
+        {
+            try
+            {
+                await SetAuthorizationHeader();
+                var res = await _httpClient.GetAsync($"Student/search?query={query}");
+                res.EnsureSuccessStatusCode();
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response<List<StudentAutocompleteDto>>>(content, _jsonOptions)!;
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<StudentAutocompleteDto>> { Success = false, Message = $"Arama yapılırken hata oluştu: {ex.Message}" };
+            }
+        }
+        public async Task<Response<StudentGetDto>> GetStudentDtoByIdAsync(int id)
+        {
+             try
+             {
+                 await SetAuthorizationHeader();
+                 var res = await _httpClient.GetAsync($"Student/getDtoById?id={id}");
+                 res.EnsureSuccessStatusCode();
+                 return await res.Content.ReadFromJsonAsync<Response<StudentGetDto>>(_jsonOptions)!;
+             }
+             catch(Exception ex)
+             {
+                 return new Response<StudentGetDto> { Success = false, Message = $"Hata: {ex.Message}" };
+             }
         }
     }
 }

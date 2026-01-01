@@ -1,5 +1,6 @@
 ﻿using Core.Utilities.Results;
 using IKitaplik.BlazorUI.Responses;
+using IKitaplik.Entities.DTOs.StudentDTOs;
 
 namespace IKitaplik.BlazorUI.Services.Abstract
 {
@@ -12,5 +13,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response> AddAsync(StudentAddDto studentAddDto);
         Task<Response> UpdateAsync(StudentUpdateDto studentUpdateDto);
         Task<Response> DeleteAsync(int id);
+        Task<Response<List<StudentAutocompleteDto>>> SearchStudentsAsync(string query);
+        Task<Response<StudentGetDto>> GetStudentDtoByIdAsync(int id);
     }
 }

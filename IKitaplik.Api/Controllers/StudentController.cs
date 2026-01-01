@@ -90,5 +90,25 @@ namespace IKitaplik.Api.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string query)
+        {
+            var result = await _studentService.SearchForAutocompleteAsync(query);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("getDtoById")]
+        public async Task<IActionResult> GetDtoById([FromQuery] int id)
+        {
+             var res = await _studentService.GetDtoByIdAsync(id);
+             if (res.Success)
+                 return Ok(res);
+             return BadRequest(res);
+        }
     }
 }

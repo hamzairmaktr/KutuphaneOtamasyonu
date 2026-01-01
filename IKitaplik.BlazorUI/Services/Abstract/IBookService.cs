@@ -15,5 +15,7 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response> UpdateBookAsync(BookUpdateDto dto);
         Task<Response> BookAddPieceAsync(BookAddPieceDto dto);
         Task<Response> DeleteBookAsync(int id);
+        Task<Response<List<BookAutocompleteDto>>> SearchBooksAsync(string query);
+        Task<Response<BookGetDTO>> GetBookDtoByIdAsync(int id);
     }
 }
