@@ -24,10 +24,12 @@
     <Columns>
         <TemplateColumn>
             <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => BookUpdate(context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => BookDelete(context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Filled.List" Color="Color.Info" OnClick="() => GoMovements(context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Success" OnClick="() => BookAddPiece(context.Item.Id)" />
+                <MudButtonGroup>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => BookUpdate(context.Item.Id)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => BookDelete(context.Item.Id)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.List" Color="Color.Info" OnClick="() => GoMovements(context.Item.Id)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Success" OnClick="() => BookAddPiece(context.Item.Id)" />
+                </MudButtonGroup>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="b => b.Id" Title="Nr." />

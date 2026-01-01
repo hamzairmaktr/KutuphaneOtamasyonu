@@ -32,8 +32,10 @@ else
         <Columns>
             <TemplateColumn Title="İşlemler">
                 <CellTemplate>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => WriterUpdate(context.Item.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
-                    <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => WriterDelete(context.Item.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                    <MudButtonGroup>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => WriterUpdate(context.Item.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
+                        <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => WriterDelete(context.Item.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+                    </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="b => b.Id" Title="Nr." />

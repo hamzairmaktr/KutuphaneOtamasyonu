@@ -7,44 +7,46 @@
 @attribute [Authorize]
 
 
-    <MudItem Class="mt-2 mb-2 text-end">
-        <MudButton Href="category/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
-            Yeni Kategori Ekle
-        </MudButton>
-    </MudItem>
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
-            <MudText>@errorMessage</MudText>
-        </MudAlert>
-    }
-    else
-    {
+<MudItem Class="mt-2 mb-2 text-end">
+    <MudButton Href="category/add" Color="Color.Info" ButtonType="ButtonType.Button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
+        Yeni Kategori Ekle
+    </MudButton>
+</MudItem>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="m-4" CloseIcon="@Icons.Material.Filled.Close">
+        <MudText>@errorMessage</MudText>
+    </MudAlert>
+}
+else
+{
 
-        <MudDataGrid T="CategoryGetDto"
-                     @ref="_dataGrid"
-                     Filterable
-                     FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
-                     ServerData="ServerReload"
-                     Loading="loading">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Kategoriler</MudText>
-            </ToolBarContent>
-            <Columns>
-                <TemplateColumn Title="İşlemler">
-                    <CellTemplate>
+    <MudDataGrid T="CategoryGetDto"
+                 @ref="_dataGrid"
+                 Filterable
+                 FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                 ServerData="ServerReload"
+                 Loading="loading">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Kategoriler</MudText>
+        </ToolBarContent>
+        <Columns>
+            <TemplateColumn Title="İşlemler">
+                <CellTemplate>
+                    <MudButtonGroup>
                         <MudIconButton ButtonType="ButtonType.Button" OnClick="(() => CategoryUpdate(context.Item.Id))" Color="Color.Warning" Icon="@Icons.Material.Filled.Update"></MudIconButton>
                         <MudIconButton ButtonType="ButtonType.Button" OnClick=" (() => CategoryDelete(context.Item.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
-                    </CellTemplate>
-                </TemplateColumn>
-                <PropertyColumn Property="b => b.Id" Title="Nr." />
-                <PropertyColumn Property="b => b.Name" Title="Barkod" />
-            </Columns>
-            <PagerContent>
-                <MudDataGridPager></MudDataGridPager>
-            </PagerContent>
-        </MudDataGrid>
-    }
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="b => b.Id" Title="Nr." />
+            <PropertyColumn Property="b => b.Name" Title="Barkod" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
+}
 
 @code {
     private string errorMessage = string.Empty;
