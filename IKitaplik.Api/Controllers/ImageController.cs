@@ -32,9 +32,9 @@ namespace IKitaplik.Api.Controllers
             return BadRequest(res);
         }
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll([FromQuery] ImageType? type = null, int relantshipId = 0)
+        public async Task<IActionResult> GetAll([FromQuery] ImageType? type = null, int relationshipId = 0)
         {
-            var res = await _imageService.GetAllAsync(type, relantshipId);
+            var res = await _imageService.GetAllAsync(type, relationshipId);
             if (res.Success)
             {
                 return Ok(res);
@@ -69,6 +69,14 @@ namespace IKitaplik.Api.Controllers
             if (deleted.Success)
                 return Ok(deleted);
             return BadRequest(deleted);
+        }
+        [HttpPost("setPrimary")]
+        public async Task<IActionResult> SetPrimary([FromBody] DeleteDto dto)
+        {
+            var res = await _imageService.SetPrimaryAsync(dto.Id);
+            if (res.Success)
+                return Ok(res);
+            return BadRequest(res);
         }
     }
 }

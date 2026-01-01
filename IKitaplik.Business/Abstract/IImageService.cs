@@ -14,9 +14,10 @@ namespace IKitaplik.Business.Abstract
     {
         Task<IDataResult<List<Image>>> UploadAsync(ImageUploadDto imageUploadDto);
         Task<IDataResult<Image>> GetByIdAsync(int id);
-        Task<IDataResult<List<Image>>> GetAllAsync(ImageType? type = null, int? relantshipId = 0);
+        Task<IDataResult<List<Image>>> GetAllAsync(ImageType? type = null, int? relationshipId = 0);
         Task<IResult> DeleteAsync(int id);
         Task<IResult> DeleteRangeAsync(int[] ids);
-        Task<IResult> DeleteAllAsync(ImageType type, int relantshipId);
+        Task<IResult> DeleteAllAsync(ImageType type, int relationshipId);
+        Task<IResult> SetPrimaryAsync(int id);
     }
 }

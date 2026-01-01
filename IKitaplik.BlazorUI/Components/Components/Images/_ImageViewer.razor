@@ -1,0 +1,91 @@
+@using IKitaplik.BlazorUI.Components.Components.Images
+@using static IKitaplik.BlazorUI.Components.Components.Images._ImageUploadComponent
+<MudDialog ActionsClass="d-none" ContentClass="p-0" Style="background-color: transparent; box-shadow: none;">
+    <DialogContent>
+        <div class="d-flex align-center justify-center" style="height: 100vh; width: 100vw; position: relative; background-color: transparent;">
+            
+            <!-- Close Button (Top Right) -->
+            <MudIconButton Icon="@Icons.Material.Filled.Close" 
+                           Color="Color.Default" 
+                           Size="Size.Large" 
+                           OnClick="Submit" 
+                           Class="position-absolute" 
+                           Style="top: 20px; right: 20px; z-index: 20; color: white !important; background-color: rgba(0,0,0,0.3);" />
+
+            <!-- Prev Button (Left Center) -->
+            <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" 
+                           Color="Color.Default" 
+                           Size="Size.Large" 
+                           OnClick="PrevImage" 
+                           Disabled="@(Files.Count <= 1)"
+                           Class="position-absolute"
+                           Style="left: 20px; z-index: 20; color: white !important; background-color: rgba(0,0,0,0.3);" />
+
+            <!-- Image (Centered) -->
+            @if (Files != null && Files.Count > 0 && CurrentIndex >= 0 && CurrentIndex < Files.Count)
+            {
+                <img src="@Files[CurrentIndex].PreviewUrl" 
+                     style="max-width: 80vw; max-height: 90vh; object-fit: contain; z-index: 10;" />
+            }
+
+            <!-- Next Button (Right Center) -->
+            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" 
+                           Color="Color.Default" 
+                           Size="Size.Large" 
+                           OnClick="NextImage" 
+                           Disabled="@(Files.Count <= 1)"
+                           Class="position-absolute"
+                           Style="right: 20px; z-index: 20; color: white !important; background-color: rgba(0,0,0,0.3);" />
+
+            <!-- Counter (Bottom Center) -->
+            @if (Files != null && Files.Count > 0)
+            {
+                <div class="position-absolute" style="bottom: 30px; color: white; background-color: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px; font-weight: bold; z-index: 20;">
+                    @(CurrentIndex + 1) / @Files.Count
+                </div>
+            }
+        </div>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public List<LocalImage> Files { get; set; } = new();
+    [Parameter] public int InitialIndex { get; set; } = 0;
+
+    private int CurrentIndex { get; set; }
+
+    protected override void OnInitialized()
+    {
+        CurrentIndex = InitialIndex;
+    }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void NextImage()
+    {
+        if (Files.Count == 0) return;
+        if (CurrentIndex < Files.Count - 1)
+        {
+            CurrentIndex++;
+        }
+        else
+        {
+            CurrentIndex = 0; // Loop
+        }
+    }
+
+    private void PrevImage()
+    {
+         if (Files.Count == 0) return;
+         if (CurrentIndex > 0)
+         {
+             CurrentIndex--;
+         }
+         else
+         {
+             CurrentIndex = Files.Count - 1; // Loop
+         }
+    }
+}

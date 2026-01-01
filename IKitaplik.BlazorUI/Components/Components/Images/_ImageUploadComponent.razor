@@ -1,41 +1,119 @@
 ﻿@using IKitaplik.Entities.DTOs.ImagesDTOs
 @inject IImageService _imageService
 @inject ISnackbar Snackbar
-<MudDialog>
-	<DialogContent>
-		@if (!string.IsNullOrEmpty(_errorMessage))
-		{
-			<MudAlert Class="my-3" Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-		}
-		<MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
-			<ActivatorContent>
-				<MudButton Variant="Variant.Filled"
-						   Color="Color.Primary"
-						   StartIcon="@Icons.Material.Filled.CloudUpload">
-					Resim Ekle
-				</MudButton>
-			</ActivatorContent>
-		</MudFileUpload>
+@inject IDialogService DialogService
 
-		<div class="d-flex flex-wrap gap-4 mt-4">
-			@foreach (var item in _files.Where(p => !p.isDeleted))
-			{
-				<div class="position-relative">
-					<MudImage Src="@item.PreviewUrl" Width="150" Height="150" Elevation="25" />
-					<MudIconButton Icon="@Icons.Material.Filled.Close"
-								   Color="Color.Error"
-								   Size="Size.Small"
-								   Class="position-absolute top-0 end-0"
-								   OnClick="@(() => RemoveFile(item))" />
-				</div>
-			}
-		</div>
-	</DialogContent>
-	<DialogActions>
-		<MudButton OnClick="Vazgec" Variant="Variant.Filled" ButtonType="ButtonType.Button" Color="Color.Error">Vazgeç</MudButton>
-		<MudButton OnClick="Kaydet" Variant="Variant.Filled" ButtonType="ButtonType.Button" Color="Color.Info">Kaydet</MudButton>
-	</DialogActions>
+<MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
+    <DialogContent>
+        <MudContainer MaxHeight="600px" Style="overflow-y: auto" Class="pa-0">
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Error" Variant="Variant.Filled" ShowCloseIcon="true" CloseIconClicked="@(() => _errorMessage = "")">@_errorMessage</MudAlert>
+            }
+
+            <!-- Upload Zone -->
+            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles" Accept=".jpg, .jpeg, .png">
+                <ActivatorContent>
+                    <MudPaper Height="150px" Outlined="true" Class="d-flex flex-column align-center justify-center cursor-pointer mud-border-primary border-dashed pa-4 hover-elevation" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" Color="Color.Primary" Class="mb-2"/>
+                        <MudText Typo="Typo.h6" Color="Color.Primary">Resim Yüklemek İçin Tıklayın</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">veya sürükleyip bırakın (.jpg, .png)</MudText>
+                    </MudPaper>
+                </ActivatorContent>
+            </MudFileUpload>
+
+
+
+            <!-- Image Grid -->
+            @if (_files.Any(f => !f.isDeleted))
+            {
+                <MudText Typo="Typo.subtitle1" Class="mt-6 mb-2 fw-bold">Yüklü Resimler (@_files.Count(f => !f.isDeleted))</MudText>
+                <MudGrid Spacing="2" Class="mt-2">
+                    @foreach (var item in _files.Where(p => !p.isDeleted).Select((x, i) => new { Val = x, Index = i }))
+                    {
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="@($"position-relative overflow-hidden transition-all {(item.Val.IsPrimary ? "border-solid border-2 mud-border-warning" : "")}")" 
+                                      Elevation="3" 
+                                      Height="160px" 
+                                      Style="border-radius: 12px; cursor: zoom-in;"
+                                      @onclick="@(() => OpenLightbox(item.Val))">
+                                
+                                <!-- Image -->
+                                <MudImage Src="@item.Val.PreviewUrl" ObjectFit="ObjectFit.Cover" Class="w-100 h-100" />
+
+                                <!-- Overlay Gradient -->
+                                <div class="position-absolute top-0 w-100 h-100 d-flex flex-column justify-space-between pa-2 hover-show" 
+                                     style="background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%);">
+                                    
+                                    <!-- Top Actions -->
+                                    <div class="d-flex justify-space-between align-center w-100" @onclick:stopPropagation="true">
+                                        @if (item.Val.IsPrimary)
+                                        {
+                                            <MudChip T="string" Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.Star" Class="ma-0">Ana Resim</MudChip>
+                                        }
+                                        else
+                                        {
+                                            <MudTooltip Text="Varsayılan Yap">
+                                                <MudIconButton Icon="@Icons.Material.Filled.StarBorder" 
+                                                               Variant="Variant.Filled"
+                                                               Color="Color.Surface" 
+                                                               Size="Size.Small" 
+                                                               OnClick="@(() => SetPrimary(item.Val))"
+                                                               Class="rounded-circle" />
+                                            </MudTooltip>
+                                        }
+                                    </div>
+
+                                    <!-- Bottom Actions -->
+                                    <div class="d-flex justify-end w-100" @onclick:stopPropagation="true">
+                                        <MudTooltip Text="Sil">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                                           Variant="Variant.Filled"
+                                                           Color="Color.Error" 
+                                                           Size="Size.Small" 
+                                                           OnClick="@(() => RemoveFile(item.Val))" 
+                                                           Class="rounded-circle"/>
+                                        </MudTooltip>
+                                    </div>
+                                </div>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+            else
+            {
+                <div class="d-flex flex-column align-center justify-center mt-8 opacity-50">
+                    <MudIcon Icon="@Icons.Material.Outlined.Image" Size="Size.Large" style="width: 64px; height: 64px;"/>
+                    <MudText Typo="Typo.body1" Class="mt-2 text-center">Henüz hiç resim yok.</MudText>
+                </div>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Vazgec" Variant="Variant.Text" Color="Color.Secondary">Vazgeç</MudButton>
+        <MudButton OnClick="Kaydet" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" Class="ml-2">Kaydet</MudButton>
+    </DialogActions>
 </MudDialog>
+
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+        border-width: 2px !important;
+    }
+    .hover-elevation:hover {
+        background-color: var(--mud-palette-action-hover);
+        border-color: var(--mud-palette-primary-dark) !important;
+    }
+    .transition-all {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .transition-all:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    }
+</style>
+
 @code {
 	[CascadingParameter]
 	IMudDialogInstance Dialog { get; set; }
@@ -47,7 +125,28 @@
 
 	private string _errorMessage = "";
 	private List<LocalImage> _files = new();
+    
+    private void OpenLightbox(LocalImage image)
+    {
+        var activeFiles = _files.Where(f => !f.isDeleted).ToList();
+        int index = activeFiles.IndexOf(image);
+        
+        var parameters = new DialogParameters<_ImageViewer>
+        {
+            { x => x.Files, activeFiles },
+            { x => x.InitialIndex, index }
+        };
 
+        var options = new DialogOptions 
+        { 
+            FullScreen = true, 
+            CloseButton = false, 
+            NoHeader = true,
+            BackgroundClass = "rgba(0,0,0,0.8)" // Dark translucent background
+        };
+
+        DialogService.Show<_ImageViewer>("", parameters, options);
+    }
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -61,7 +160,8 @@
 					_files.Add(new LocalImage
 					{
 						PreviewUrl = url,
-						Id = item.Id
+						Id = item.Id,
+                        IsPrimary = item.IsPrimary
 					});
 				}
 			}
@@ -75,22 +175,22 @@
 		public IBrowserFile File { get; set; } = default!;
 		public string PreviewUrl { get; set; } = string.Empty;
 		public bool isDeleted { get; set; }
+        public bool IsPrimary { get; set; }
 	}
 
 	private async Task UploadFiles(IBrowserFile file)
 	{
 		if (file.Size > 2 * 1024 * 1024) // 2MB sınırı
 		{
-			_errorMessage = "Dosya boyutu çok büyük!";
-			StateHasChanged();
-			return;
+			_errorMessage = "Dosya boyutu çok büyük! (Max 2MB)";
+            return;
 		}
 		if (!file.ContentType.StartsWith("image/"))
 		{
 			_errorMessage = "Sadece resim dosyaları yüklenebilir!";
-			StateHasChanged();
-			return;
+            return;
 		}
+        _errorMessage = "";
 		var url = await CreatePreviewUrl(file);
 		_files.Add(new LocalImage { File = file, PreviewUrl = url });
 	}
@@ -107,10 +207,24 @@
 	private void RemoveFile(LocalImage file)
 	{
 		if (file.Id > 0)
-		{
 			file.isDeleted = true;
-		}
+        else
+            _files.Remove(file);
 	}
+
+    private async Task SetPrimary(LocalImage file)
+    {
+        // UI update immediately for snappy feel
+        foreach(var item in _files) item.IsPrimary = false;
+        file.IsPrimary = true;
+        StateHasChanged();
+
+        if (file.Id > 0)
+        {
+             var res = await _imageService.SetPrimary(file.Id);
+             if (!res.Success) _errorMessage = res.Message;
+        }
+    }
 
 	private void Vazgec(MouseEventArgs e)
 	{
@@ -120,33 +234,66 @@
 	private async Task Kaydet()
 	{
 		_errorMessage = "";
+        
+        var newFiles = _files.Where(p => p.Id == 0).ToList();
+        LocalImage? primaryFile = _files.FirstOrDefault(P => P.IsPrimary && P.Id == 0);
+        int primaryIndex = primaryFile != null ? newFiles.IndexOf(primaryFile) : -1;
+
 		if (_files.Any())
 		{
+            bool hasErrors = false;
 			ImageUploadDto addedImages = new ImageUploadDto
 			{
 				RelationshipId = RelationshipId,
 				ImageType = Type
 			};
-			foreach (var item in _files)
+			foreach (var item in newFiles)
 			{
-				if (item.Id == 0)
-				{
-					IFormFile file = await FileConverter.ConvertToIFormFile(item.File);
-					addedImages.Files.Add(file);
-				}
+				IFormFile file = await FileConverter.ConvertToIFormFile(item.File);
+				addedImages.Files.Add(file);
 			}
+
 			if (addedImages?.Files?.Any() ?? false)
 			{
 				var res = await _imageService.Upload(addedImages);
-				Snackbar.Add(res.Message, res.Success ? Severity.Success : Severity.Error);
+				
+                if (res.Success)
+                {
+                     // Yeni yüklenenleri primary yap
+                     if (primaryIndex != -1 && res.Data.Count > primaryIndex)
+                     {
+                         var uploadedImage = res.Data[primaryIndex];
+                         await _imageService.SetPrimary(uploadedImage.Id);
+                     }
+                }
+                else
+                {
+                    Snackbar.Add(res.Message, Severity.Error);
+                    hasErrors = true;
+                }
 			}
-			if (_files.Where(p => p.isDeleted).Count() > 0)
+
+            var deletedFiles = _files.Where(p => p.isDeleted).ToList();
+			if (deletedFiles.Count > 0)
 			{
-				var res = await _imageService.DeleteRange(_files.Where(p => p.isDeleted).Select(p => p.Id).ToList());
-				Snackbar.Add(res.Message, res.Success ? Severity.Success : Severity.Error);
+				var res = await _imageService.DeleteRange(deletedFiles.Select(p => p.Id).ToList());
+				if(!res.Success)
+                {
+                    Snackbar.Add(res.Message, Severity.Error);
+                    hasErrors = true;
+                }
 			}
+
+            if (!hasErrors)
+            {
+                Snackbar.Add("İşlemler başarıyla kaydedildi.", Severity.Success);
+                Dialog.Close();
+            }
 		}
 		else
-			_errorMessage = "İşlem yapmak için resim ekleyin";
+        {
+             // Hiç resim yoksa veya hepsi silindiyse
+             Dialog.Close();
+        }
 	}
 }

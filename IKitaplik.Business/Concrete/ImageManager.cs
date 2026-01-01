@@ -182,7 +182,33 @@ namespace IKitaplik.Business.Concrete
             }
             catch (Exception ex)
             {
-                return new ErrorDataResult<List<Image>>("Resim eklenirken hata oluştu");
+                return new ErrorDataResult<List<Image>>("Resim eklenirken hata oluştu: " + ex.Message);
+            }
+        }
+        public async Task<IResult> SetPrimaryAsync(int id)
+        {
+            try
+            {
+                var image = await _unitOfWork.Images.GetAsync(p => p.Id == id);
+                if (image == null)
+                    return new ErrorResult("Resim bulunamadı");
+
+                // Aynı ilişkiye sahip diğer resimlerin IsPrimary özelliğini false yap
+                var otherImages = await _unitOfWork.Images.GetAllAsync(p => p.ImageType == image.ImageType && p.RelationshipId == image.RelationshipId && p.Id != id);
+                foreach (var item in otherImages)
+                {
+                    item.IsPrimary = false;
+                    await _unitOfWork.Images.UpdateAsync(item);
+                }
+
+                image.IsPrimary = true;
+                await _unitOfWork.Images.UpdateAsync(image);
+
+                return new SuccessResult("Resim varsayılan olarak ayarlandı");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult("Hata oluştu: " + ex.Message);
             }
         }
     }

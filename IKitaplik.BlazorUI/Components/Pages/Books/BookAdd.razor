@@ -4,8 +4,11 @@
 @inject IWriterService _writerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
+@inject IDialogService DialogService
 @inject IDonationService _donationService
 @inject IStudentService _studentService
+@using IKitaplik.BlazorUI.Components.Components.Images
+@using IKitaplik.Entities.Enums
 @attribute [Authorize]
 
 @using IKitaplik.Entities.DTOs.StudentDTOs
@@ -137,6 +140,23 @@
         }
 
         Snackbar.Add(res.Message, Severity.Success);
+
+        bool? result = await DialogService.ShowMessageBox(
+            "Başarılı", 
+            "Kitap başarıyla eklendi. Resim yüklemek ister misiniz?", 
+            yesText:"Evet", cancelText:"Hayır");
+
+        if (result == true && addedBook.Data != null)
+        {
+             var parameters = new DialogParameters< _ImageUploadComponent>
+             {
+                 { x => x.RelationshipId, addedBook.Data.Id },
+                 { x => x.Type, ImageType.Book }
+             };
+             var dialog = await DialogService.ShowAsync<_ImageUploadComponent>("Resim Yükle", parameters);
+             await dialog.Result;
+        }
+
         Nav.NavigateTo("book/list");
     }
     private async Task<IEnumerable<StudentAutocompleteDto>> SelectStudent(string val, CancellationToken e)

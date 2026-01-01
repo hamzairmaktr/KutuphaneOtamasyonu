@@ -64,7 +64,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 if (type is not null && relationshipId > 0)
                 {
-                    var res = await _httpClient.GetAsync($"image/getall?type{type}&{relationshipId}");
+                    var res = await _httpClient.GetAsync($"image/getall?type={type}&relationshipId={relationshipId}");
                     var content = await res.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<Response<List<Image>>>(content, _jsonOptions)!;
                 }
@@ -100,7 +100,7 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                            Name = "\"Files\"",
                            FileName = $"\"{item.Name}\""
                        };
-                    content.Add(fileContent, "File", item.Name);
+                    content.Add(fileContent, "Files", item.Name);
                 }
 
                 content.Add(new StringContent(((int)imageUploadDto.ImageType).ToString()), "ImageType");
@@ -113,6 +113,22 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             else
             {
                 return await Task.FromException<Response<List<Image>>>(new Exception("Login Olunamadı"));
+            }
+        }
+
+        public async Task<Response> SetPrimary(int id)
+        {
+            string token = await _authService.GetToken() ?? "";
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var res = await _httpClient.PostAsJsonAsync("image/setPrimary", new DeleteDto { Id = id });
+                var content = await res.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
+            }
+            else
+            {
+                return await Task.FromException<Response>(new Exception("Login Olunamadı"));
             }
         }
     }
