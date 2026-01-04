@@ -120,7 +120,7 @@ namespace IKitaplik.Business.Concrete
         {
             try
             {
-                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync(page, pageSize, p => includeDelivered || !p.IsDelivered);
+                var deposits = await _unitOfWork.Deposits.GetAllDepositDTOsAsync(page, pageSize,filter: p => includeDelivered || !p.IsDelivered);
                 return new SuccessDataResult<PagedResult<DepositGetDTO>>(deposits, "Emanet kayıtları başarıyla çekildi.");
             }
             catch (Exception ex)

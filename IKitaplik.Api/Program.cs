@@ -1,5 +1,8 @@
 using Core.Contexts;
+using Core.Utilities.Security.Email;
 using FluentValidation;
+using Hangfire;
+using Hangfire.SqlServer;
 using IKitaplik.Api.Services;
 using IKitaplik.Business.Abstract;
 using IKitaplik.Business.Concrete;
@@ -41,10 +44,10 @@ builder.Services.AddScoped<IMovementService, MovementManager>();
 builder.Services.AddScoped<IWriterService, WriterManager>();
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<IImageService, ImageManager>();
-builder.Services.AddScoped<Core.Utilities.Security.Email.IEmailService, Core.Utilities.Security.Email.EmailService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IBookReturnReminderService, BookReturnReminderManager>();
 builder.Services.AddScoped<JwtService>();
-
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>();
@@ -52,6 +55,26 @@ builder.Services.AddValidatorsFromAssemblyContaining<CategoryValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<StudentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<WriterValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+
+
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+          .UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings()
+          .UseSqlServerStorage(
+              builder.Configuration.GetConnectionString("conStringGlobal"),
+              new SqlServerStorageOptions
+              {
+                  CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                  SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                  QueuePollInterval = TimeSpan.Zero,
+                  UseRecommendedIsolationLevel = true,
+                  DisableGlobalLocks = true
+              });
+});
+
+builder.Services.AddHangfireServer();
 
 
 builder.Services.AddCors(options =>
@@ -135,5 +158,18 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseCors("AllowAll");
+app.UseHangfireDashboard("/hangfire");
+
+using (var scope = app.Services.CreateScope())
+{
+    var job = scope.ServiceProvider.GetRequiredService<IBookReturnReminderService>();
+
+    RecurringJob.AddOrUpdate(
+        "due-date-reminder-job",
+        () => job.SendReturnRemindersAsync(),
+        Cron.Daily(9)
+    );
+}
+
 
 app.Run();
