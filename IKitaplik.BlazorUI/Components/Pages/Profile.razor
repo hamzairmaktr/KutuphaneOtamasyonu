@@ -1,0 +1,116 @@
+@page "/profile"
+@using IKitaplik.BlazorUI.Services.Abstract
+@using IKitaplik.Entities.Concrete
+@using IKitaplik.Entities.DTOs.UserDTOs
+@inject IProfileService _profileService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <MudText Typo="Typo.h4" Class="mb-4">Profil Ayarları</MudText>
+
+    @if (isLoading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (userProfile != null)
+    {
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="Genel Bilgiler" Icon="@Icons.Material.Filled.Person">
+                <MudForm @ref="profileForm">
+                    <MudTextField @bind-Value="userProfile.Username" Label="Kullanıcı Adı" ReadOnly="true" Variant="Variant.Outlined" Class="mb-3" />
+                    <MudTextField @bind-Value="updateDto.FullName" Label="Ad Soyad" Variant="Variant.Outlined" Class="mb-3" Required="true" />
+                    <MudTextField @bind-Value="updateDto.Email" Label="E-posta" Variant="Variant.Outlined" Class="mb-3" Required="true" InputType="InputType.Email" />
+                    
+                    <MudButton OnClick="UpdateProfile" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3">Güncelle</MudButton>
+                </MudForm>
+            </MudTabPanel>
+            
+            <MudTabPanel Text="Güvenlik" Icon="@Icons.Material.Filled.Security">
+                <MudText Typo="Typo.h6" Class="mb-3">Şifre Değiştir</MudText>
+                <MudForm @ref="passwordForm">
+                    <MudTextField @bind-Value="passwordDto.OldPassword" Label="Eski Şifre" InputType="InputType.Password" Variant="Variant.Outlined" Class="mb-3" Required="true" />
+                    <MudTextField @bind-Value="passwordDto.NewPassword" Label="Yeni Şifre" InputType="InputType.Password" Variant="Variant.Outlined" Class="mb-3" Required="true" />
+                    <MudButton OnClick="ChangePassword" Variant="Variant.Filled" Color="Color.Warning" Class="mt-2">Şifreyi Değiştir</MudButton>
+                </MudForm>
+
+                <MudDivider Class="my-5" />
+                
+                <MudText Typo="Typo.h6" Class="mb-3">İki Faktörlü Doğrulama (2FA)</MudText>
+                <MudAlert Severity="Severity.Info" Class="mb-3">Giriş yaparken e-posta adresinize doğrulama kodu gönderilir.</MudAlert>
+                <MudSwitch @bind-Value="updateDto.TwoFactorEnabled" Label="2FA Aktif Et" Color="Color.Success" />
+                <MudButton OnClick="UpdateProfile" Variant="Variant.Outlined" Color="Color.Success" Class="mt-2" Size="Size.Small">Ayarı Kaydet</MudButton>
+
+            </MudTabPanel>
+        </MudTabs>
+    }
+</MudContainer>
+
+@code {
+    private bool isLoading = true;
+    private User userProfile;
+    private UserProfileUpdateDto updateDto = new();
+    private ChangePasswordDto passwordDto = new();
+    private MudForm profileForm;
+    private MudForm passwordForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+    }
+
+    private async Task LoadProfile()
+    {
+        isLoading = true;
+        var res = await _profileService.GetProfile();
+        if (res.Success)
+        {
+            userProfile = res.Data;
+            updateDto = new UserProfileUpdateDto
+            {
+                Id = userProfile.Id,
+                FullName = userProfile.FullName,
+                Email = userProfile.Email,
+                TwoFactorEnabled = userProfile.TwoFactorEnabled
+            };
+        }
+        else
+        {
+            Snackbar.Add(res.Message, Severity.Error);
+        }
+        isLoading = false;
+    }
+
+    private async Task UpdateProfile()
+    {
+        updateDto.Id = userProfile.Id; // Ensure ID matches
+        var res = await _profileService.UpdateProfile(updateDto);
+        if (res.Success)
+        {
+            Snackbar.Add(res.Message, Severity.Success);
+            await LoadProfile(); // Refresh
+        }
+        else
+        {
+            Snackbar.Add(res.Message, Severity.Error);
+        }
+    }
+
+    private async Task ChangePassword()
+    {
+        await passwordForm.Validate();
+        if (!passwordForm.IsValid) return;
+
+        passwordDto.UserId = userProfile.Id;
+        var res = await _profileService.ChangePassword(passwordDto);
+        if (res.Success)
+        {
+            Snackbar.Add(res.Message, Severity.Success);
+            passwordDto = new(); // Reset form
+            passwordForm.ResetValidation();
+        }
+        else
+        {
+            Snackbar.Add(res.Message, Severity.Error);
+        }
+    }
+}

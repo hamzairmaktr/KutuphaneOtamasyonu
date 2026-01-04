@@ -31,5 +31,12 @@ namespace IKitaplik.Entities.Concrete
         public ICollection<Donation> Donations { get; set; }
         public ICollection<Student> Students { get; set; }
         public ICollection<Movement> Movements { get; set; }
+        
+        // Security & Profile
+        public bool TwoFactorEnabled { get; set; }
+        public string? TwoFactorCode { get; set; }
+        public DateTime? TwoFactorCodeExpiry { get; set; }
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
     }
 }

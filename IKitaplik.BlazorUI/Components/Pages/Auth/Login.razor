@@ -1,32 +1,130 @@
 ﻿@page "/login"
 @inject IAuthService _authService
+@inject NavigationManager Nav
+@using IKitaplik.Entities.DTOs.UserDTOs
 
-<MudForm>
-    <MudText Typo="Typo.h4" Class="mt-4">Giriş Yap</MudText>
-    @if (errorMessage != null)
-    {
-        <MudAlert Class="mt-3 mb-3" Severity="Severity.Error">@errorMessage</MudAlert>
-    }
-    <MudTextField Class="mt-2" Label="Kullanıcı Adı" @bind-Value="username" InputType="InputType.Text" Required="true" RequiredError="Kullanıcı adı gereklidir." />
-    <MudTextField Class="mt-2" Label="Şifre" @bind-Value="password" InputType="InputType.Password" Required="true" RequiredError="Şifre gereklidir." />
-    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoginOl">Giriş Yap</MudButton>
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center mud-width-full" Style="height: 100vh;">
+    <MudPaper Elevation="3" Class="pa-8" Width="100%" MaxWidth="400px">
+        <div class="d-flex justify-center mb-4">
+             <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" />
+        </div>
+        
+        @if (!showTwoFactor)
+        {
+            <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-4">Giriş Yap</MudText>
+            
+            @if (errorMessage != null)
+            {
+                <MudAlert Class="mb-3" Severity="Severity.Error">@errorMessage</MudAlert>
+            }
 
-</MudForm>
+            <MudForm @ref="loginForm">
+                <MudTextField T="string" Label="Kullanıcı Adı" @bind-Value="username" Variant="Variant.Outlined" Required="true" Class="mb-3" />
+                <MudTextField T="string" Label="Şifre" @bind-Value="password" Variant="Variant.Outlined" InputType="InputType.Password" Required="true" Class="mb-1" />
+                
+                <div class="d-flex justify-end mb-4">
+                    <MudLink Href="/forgot-password" Typo="Typo.caption">Şifremi Unuttum?</MudLink>
+                </div>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="@LoginOl" Disabled="isLoading">
+                    @if(isLoading) { <MudProgressCircular Size="Size.Small" Indeterminate="true"/> } else { <text>Giriş Yap</text> }
+                </MudButton>
+            </MudForm>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-2">İki Adımlı Doğrulama</MudText>
+            <MudText Typo="Typo.body2" Align="Align.Center" Class="mb-4">E-posta adresinize gönderilen doğrulama kodunu giriniz.</MudText>
+            
+             @if (errorMessage != null)
+            {
+                <MudAlert Class="mb-3" Severity="Severity.Error">@errorMessage</MudAlert>
+            }
+
+            <MudForm @ref="twoFactorForm">
+                 <MudTextField @bind-Value="twoFactorCode" Label="Doğrulama Kodu" Variant="Variant.Outlined" Required="true" Class="mb-3" />
+                 <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="@VerifyTwoFactor" Disabled="isLoading">
+                     @if(isLoading) { <MudProgressCircular Size="Size.Small" Indeterminate="true"/> } else { <text>Doğrula</text> }
+                 </MudButton>
+                 <MudButton Variant="Variant.Text" OnClick="@(() => showTwoFactor = false)" FullWidth="true" Class="mt-2">Geri Dön</MudButton>
+            </MudForm>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
     string username = string.Empty;
     string password = string.Empty;
+    string twoFactorCode = string.Empty;
     string? errorMessage = null;
+    bool showTwoFactor = false;
+    bool isLoading = false;
+    
+    MudForm loginForm;
+    MudForm twoFactorForm;
 
     private async Task LoginOl()
     {
-        UserLoginDto loginDto = new UserLoginDto
+        await loginForm.Validate();
+        if (!loginForm.IsValid) return;
+
+        isLoading = true;
+        StateHasChanged(); // Loading hemen görünsün (özellikle WASM'de faydalı)
+        errorMessage = null;
+
+        UserLoginDto loginDto = new()
         {
             Username = username,
             Password = password
         };
+
         var res = await _authService.Login(loginDto);
-        if (!res.Success)
+
+        if (res.Success)
+        {
+            if (res.Data?.IsTwoFactor == true)
+            {
+                showTwoFactor = true;
+            }
+            else
+            {
+                // Sadece 2FA yoksa yönlendir
+                Nav.NavigateTo("/"); // veya ana sayfanız neyse
+            }
+        }
+        else
+        {
             errorMessage = res?.Message ?? "Giriş yapılamadı.";
+        }
+
+        isLoading = false;
+        StateHasChanged(); // Loading bitsin, UI güncellensin
+    }
+
+    private async Task VerifyTwoFactor()
+    {
+        isLoading = true;
+        StateHasChanged();
+        errorMessage = null;
+
+        var dto = new VerifyTwoFactorDto
+        {
+            Username = username,
+            Code = twoFactorCode
+        };
+
+        var res = await _authService.VerifyTwoFactor(dto);
+
+        if (res.Success)
+        {
+            Nav.NavigateTo("/"); // Doğrulama sonrası yönlendir
+        }
+        else
+        {
+            errorMessage = res?.Message ?? "Doğrulama başarısız.";
+        }
+
+        isLoading = false;
+        StateHasChanged();
     }
 }

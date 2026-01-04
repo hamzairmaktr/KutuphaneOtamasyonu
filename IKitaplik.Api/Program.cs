@@ -41,6 +41,7 @@ builder.Services.AddScoped<IMovementService, MovementManager>();
 builder.Services.AddScoped<IWriterService, WriterManager>();
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<IImageService, ImageManager>();
+builder.Services.AddScoped<Core.Utilities.Security.Email.IEmailService, Core.Utilities.Security.Email.EmailService>();
 builder.Services.AddScoped<JwtService>();
 
 
@@ -72,15 +73,15 @@ builder.Services.AddRateLimiter(options =>
               factory: partition => new TokenBucketRateLimiterOptions
               {
                   AutoReplenishment = true,
-                  TokenLimit = 50,
-                  TokensPerPeriod = 20,
-                  ReplenishmentPeriod = TimeSpan.FromSeconds(60),
+                  TokenLimit = 500,
+                  TokensPerPeriod = 200,
+                  ReplenishmentPeriod = TimeSpan.FromSeconds(20),
               })
           );
     options.RejectionStatusCode = 429;
     options.OnRejected = (context, cancellationToken) =>
     {
-        context.HttpContext.Response.Headers["Retry-After"] = "60";
+        context.HttpContext.Response.Headers["Retry-After"] = "20";
         return ValueTask.CompletedTask;
     };
 });

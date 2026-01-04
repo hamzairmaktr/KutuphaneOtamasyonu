@@ -20,7 +20,7 @@
              Filterable
              FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
              ServerData="ServerReload"
-             Loading>
+             Loading="loading">
     <Columns>
         <TemplateColumn>
             <CellTemplate>
@@ -48,11 +48,14 @@
 @code {
     private string searchString = "", errorMessage = "";
     private MudDataGrid<BookGetDTO> _dataGrid;
+    private bool loading = true;
 
     private async Task<GridData<BookGetDTO>> ServerReload(GridState<BookGetDTO> gridState)
     {
         try
         {
+            loading = true;
+            StateHasChanged();
             var res = await _service.GetAllBooksAsync(gridState.Page + 1, gridState.PageSize);
             if (!res.Success)
             {
@@ -67,6 +70,7 @@
         }
         finally
         {
+            loading = false;
             StateHasChanged();
         }
     }

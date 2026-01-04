@@ -45,6 +45,12 @@ namespace IKitaplik.BlazorUI.Services.Concrete
             var response = JsonSerializer.Deserialize<Response<LoginResponse>>(content, _jsonOptions)!;
             if (response.Success)
             {
+                if (response.Data != null && response.Data.IsTwoFactor)
+                {
+                    // Do nothing, let the component handle 2FA navigation
+                    return response;
+                }
+
                 await accessTokenService.SetToken(response.Data.AccessToken);
                 await refreshTokenService.SetToken(response.Data.RefreshToken);
                 _navigationManager.NavigateTo("/", true);
@@ -90,6 +96,56 @@ namespace IKitaplik.BlazorUI.Services.Concrete
                 _navigationManager.NavigateTo("/login");
             }
             return response;
+        }
+
+        public async Task<Response<LoginResponse>> VerifyTwoFactor(VerifyTwoFactorDto verifyTwoFactorDto)
+        {
+             var res = await _httpClient.PostAsJsonAsync("auth/verify-2fa", verifyTwoFactorDto);
+             var content = await res.Content.ReadAsStringAsync();
+             var response = JsonSerializer.Deserialize<Response<LoginResponse>>(content, _jsonOptions)!;
+
+             if(response.Success)
+             {
+                await accessTokenService.SetToken(response.Data.AccessToken);
+                await refreshTokenService.SetToken(response.Data.RefreshToken);
+                _navigationManager.NavigateTo("/", true);
+             }
+             return response;
+        }
+
+        public async Task<Response> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            try
+            {
+                var res = await _httpClient.PostAsJsonAsync("auth/forgot-password", forgotPasswordDto);
+                var content = await res.Content.ReadAsStringAsync();
+                
+                if (!res.IsSuccessStatusCode)
+                {
+                    // Try to parse error response, fallback to content
+                    try 
+                    {
+                        return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
+                    }
+                    catch 
+                    {
+                         return new Response { Success = false, Message = $"Server Error: {res.StatusCode}" };
+                    }
+                }
+
+                return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
+            }
+            catch (Exception ex)
+            {
+                return new Response { Success = false, Message = $"Connection Error: {ex.Message}" };
+            }
+        }
+
+        public async Task<Response> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+             var res = await _httpClient.PostAsJsonAsync("auth/reset-password", resetPasswordDto);
+             var content = await res.Content.ReadAsStringAsync();
+             return JsonSerializer.Deserialize<Response>(content, _jsonOptions)!;
         }
     }
 }

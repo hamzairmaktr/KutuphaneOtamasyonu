@@ -19,6 +19,11 @@ namespace IKitaplik.Api.Controllers
             if (!res.Success)
                 return BadRequest(res);
 
+            if (res.Message == "2FA_REQUIRED")
+            {
+                return Ok(new { success = true, message = "2FA_REQUIRED", data = new { isTwoFactor = true } });
+            }
+
             var accessToken = jwtService.GenerateToken(res.Data);
             var refreshToken = jwtService.CreateRefreshToken();
             var setRefreshTokenResponse = await userService.SetRefreshTokenAsync(refreshToken, DateTime.Now.AddDays(7), res.Data.Id);
@@ -26,6 +31,35 @@ namespace IKitaplik.Api.Controllers
                 return BadRequest(setRefreshTokenResponse);
 
             return Ok(new { data = new { accessToken = accessToken, refreshToken = refreshToken }, success = res.Success, message = res.Message });
+        }
+
+        [HttpPost("verify-2fa")]
+        public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTwoFactorDto verifyTwoFactorDto)
+        {
+            var res = await userService.VerifyTwoFactorAsync(verifyTwoFactorDto);
+            if (!res.Success) return BadRequest(res);
+
+            var accessToken = jwtService.GenerateToken(res.Data);
+            var refreshToken = jwtService.CreateRefreshToken();
+            await userService.SetRefreshTokenAsync(refreshToken, DateTime.Now.AddDays(7), res.Data.Id);
+
+            return Ok(new { data = new { accessToken = accessToken, refreshToken = refreshToken }, success = true, message = "Giriş başarılı" });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        {
+            var res = await userService.ForgotPasswordAsync(forgotPasswordDto);
+            if (!res.Success) return BadRequest(res);
+            return Ok(res);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            var res = await userService.ResetPasswordAsync(resetPasswordDto);
+            if (!res.Success) return BadRequest(res);
+            return Ok(res);
         }
 
         [HttpPost("register")]

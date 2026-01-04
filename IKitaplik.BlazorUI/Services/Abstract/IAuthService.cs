@@ -11,5 +11,10 @@ namespace IKitaplik.BlazorUI.Services.Abstract
         Task<Response<LoginResponse>> RefresToken();
         Task<string> GetToken();
         Task LogOut();
+
+        // Security
+        Task<Response<LoginResponse>> VerifyTwoFactor(VerifyTwoFactorDto verifyTwoFactorDto);
+        Task<Response> ForgotPassword(ForgotPasswordDto forgotPasswordDto);
+        Task<Response> ResetPassword(ResetPasswordDto resetPasswordDto);
     }
 }

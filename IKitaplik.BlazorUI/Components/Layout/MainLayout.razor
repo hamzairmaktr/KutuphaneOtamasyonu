@@ -38,6 +38,7 @@ else
                 <ChildContent>
                     <AuthorizeView>
                         <Authorized>
+                            <MudMenuItem Label="Profili Düzenle" OnClick="@(() => NavigationManager.NavigateTo("/profile"))" />
                             <MudMenuItem Label="Çıkış Yap" OnClick="logout" />
                         </Authorized>
                         <NotAuthorized>
